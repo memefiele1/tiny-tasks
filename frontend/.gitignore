@@ -1,0 +1,30 @@
+# Expo
+.expo/
+.expo-shared/
+
+# Dependencies
+node_modules/
+
+# Environment
+.env
+
+# Build
+dist/
+web-build/
+
+# iOS
+ios/Pods/
+ios/build/
+*.xcworkspace
+*.xcodeproj
+
+# Android
+android/app/build/
+android/.gradle/
+
+# Testing
+coverage/
+
+# Misc
+.DS_Store
+*.log
