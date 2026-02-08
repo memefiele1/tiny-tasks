@@ -23,6 +23,8 @@ export default function Login() {
     if (!username || !password) {
       setErrors("Incorrect username or password");
 
+      return false;
+    } else {
       return true;
     }
   };
@@ -35,7 +37,10 @@ export default function Login() {
       setPassword("");
       setErrors("");
       // route to dashboard
+    } else {
+      console.log("Unsuccessful login attempt");
     }
+    // count how many times user attempts to login, lock account after 3 unsuccessful attempts
   };
 
   // TO-DO - add "forgot password" and "sign-up" links to this page (I think these should be buttons on the homescreen)
