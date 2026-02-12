@@ -47,7 +47,7 @@ export default function Registration () {
         <View style={{flex: 1}}>
             <ScrollView>
             {/* render each input field to screen */}
-            { userData.map((data, index) => {
+            { userData.map((data, index) => { // userData.map is throwing a bug
                     return(
                         <View key={index}>
                             <Text>{data}</Text>
