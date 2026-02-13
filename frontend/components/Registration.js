@@ -40,38 +40,34 @@ const formData = [
 ];
 
 export default function Registration() {
-  const [userData, setUserData] = useState({
+  const initialData = {
     firstName: "",
     lastName: "",
     email: "",
     pswd: "",
     confirmPswd: "",
-  });
+  };
+  const [userData, setUserData] = useState(initialData);
+  const [errors, setErrors] = useState("");
 
   const handleRegistration = (key, value) => {
     setUserData((prev) => ({ ...prev, [key]: value }));
   };
 
   // validate user entered appropriate data and that the user doesn't already exist
-  const validateRegistration = () => {
-    // ensure no input is empty
-    const errors = userData.filter((data) => !userData.data);
-    console.log(errors);
-
-    if (errors) {
-      return false;
-    } else {
-      return true;
-    }
-  };
+  function validateRegistration() {
+    Object.values(userData).forEach((val) => {
+      if (val.length === 0) setErrors("Please fix any errors");
+    });
+    return errors.length === 0 ? true : false;
+  }
 
   // create new account if the user is a new user
   const onRegister = () => {
-    // if no errors with registration form, create new user
     if (validateRegistration()) {
-      // create new user
       console.log("Account has been successfully created");
-      // route to configurations so user can customize app
+      setUserData(initialData);
+      setErrors("");
     } else {
       console.log("There was an error creating a new account");
     }
@@ -80,6 +76,7 @@ export default function Registration() {
   return (
     <View style={{ flex: 1 }}>
       <ScrollView>
+        {{ errors } ? <Text>{errors}</Text> : null}
         {/* render each input field to screen */}
         {formData.map((data) => {
           return (
@@ -96,7 +93,11 @@ export default function Registration() {
             </View>
           );
         })}
-        <Text> Password requirements will be listed here </Text>
+        <Text>
+          {" "}
+          Passwords must: be 8 characters long (minimum), one numeric value, one
+          uppercase letter, and one lowecase letter{" "}
+        </Text>
         <Button
           accessibilityLabel="create new account"
           title="Create Account"
