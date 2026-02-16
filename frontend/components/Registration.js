@@ -40,34 +40,40 @@ const formData = [
 ];
 
 export default function Registration() {
-  const initialData = {
+  const [errors, setErrors] = useState("");
+  const [userData, setUserData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     pswd: "",
     confirmPswd: "",
-  };
-  const [userData, setUserData] = useState(initialData);
-  const [errors, setErrors] = useState("");
+  });
 
   const handleRegistration = (key, value) => {
     setUserData((prev) => ({ ...prev, [key]: value }));
   };
 
   // validate user entered appropriate data and that the user doesn't already exist
-  function validateRegistration() {
-    Object.values(userData).forEach((val) => {
-      if (val.length === 0) setErrors("Please fix any errors");
-    });
-    return errors.length === 0 ? true : false;
-  }
+  const validateRegistration = () => {
+    const isEmpty = Object.values(userData).some((val) => !val);
+
+    if (isEmpty) {
+      setErrors("Please fix any errors");
+      return false;
+    }
+
+    setErrors("");
+    return true;
+  };
 
   // create new account if the user is a new user
   const onRegister = () => {
     if (validateRegistration()) {
       console.log("Account has been successfully created");
-      setUserData(initialData);
       setErrors("");
+      for (let key in userData) {
+        setUserData((prev) => ({ ...prev, [key]: "" }));
+      }
     } else {
       console.log("There was an error creating a new account");
     }
