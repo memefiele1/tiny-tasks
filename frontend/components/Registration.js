@@ -4,25 +4,25 @@ Purpose - Create a new account if one doesn't already exist. After creating an a
 to set basic configurations for the app.
  */
 import { React, useState } from "react";
-import { Button, ScrollView, Text, TextInput, View } from "react-native";
+import {
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 const formData = [
   {
-    key: "firstName",
-    label: "First Name",
-    placeholder: "First Name",
-    isSecureEntry: false,
-  },
-  {
-    key: "lastName",
-    label: "Last Name",
-    placeholder: "Last Name",
+    key: "fullName",
+    label: "Full Name",
+    placeholder: "Jane Doe",
     isSecureEntry: false,
   },
   {
     key: "email",
     label: "Email",
-    placeholder: "example@gmail.com",
+    placeholder: "example@email.com",
     isSecureEntry: false,
   },
   {
@@ -42,8 +42,7 @@ const formData = [
 export default function Registration() {
   const [errors, setErrors] = useState("");
   const [userData, setUserData] = useState({
-    firstName: "",
-    lastName: "",
+    fullName: "",
     email: "",
     pswd: "",
     confirmPswd: "",
@@ -81,13 +80,28 @@ export default function Registration() {
 
   return (
     <View style={{ flex: 1 }}>
+      <View style={{ margin: 10 }}>
+        <Text style={{ fontSize: 24, textAlign: "center" }}>
+          {" "}
+          Create an Account{" "}
+        </Text>
+        <Text style={{ fontSize: 16, textAlign: "center", color: "gray" }}>
+          {" "}
+          Join Tiny Tasks Today!{" "}
+        </Text>
+      </View>
+
       <ScrollView>
-        {{ errors } ? <Text>{errors}</Text> : null}
+        {{ errors } ? (
+          <Text style={{ fontSize: 16, color: "red" }}>{errors}</Text>
+        ) : null}
         {/* render each input field to screen */}
         {formData.map((data) => {
           return (
-            <View key={data.key}>
-              <Text>{data.label}</Text>
+            <View key={data.key} style={{ margin: 10 }}>
+              <Text style={{ fontSize: 14, fontWeight: "700" }}>
+                {data.label}
+              </Text>
               <TextInput
                 placeholder={data.placeholder}
                 value={userData[data.key]}
@@ -95,20 +109,36 @@ export default function Registration() {
                 autoCapitalize="none"
                 autoCorrect={false}
                 secureTextEntry={data.isSecureEntry ? true : null}
+                style={{
+                  borderWidth: 1,
+                  borderRadius: 12,
+                  padding: 10,
+                  fontSize: 14,
+                }}
               />
             </View>
           );
         })}
-        <Text>
+
+        <Text style={{ fontSize: 12, color: "gray", margin: 10 }}>
           {" "}
           Passwords must: be 8 characters long (minimum), one numeric value, one
           uppercase letter, and one lowecase letter{" "}
         </Text>
-        <Button
+        <TouchableOpacity
           accessibilityLabel="create new account"
-          title="Create Account"
           onPress={onRegister}
-        />
+          style={{
+            flex: 1,
+            padding: 10,
+            borderRadius: 14,
+            borderWidth: 1,
+            backgroundColor: "black",
+            alignItems: "center",
+          }}
+        >
+          <Text style={{ fontSize: 18, color: "white" }}> Create Account </Text>
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );
