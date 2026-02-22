@@ -1,21 +1,28 @@
 /*  Author - Kayla Thornton
-    Purpose - Render radio button options to forms
+    Purpose - Function accepts a list of options to render as radio buttons and updates UI 
+    to reflect the option selected by the user
  */
-import { Text, TouchableOpacity, View } from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-const CustomRadio = ({ options, checkedValue, onChange }) => {
+export const CustomRadio = ({ options }) => {
+  const [selectedOption, setSelectedOption] = useState("");
+  const [isActive, setIsActive] = useState(false);
+  console.log(selectedOption);
+
+  {/* render each option to screen and indicate when option has been selecte */}
   return (
     <View>
-      {/* render each option to screen and indicate when option has been selecte */}
-      {options &&
-        options.map((option, index) => {
-          let isActive = checkedValue === option; // checks if current option matches value saved in useState variable
-          console.log(option);
-          // changes currently selected value
+      {options && options.map((option, index) => {
+          if (selectedOption == option) setIsActive(true);
+          console.log(`${option} status: ${isActive}`);
+
+          // updates UI to reflect currently selected value
           return (
             <View key={index}>
-              <TouchableOpacity onPress={(option) => onChange(option)}>
-                <Text>{option}</Text>
+              <TouchableOpacity accessibilityLabel={option} onPress={(option) => setSelectedOption(option)} 
+              style={ [styles.container, isActive ? styles.active : null ] }>
+                <Text style={{fontSize: 12}}>{option}</Text>
               </TouchableOpacity>
             </View>
           );
@@ -24,4 +31,13 @@ const CustomRadio = ({ options, checkedValue, onChange }) => {
   );
 };
 
-export default CustomRadio;
+const styles = StyleSheet.create({
+  container: {
+    padding: 10,
+    margin: 5
+  },
+  active: {
+    color: "blue",
+    backgroundColor : "blue",
+  }
+})
