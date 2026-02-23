@@ -1,31 +1,32 @@
 /*  Author - Kayla Thornton
     Purpose - Allow users to set customized preferences after creating a new account.
  */
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { preferenceOptions } from "./data/preferenceOptions";
 import { CustomRadio } from "./ui/inputs/CustomRadio";
 
 export default function PreferenceForm() {
   // track current selected option
-  const [ index, setIndex ] = useState(0);
-  const [currQuestion, setCurrQuestion] = useState(preferenceOptions[index]);
+  const indexRef = useRef(0);
+  const formLength = preferenceOptions.length;
+  const [currQuestion, setCurrQuestion] = useState(preferenceOptions[indexRef.current]);
   
   // update currQuestion to object at current preferenceOptions index
   const onNext = () => {
-    if (index > preferenceOptions.length) { 
+    // once user has answered all questions, route to dashboard
+    indexRef.current++;
+    if (indexRef > formLength) { 
       toDashboard();
     };
 
-    setIndex(prev => prev + 1);
-    setCurrQuestion(preferenceOptions[index]);
+    setCurrQuestion(preferenceOptions[indexRef.current]);
   };
 
   const onBack = () => {
-    setIndex(prev => prev - 1);
-    setCurrQuestion(preferenceOptions[index]);
+    indexRef.current--;
+    setCurrQuestion(preferenceOptions[indexRef.current]);
   };
-  console.log(`Index: ${index}`);
 
   const toDashboard = () => {
     console.log("Route to dashboard");
@@ -35,7 +36,7 @@ export default function PreferenceForm() {
   return (
     <View>
       {/* progress indicator */}
-      <TouchableOpacity accessibilityLabel="back" onPress={ index == 0 ? null : onBack } style={{
+      <TouchableOpacity accessibilityLabel="back" onPress={ indexRef.current == 0 ? null : onBack } style={{
             flex: 1,
             padding: 10,
             borderRadius: 14,

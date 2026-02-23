@@ -12,5 +12,5 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
     "components/Login.js"
-  ]
+, "components/PostRegistration.js", "components/ui/inputs/CustomRadio.js"  ]
 }
