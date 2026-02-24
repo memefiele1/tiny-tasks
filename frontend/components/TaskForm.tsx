@@ -1,10 +1,19 @@
-import React, { useMemo, useState } from "react";
-import { View, Text, TextInput, Pressable, Alert } from "react-native";
+import React, { useMemo, useRef, useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
+import Button from "../ui/Button";
+import { FormField, TextArea, ChipGroup } from "../ui/TaskFormParts";
 
 export type Priority = "low" | "medium" | "high";
-
-export type Status = "not_started" | "in_progress" | "completed";
-
+export type Status = "not_started" | "in_progress" | "completed" | "deleted";
 
 export type TaskDraft = {
   title: string;
@@ -17,9 +26,8 @@ export type TaskDraft = {
 type Props = {
   onSubmit: (draft: TaskDraft) => void;
   onCancel?: () => void;
+  initial?: Partial<TaskDraft>;
 };
-
-const priorities: Priority[] = ["low", "medium", "high"];
 
 const formatYYYYMMDD = (d: Date) => d.toISOString().slice(0, 10);
 const addDays = (days: number) => {
@@ -28,13 +36,15 @@ const addDays = (days: number) => {
   return formatYYYYMMDD(d);
 };
 
-export default function TaskForm({ onSubmit, onCancel }: Props) {
-  const [title, setTitle] = useState("");
-  const [status, setStatus] = useState<Status>("not_started");
-  const [priority, setPriority] = useState<Priority>("medium"); // ADHD-friendly default
-  const [dueDate, setDueDate] = useState(""); // user can type OR tap chip
-  const [showDetails, setShowDetails] = useState(false);
-  const [description, setDescription] = useState("");
+export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
+  const scrollRef = useRef<ScrollView | null>(null);
+
+  const [title, setTitle] = useState(initial?.title ?? "");
+  const [priority, setPriority] = useState<Priority>(initial?.priority ?? "medium");
+  const [dueDate, setDueDate] = useState(initial?.dueDate ?? "");
+  const [status, setStatus] = useState<Status>(initial?.status ?? "not_started");
+  const [showDetails, setShowDetails] = useState(!!initial?.description);
+  const [description, setDescription] = useState(initial?.description ?? "");
 
   const titleError = useMemo(() => {
     if (title.length === 0) return "";
@@ -57,8 +67,6 @@ export default function TaskForm({ onSubmit, onCancel }: Props) {
       return;
     }
 
-  
-
     onSubmit({
       title: title.trim(),
       description: description.trim(),
@@ -75,205 +83,172 @@ export default function TaskForm({ onSubmit, onCancel }: Props) {
     setShowDetails(false);
   };
 
+  // When you open details, auto-scroll so "Save task" stays reachable.
+  const toggleDetails = () => {
+    setShowDetails((prev) => {
+      const next = !prev;
+      if (!prev && next) {
+        // details are opening — wait for layout + keyboard anim, then scroll
+        setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 150);
+      }
+      return next;
+    });
+  };
+
   return (
-    <View style={{ gap: 14 }}>
-      {/* TASK NAME */}
-      <View style={{ gap: 6 }}>
-        <Text style={{ fontSize: 14, fontWeight: "700" }}>Task name</Text>
-        <TextInput
-          value={title}
-          onChangeText={setTitle}
-          placeholder="e.g., Study for quiz (30 min)"
-          returnKeyType="done"
-          style={{
-            borderWidth: 1,
-            borderRadius: 12,
-            padding: 12,
-            fontSize: 16,
-          }}
-        />
-        {titleError ? <Text style={{ fontSize: 12 }}>{titleError}</Text> : null}
-      </View>
-
-      {/* DUE DATE */}
-      <View style={{ gap: 6 }}>
-        <Text style={{ fontSize: 14, fontWeight: "700" }}>Due date</Text>
-
-        {/* Quick options reduce typing/friction */}
-        <View style={{ flexDirection: "row", gap: 10, flexWrap: "wrap" }}>
-          {[
-            { label: "Today", value: addDays(0) },
-            { label: "Tomorrow", value: addDays(1) },
-            { label: "This Week", value: addDays(7) },
-          ].map((chip) => (
-            <Pressable
-              key={chip.label}
-              onPress={() => setDueDate(chip.value)}
-              style={{
-                paddingVertical: 10,
-                paddingHorizontal: 12,
-                borderRadius: 999,
-                borderWidth: 1,
-              }}
-            >
-              <Text style={{ fontWeight: "700" }}>{chip.label}</Text>
-            </Pressable>
-          ))}
-        </View>
-
-        <TextInput
-          value={dueDate}
-          onChangeText={setDueDate}
-          placeholder="YYYY-MM-DD"
-          autoCapitalize="none"
-          keyboardType="numbers-and-punctuation"
-          style={{
-            borderWidth: 1,
-            borderRadius: 12,
-            padding: 12,
-            fontSize: 16,
-          }}
-        />
-        {dueDateError ? <Text style={{ fontSize: 12 }}>{dueDateError}</Text> : null}
-
-        <Text style={{ fontSize: 12, opacity: 0.7 }}>
-          Tip: Use the quick buttons to avoid typing.
-        </Text>
-      </View>
-
-      {/* STATUS */}
-      <View style={{ gap: 6 }}>
-        <Text style={{ fontSize: 14, fontWeight: "700" }}>Status</Text>
-
-        <View style={{ flexDirection: "row", gap: 10 }}>
-          {[
-            { label: "Not Started", value: "not_started" },
-            { label: "In Progress", value: "in_progress" },
-            { label: "Completed", value: "completed" },
-          ].map((s) => {
-            const selected = s.value === status;
-
-            return (
-              <Pressable
-                key={s.value}
-                onPress={() => setStatus(s.value as Status)}
-                style={{
-                  flex: 1,
-                  paddingVertical: 12,
-                  borderRadius: 12,
-                  borderWidth: 1,
-                  alignItems: "center",
-                  opacity: selected ? 1 : 0.6,
-                }}
-              >
-                <Text style={{ fontWeight: selected ? "800" : "600" }}>
-                  {s.label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-      </View>
-
-
-
-
-
-
-      {/* PRIORITY */}
-      <View style={{ gap: 6 }}>
-        <Text style={{ fontSize: 14, fontWeight: "700" }}>Priority</Text>
-
-        <View style={{ flexDirection: "row", gap: 10 }}>
-          {priorities.map((p) => {
-            const selected = p === priority;
-            return (
-              <Pressable
-                key={p}
-                onPress={() => setPriority(p)}
-                style={{
-                  flex: 1,
-                  paddingVertical: 12,
-                  borderRadius: 12,
-                  borderWidth: 1,
-                  alignItems: "center",
-                  opacity: selected ? 1 : 0.6,
-                }}
-              >
-                <Text style={{ fontWeight: selected ? "800" : "600" }}>
-                  {p === "low" ? "Low" : p === "medium" ? "Medium" : "High"}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-
-        <Text style={{ fontSize: 12, opacity: 0.7 }}>
-          Default is Medium to keep decisions simple.
-        </Text>
-      </View>
-
-      {/* OPTIONAL DETAILS (progressive disclosure) */}
-      <Pressable
-        onPress={() => setShowDetails((s) => !s)}
-        style={{ paddingVertical: 6 }}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+    >
+      <ScrollView
+        ref={(r) => {
+          scrollRef.current = r;
+        }}
+        style={{ flex: 1 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: 220 }}
+        keyboardShouldPersistTaps="always"
+        keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
+        nestedScrollEnabled
+        onContentSizeChange={() => {
+          // if details are open, keep bottom reachable as content changes
+          if (showDetails) {
+            requestAnimationFrame(() => scrollRef.current?.scrollToEnd({ animated: true }));
+          }
+        }}
       >
-        <Text style={{ fontWeight: "800" }}>
-          {showDetails ? "Hide details" : "Add details (optional)"}
-        </Text>
-      </Pressable>
-
-      {showDetails ? (
-        <View style={{ gap: 6 }}>
-          <Text style={{ fontSize: 14, fontWeight: "700" }}>Description</Text>
+        {/* TASK NAME */}
+        <FormField
+          label="Task name"
+          helperText="Be specific: 'Study for quiz (30 min)' instead of 'Study'"
+          errorText={titleError}
+          required
+        >
           <TextInput
-            value={description}
-            onChangeText={setDescription}
-            placeholder="Notes, steps, or reminders…"
-            multiline
-            style={{
-              borderWidth: 1,
-              borderRadius: 12,
-              padding: 12,
-              minHeight: 100,
-              textAlignVertical: "top",
-              fontSize: 16,
-            }}
+            value={title}
+            onChangeText={setTitle}
+            placeholder="e.g., Study for quiz (30 min)"
+            returnKeyType="done"
+            style={{ fontSize: 16, color: "#374057" }}
           />
-        </View>
-      ) : null}
+        </FormField>
 
-      {/* ACTIONS */}
-      <View style={{ flexDirection: "row", gap: 10, marginTop: 4 }}>
-        {onCancel ? (
-          <Pressable
-            onPress={onCancel}
-            style={{
-              flex: 1,
-              padding: 14,
-              borderRadius: 14,
-              borderWidth: 1,
-              alignItems: "center",
-            }}
-          >
-            <Text style={{ fontWeight: "700" }}>Cancel</Text>
-          </Pressable>
+        {/* DUE DATE */}
+        <View style={{ marginBottom: 14 }}>
+          <Text style={{ fontSize: 14, fontWeight: "700", marginBottom: 6 }}>Due date</Text>
+
+          <View style={{ flexDirection: "row", flexWrap: "wrap", marginBottom: 8 }}>
+            {[
+              { label: "Today", value: addDays(0) },
+              { label: "Tomorrow", value: addDays(1) },
+              { label: "This Week", value: addDays(7) },
+            ].map((chip) => (
+              <Pressable
+                key={chip.label}
+                onPress={() => setDueDate(chip.value)}
+                style={{
+                  paddingVertical: 10,
+                  paddingHorizontal: 12,
+                  borderRadius: 999,
+                  borderWidth: 1,
+                  marginRight: 10,
+                  marginBottom: 10,
+                }}
+              >
+                <Text style={{ fontWeight: "700" }}>{chip.label}</Text>
+              </Pressable>
+            ))}
+          </View>
+
+          <TextInput
+            value={dueDate}
+            onChangeText={setDueDate}
+            placeholder="YYYY-MM-DD"
+            autoCapitalize="none"
+            keyboardType="numbers-and-punctuation"
+            style={{ borderWidth: 1, borderRadius: 12, padding: 12, fontSize: 16 }}
+          />
+          {dueDateError ? <Text style={{ fontSize: 12 }}>{dueDateError}</Text> : null}
+
+          <Text style={{ fontSize: 12, opacity: 0.7 }}>Tip: Use the quick buttons to avoid typing.</Text>
+        </View>
+
+        {/* STATUS */}
+        <View style={{ marginBottom: 14 }}>
+          <Text style={{ fontSize: 14, fontWeight: "700", marginBottom: 6 }}>Status</Text>
+
+          <View style={{ flexDirection: "row" }}>
+            {[
+              { label: "Not Started", value: "not_started" },
+              { label: "In Progress", value: "in_progress" },
+              { label: "Completed", value: "completed" },
+            ].map((s, idx) => {
+              const selected = s.value === status;
+              return (
+                <Pressable
+                  key={s.value}
+                  onPress={() => setStatus(s.value as Status)}
+                  style={{
+                    flex: 1,
+                    paddingVertical: 12,
+                    borderRadius: 12,
+                    borderWidth: 1,
+                    alignItems: "center",
+                    opacity: selected ? 1 : 0.6,
+                    marginRight: idx === 2 ? 0 : 10,
+                  }}
+                >
+                  <Text style={{ fontWeight: selected ? "800" : "600" }}>{s.label}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
+
+        {/* PRIORITY */}
+        <FormField
+          label="Priority"
+          helperText="Low = can wait, Medium = normal, High = urgent"
+        >
+          <ChipGroup value={priority} onChange={setPriority} />
+        </FormField>
+
+        {/* OPTIONAL DETAILS (progressive disclosure) */}
+        <Pressable onPress={toggleDetails} style={{ paddingVertical: 6, marginBottom: 10 }}>
+          <Text style={{ fontWeight: "800" }}>
+            {showDetails ? "Hide details" : "Add details (optional)"}
+          </Text>
+        </Pressable>
+
+        {showDetails ? (
+          <FormField label="Description (Optional)">
+            <TextArea
+              value={description}
+              onChangeText={setDescription}
+              placeholder="Notes, steps, or reminders…"
+            />
+          </FormField>
         ) : null}
 
-        <Pressable
-          onPress={handleSubmit}
-          style={{
-            flex: 1,
-            padding: 14,
-            borderRadius: 14,
-            borderWidth: 1,
-            alignItems: "center",
-            opacity: canSave ? 1 : 0.45,
-          }}
-        >
-          <Text style={{ fontWeight: "900" }}>Save task</Text>
-        </Pressable>
-      </View>
-    </View>
+        {/* ACTIONS */}
+        <View style={{ flexDirection: "row", gap: 12, marginTop: 4 }}>
+          {onCancel ? (
+            <Button
+              label="Cancel"
+              onPress={onCancel}
+              variant="secondary"
+              style={{ flex: 1 }}
+            />
+          ) : null}
+          <Button
+            label="Save task"
+            onPress={handleSubmit}
+            disabled={!canSave}
+            variant="primary"
+            style={{ flex: 1 }}
+          />
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

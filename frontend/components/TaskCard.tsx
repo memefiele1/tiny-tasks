@@ -1,13 +1,15 @@
-import React from "react";
-import { View, Text } from "react-native";
-import type { TaskDraft } from "./TaskForm";
+import React, { useState } from "react";
+import { View, Text, Pressable } from "react-native";
+import type { Task } from "../context/TasksContext";
 
 type Props = {
-  task: TaskDraft;
+  task: Task;
+  onEdit: () => void;
+  onComplete: () => void;
 };
 
-
-export default function TaskCard({ task }: Props) {
+export default function TaskCard({ task, onEdit, onComplete }: Props) {
+  const [expanded, setExpanded] = useState(false);
 
   const statusValue = task.status ?? "not_started";
 
@@ -19,7 +21,8 @@ export default function TaskCard({ task }: Props) {
       : "#6bcB77";
 
   return (
-    <View
+    <Pressable
+      onPress={() => setExpanded((e) => !e)}
       style={{
         borderWidth: 1,
         borderRadius: 16,
@@ -33,7 +36,7 @@ export default function TaskCard({ task }: Props) {
       <Text style={{ marginTop: 6 }}>Due: {task.dueDate}</Text>
 
       <Text style={{ marginTop: 6 }}>
-      Status: {statusValue.replace("_", " ").toUpperCase()}
+        Status: {statusValue.replace("_", " ").toUpperCase()}
       </Text>
 
       <View
@@ -46,9 +49,51 @@ export default function TaskCard({ task }: Props) {
           borderRadius: 999,
         }}
       >
-
         <Text style={{ fontWeight: "700" }}>{task.priority.toUpperCase()}</Text>
       </View>
-    </View>
+
+      {expanded && task.description?.trim() ? (
+        <Text style={{ marginTop: 10, opacity: 0.8 }}>{task.description}</Text>
+      ) : null}
+
+      <View style={{ flexDirection: "row", gap: 10, marginTop: 12 }}>
+        <Pressable
+          onPress={(e) => {
+            e.stopPropagation();
+            onEdit();
+          }}
+          style={{
+            flex: 1,
+            paddingVertical: 10,
+            borderRadius: 12,
+            borderWidth: 1,
+            alignItems: "center",
+          }}
+        >
+          <Text style={{ fontWeight: "800" }}>Edit</Text>
+        </Pressable>
+
+        <Pressable
+          onPress={(e) => {
+            e.stopPropagation();
+            onComplete();
+          }}
+          style={{
+            flex: 1,
+            paddingVertical: 10,
+            borderRadius: 12,
+            borderWidth: 1,
+            alignItems: "center",
+          }}
+        >
+          <Text style={{ fontWeight: "800" }}>Complete</Text>
+        </Pressable>
+      </View>
+
+      <Text style={{ marginTop: 10, fontSize: 12, opacity: 0.6 }}>
+        Tap card to {expanded ? "hide" : "show"} details
+      </Text>
+    </Pressable>
   );
 }
+

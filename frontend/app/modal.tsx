@@ -1,29 +1,88 @@
-import { Link } from 'expo-router';
-import { StyleSheet } from 'react-native';
-
-import { ThemedText } from '@/components/themed-text';
+import React, { useState } from 'react';
+import { StyleSheet, Pressable, Text } from 'react-native';
+import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
+import TaskForm, { TaskDraft } from '@/components/TaskForm';
+import { useTasks } from '@/context/TasksContext';
 import { ThemedView } from '@/components/themed-view';
 
 export default function ModalScreen() {
+  const router = useRouter();
+  const { editingId } = useLocalSearchParams<{ editingId?: string }>();
+  const { tasks, addTask, updateTask, deleteTask } = useTasks();
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const editingTask = editingId ? tasks.find((t) => t.id === editingId) : undefined;
+
+  const handleSubmit = (draft: TaskDraft) => {
+    if (editingId) {
+      updateTask(editingId, draft);
+    } else {
+      addTask(draft);
+    }
+    router.dismiss();
+  };
+
+  const handleDelete = () => {
+    if (!editingId) return;
+    setIsDeleting(true);
+    deleteTask(editingId);
+    router.dismiss();
+  };
+
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title">This is a modal</ThemedText>
-      <Link href="/" dismissTo style={styles.link}>
-        <ThemedText type="link">Go to home screen</ThemedText>
-      </Link>
-    </ThemedView>
+    <>
+      <Stack.Screen
+        options={{
+          title: editingId ? 'Edit Task' : 'Add Task',
+          headerLeft: () => (
+            <Pressable onPress={() => router.dismiss()} hitSlop={8}>
+              <Text style={{ color: '#007AFF', fontSize: 16 }}>Cancel</Text>
+            </Pressable>
+          ),
+        }}
+      />
+      <ThemedView style={styles.container}>
+        <TaskForm
+          initial={editingTask}
+          onSubmit={handleSubmit}
+          onCancel={() => router.dismiss()}
+        />
+        {editingId ? (
+          <Pressable
+            onPress={handleDelete}
+            disabled={isDeleting}
+            style={[
+              styles.deleteButton,
+              isDeleting && styles.deleteButtonDisabled,
+            ]}
+          >
+            <Text style={styles.deleteButtonText}>Delete Task</Text>
+          </Pressable>
+        ) : null}
+      </ThemedView>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: 20,
   },
-  link: {
-    marginTop: 15,
-    paddingVertical: 15,
+  deleteButton: {
+    marginTop: 20,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#ff3b30',
+    alignItems: 'center',
+  },
+  deleteButtonDisabled: {
+    opacity: 0.5,
+  },
+  deleteButtonText: {
+    color: '#ff3b30',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
