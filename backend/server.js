@@ -8,6 +8,7 @@ require('dotenv').config();
 
 const db = require('./config/database');
 
+const authRoutes = require('./routes/auth');
 // Task routes
 const createTask = require('./api/tasks/create');
 const getTodayTasks = require('./api/tasks/getToday');
@@ -25,6 +26,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+app.use('/auth', authRoutes);
 app.use(express.urlencoded({ extended: true }));
 
 // ── ROUTES ──────────────────────────────────────
