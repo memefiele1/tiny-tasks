@@ -3,29 +3,29 @@
  */
 import { useRef, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
-import { preferenceOptions } from "./data/preferenceOptions";
+import { postRegistrationData } from "./data/postRegistrationData";
 import { CustomRadio } from "./ui/inputs/CustomRadio";
 
 export default function PreferenceForm() {
   // track current selected option
-  const indexRef = useRef(0);
-  const formLength = preferenceOptions.length;
-  const [currQuestion, setCurrQuestion] = useState(preferenceOptions[indexRef.current]);
+  const indexRef = useRef<number>(0);
+  const formLength = postRegistrationData.length;
+  const [currQuestion, setCurrQuestion] = useState(postRegistrationData[indexRef.current]);
   
-  // update currQuestion to object at current preferenceOptions index
+  // update currQuestion to object at current postRegistrationData index
   const onNext = () => {
     // once user has answered all questions, route to dashboard
     indexRef.current++;
-    if (indexRef > formLength) { 
+    if (indexRef.current > formLength) { 
       toDashboard();
     };
 
-    setCurrQuestion(preferenceOptions[indexRef.current]);
+    setCurrQuestion(postRegistrationData[indexRef.current]);
   };
 
   const onBack = () => {
     indexRef.current--;
-    setCurrQuestion(preferenceOptions[indexRef.current]);
+    setCurrQuestion(postRegistrationData[indexRef.current]);
   };
 
   const toDashboard = () => {
@@ -36,7 +36,7 @@ export default function PreferenceForm() {
   return (
     <View>
       {/* progress indicator */}
-      <TouchableOpacity accessibilityLabel="back" onPress={ indexRef.current == 0 ? null : onBack } style={{
+      <TouchableOpacity accessibilityLabel="back" onPress={ indexRef.current == 0 ? undefined : onBack } style={{
             flex: 1,
             padding: 10,
             borderRadius: 14,

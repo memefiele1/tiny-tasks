@@ -1,4 +1,4 @@
-export const preferenceOptions = [
+export const postRegistrationData = [
   {
     title: "What are you using this app for?",
     options: ["School", "Work", "Personal"],

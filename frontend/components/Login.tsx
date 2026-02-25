@@ -12,13 +12,15 @@ import {
   View,
 } from "react-native";
 
+// export type error = string | undefined;
+
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState("");
 
   // Validate user login information
-  const validateForm = () => {
+  const validateForm = () : boolean => {
     if (!username || !password) {
       setErrors("Incorrect username or password");
       return false;
@@ -28,7 +30,7 @@ export default function Login() {
   };
 
   // route user to dashboard if data provided is successful
-  const onLogin = () => {
+  const onLogin = () : void => {
     if (validateForm()) {
       console.log("User has logged in");
       setUsername("");
@@ -55,7 +57,7 @@ export default function Login() {
         </View>
 
         <View style={{ gap: 10, marginBottom: 16 }}>
-          {{ errors } ? (
+          { errors  ? (
             <Text style={{ fontSize: 12, color: "red" }}> {errors} </Text>
           ) : null}
 

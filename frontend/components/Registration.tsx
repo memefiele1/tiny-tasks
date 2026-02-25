@@ -3,7 +3,7 @@ Author - Kayla Thornton
 Purpose - Create a new account if one doesn't already exist. After creating an account, users will be prompted 
 to set basic configurations for the app.
  */
-import { React, useState } from "react";
+import React, { useState } from "react";
 import {
   ScrollView,
   Text,
@@ -11,18 +11,19 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { formData } from "./data/formData";
+import { registraionData } from "./data/registrationData";
 
+let initialData = {
+  fullName: "",
+  email: "",
+  pswd: "",
+  confirmPswd: ""
+}
 export default function Registration() {
   const [errors, setErrors] = useState("");
-  const [userData, setUserData] = useState({
-    fullName: "",
-    email: "",
-    pswd: "",
-    confirmPswd: "",
-  });
+  const [userData, setUserData] = useState(initialData);
 
-  const handleRegistration = (key, value) => {
+  const handleRegistration = (key: string, value: string) => {
     setUserData((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -44,9 +45,7 @@ export default function Registration() {
     if (validateRegistration()) {
       console.log("Account has been successfully created");
       setErrors("");
-      for (let key in userData) {
-        setUserData((prev) => ({ ...prev, [key]: "" }));
-      }
+      setUserData(initialData);
     } else {
       console.log("There was an error creating a new account");
     }
@@ -66,11 +65,11 @@ export default function Registration() {
       </View>
 
       <ScrollView>
-        {{ errors } ? (
+        { errors  ? (
           <Text style={{ fontSize: 16, color: "red" }}>{errors}</Text>
         ) : null}
         {/* render each input field to screen */}
-        {formData.map((data) => {
+        {registraionData.map((data) => {
           return (
             <View key={data.key} style={{ margin: 10 }}>
               <Text style={{ fontSize: 14, fontWeight: "700" }}>
@@ -78,11 +77,11 @@ export default function Registration() {
               </Text>
               <TextInput
                 placeholder={data.placeholder}
-                value={userData[data.key]}
+                value={userData[data.key as keyof typeof userData]}
                 onChangeText={(value) => handleRegistration(data.key, value)}
                 autoCapitalize="none"
                 autoCorrect={false}
-                secureTextEntry={data.isSecureEntry ? true : null}
+                secureTextEntry={data.isSecureEntry ? true : undefined}
                 style={{
                   borderWidth: 1,
                   borderRadius: 12,
