@@ -16,9 +16,9 @@ export default function PreferenceForm() {
   const onNext = () => {
     // once user has answered all questions, route to dashboard
     indexRef.current++;
-    if (indexRef.current > formLength) { 
-      toDashboard();
-    };
+    // if (indexRef.current > formLength) { 
+    //   toDashboard();
+    // };
 
     setCurrQuestion(postRegistrationData[indexRef.current]);
   };
@@ -47,7 +47,7 @@ export default function PreferenceForm() {
           <Text style={{fontSize: 12, color: 'white'}}> Back </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity accessibilityLabel="next" onPress={ onNext } style={{
+      <TouchableOpacity accessibilityLabel="next" onPress={ indexRef.current == (formLength - 1) ? undefined : onNext } style={{
             flex: 1,
             padding: 10,
             borderRadius: 14,
