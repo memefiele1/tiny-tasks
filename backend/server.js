@@ -8,6 +8,7 @@ require('dotenv').config();
 
 const db = require('./config/database');
 
+const authRoutes = require('./routes/auth'); 
 // Task routes
 const createTask = require('./api/tasks/create');
 const getTodayTasks = require('./api/tasks/getToday');
@@ -16,6 +17,10 @@ const updateTask = require('./api/tasks/update');
 const deleteTask = require('./api/tasks/delete');
 const completeTask = require('./api/tasks/complete');
 
+//googleauth imports
+const session = require("express-session");
+const passport = require("passport");
+const googleAuthRoutes = require("./routes/googleAuth");
 // Archive routes
 const getArchive = require('./api/archive/getArchive');
 const { startCleanupJob } = require('./api/archive/cleanup');
@@ -25,6 +30,20 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+//googleauthroutes
+app.use(
+  session({
+    secret: process.env.JWT_SECRET || "dev_session_secret",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+app.use("/auth", googleAuthRoutes);
+
+app.use('/auth', authRoutes);
 app.use(express.urlencoded({ extended: true }));
 
 // ── ROUTES ──────────────────────────────────────

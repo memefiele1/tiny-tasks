@@ -17,3 +17,4 @@ logs/
 # Build
 dist/
 build/
+tinytasks.db
