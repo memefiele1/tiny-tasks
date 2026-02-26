@@ -1,4 +1,8 @@
-import React from "react";
+/*  Author - Kayla Thornton
+    Purpose - Reusable text components to maintain consistency across pages in the app
+ */
+
+import React, { ReactNode } from "react";
 import { StyleSheet, Text } from "react-native";
 
 const COLORS = {
@@ -17,35 +21,68 @@ const SPACING = {
   xl: 20,
 } as const;
 
-interface TextProps {
-    children: React.ReactNode,
-    type: "default" | "error" | "caption",
-    style: string
+type variant = "error" | "caption";
+
+interface TextProps{
+    children: ReactNode,
+    variant?: variant,
+    style?: object
 }
 
-export function Heading({children}: TextProps) {
+// set styling for all Headings
+export function Heading({children, style}: TextProps) {
     return(
-        <Text style={[styles.heading]}>{children}</Text>
+        <Text style={[styles.color, styles.heading, style]}>{children}</Text>
     );
 }
 
-export function BodyText({children, type }: TextProps) {
+export function Subheading({children, style}: TextProps) {
     return(
-        <Text style={[styles.bodyText]}>{children}</Text>
+        <Text style={[styles.color, styles.subheading, style]}>{children}</Text>
+    );
+}
+
+// set style for text body, can also change text to represent captions or errors
+export function BodyText({children, variant, style }: TextProps) {
+    let type;
+    switch (variant){
+        case 'caption':
+            type = {
+                fontSize: 14,
+                color: COLORS.blueSteel
+            }
+        case 'error':
+            type = {
+                fontSize: 14,
+                color: COLORS.redAccent
+            }
+    }
+
+    return(
+        <Text style={[type, styles.bodyText, style]}>{children}</Text>
     )
 }
+
 const styles = StyleSheet.create({
+    color: {
+        color: COLORS.blueSteel
+    },
     heading: {
         fontSize: 32, 
         fontWeight: 800,
-        color: COLORS.blueSteel
+        padding: SPACING.sm,
+        margin: SPACING.md
     },
     subheading: {
         fontSize: 24, 
-        fontWeight: 700
+        fontWeight: 700,
+        padding: SPACING.sm,
+        margin: SPACING.sm
     },
     bodyText: {
         fontSize: 16, 
-        fontWeight: 400
+        fontWeight: 400,
+        padding: SPACING.sm,
+        margin: SPACING.xs
     }
 })
