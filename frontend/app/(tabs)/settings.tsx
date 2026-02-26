@@ -1,3 +1,6 @@
+//Tiffany Santiago Garcia
+// Settings screen with link to archived tasks and other potential future settings options
+
 import React from "react";
 import { View, Text, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";

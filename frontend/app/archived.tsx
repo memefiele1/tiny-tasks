@@ -1,3 +1,6 @@
+//Tiffany Santiago Garcia
+// Archived tasks screen with filter and search functionality, allowing users to view and restore completed or deleted tasks
+
 import React, { useMemo, useState } from "react";
 import {
   View,

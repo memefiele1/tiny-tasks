@@ -1,3 +1,7 @@
+//Tiffany Santiago Garcia
+// Context for managing tasks globally across the app, providing functions to add, update, delete (archive), and restore tasks
+
+
 import React, { createContext, useContext, useMemo, useState } from "react";
 import type { TaskDraft } from "../components/TaskForm";
 

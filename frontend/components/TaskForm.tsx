@@ -1,16 +1,19 @@
+//Tiffany Santiago Garcia
+// Form component for creating and editing tasks, with validation and quick date options
+
 import React, { useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
   TextInput,
-  Pressable,
   Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StyleSheet,
 } from "react-native";
 import Button from "../ui/Button";
-import { FormField, TextArea, ChipGroup } from "../ui/TaskFormParts";
+import { FormField, TextArea } from "../ui/TaskFormParts";
 
 export type Priority = "low" | "medium" | "high";
 export type Status = "not_started" | "in_progress" | "completed" | "deleted";
@@ -19,7 +22,7 @@ export type TaskDraft = {
   title: string;
   description: string;
   priority: Priority;
-  dueDate: string; // YYYY-MM-DD
+  dueDate: string;
   status: Status;
 };
 
@@ -36,34 +39,70 @@ const addDays = (days: number) => {
   return formatYYYYMMDD(d);
 };
 
+const statusOptions = [
+  { label: "Not Started", value: "not_started" as Status },
+  { label: "In Progress", value: "in_progress" as Status },
+  { label: "Completed", value: "completed" as Status },
+];
+
+const priorityOptions = [
+  { label: "Low", value: "low" as Priority },
+  { label: "Medium", value: "medium" as Priority },
+  { label: "High", value: "high" as Priority },
+];
+
+const commonInput = {
+  borderWidth: 1,
+  borderColor: "#ccc",
+  borderRadius: 12,
+  padding: 12,
+  fontSize: 16,
+};
+
 export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
   const scrollRef = useRef<ScrollView | null>(null);
 
   const [title, setTitle] = useState(initial?.title ?? "");
-  const [priority, setPriority] = useState<Priority>(initial?.priority ?? "medium");
+  const [priority, setPriority] = useState<Priority>(
+    initial?.priority ?? "medium"
+  );
   const [dueDate, setDueDate] = useState(initial?.dueDate ?? "");
-  const [status, setStatus] = useState<Status>(initial?.status ?? "not_started");
+  const [status, setStatus] = useState<Status>(
+    initial?.status ?? "not_started"
+  );
   const [showDetails, setShowDetails] = useState(!!initial?.description);
-  const [description, setDescription] = useState(initial?.description ?? "");
+  const [description, setDescription] = useState(
+    initial?.description ?? ""
+  );
 
   const titleError = useMemo(() => {
     if (title.length === 0) return "";
-    return title.trim().length === 0 ? "Task name can’t be blank." : "";
+    return title.trim().length === 0 ? "Task name can't be blank." : "";
   }, [title]);
 
   const dueDateError = useMemo(() => {
     if (dueDate.length === 0) return "";
     const ok = /^\d{4}-\d{2}-\d{2}$/.test(dueDate.trim());
-    return ok ? "" : "Use YYYY-MM-DD (ex: 2026-02-06) or tap a quick option.";
+    return ok
+      ? ""
+      : "Use YYYY-MM-DD (ex: 2026-02-06) or tap a quick option.";
   }, [dueDate]);
 
   const canSave = useMemo(() => {
-    return title.trim().length > 0 && dueDate.trim().length > 0 && !titleError && !dueDateError;
+    return (
+      title.trim().length > 0 &&
+      dueDate.trim().length > 0 &&
+      !titleError &&
+      !dueDateError
+    );
   }, [title, dueDate, titleError, dueDateError]);
 
   const handleSubmit = () => {
     if (!canSave) {
-      Alert.alert("Almost there", "Please add a task name and a valid due date.");
+      Alert.alert(
+        "Almost there",
+        "Please add a task name and a valid due date."
+      );
       return;
     }
 
@@ -75,7 +114,6 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
       status,
     });
 
-    // Reset (keeps form feeling “light”)
     setTitle("");
     setPriority("medium");
     setDueDate("");
@@ -83,13 +121,14 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
     setShowDetails(false);
   };
 
-  // When you open details, auto-scroll so "Save task" stays reachable.
   const toggleDetails = () => {
     setShowDetails((prev) => {
       const next = !prev;
       if (!prev && next) {
-        // details are opening — wait for layout + keyboard anim, then scroll
-        setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 150);
+        setTimeout(
+          () => scrollRef.current?.scrollToEnd({ animated: true }),
+          150
+        );
       }
       return next;
     });
@@ -108,12 +147,15 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
         style={{ flex: 1 }}
         contentContainerStyle={{ padding: 16, paddingBottom: 220 }}
         keyboardShouldPersistTaps="always"
-        keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
+        keyboardDismissMode={
+          Platform.OS === "ios" ? "interactive" : "on-drag"
+        }
         nestedScrollEnabled
         onContentSizeChange={() => {
-          // if details are open, keep bottom reachable as content changes
           if (showDetails) {
-            requestAnimationFrame(() => scrollRef.current?.scrollToEnd({ animated: true }));
+            requestAnimationFrame(() =>
+              scrollRef.current?.scrollToEnd({ animated: true })
+            );
           }
         }}
       >
@@ -129,13 +171,13 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
             onChangeText={setTitle}
             placeholder="e.g., Study for quiz (30 min)"
             returnKeyType="done"
-            style={{ fontSize: 16, color: "#374057" }}
+            style={[{ color: "#374057" }, commonInput]}
           />
         </FormField>
 
         {/* DUE DATE */}
-        <View style={{ marginBottom: 14 }}>
-          <Text style={{ fontSize: 14, fontWeight: "700", marginBottom: 6 }}>Due date</Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>Due date</Text>
 
           <View style={{ flexDirection: "row", flexWrap: "wrap", marginBottom: 8 }}>
             {[
@@ -143,7 +185,7 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
               { label: "Tomorrow", value: addDays(1) },
               { label: "This Week", value: addDays(7) },
             ].map((chip) => (
-              <Pressable
+              <Text
                 key={chip.label}
                 onPress={() => setDueDate(chip.value)}
                 style={{
@@ -153,10 +195,11 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
                   borderWidth: 1,
                   marginRight: 10,
                   marginBottom: 10,
+                  fontWeight: "700",
                 }}
               >
-                <Text style={{ fontWeight: "700" }}>{chip.label}</Text>
-              </Pressable>
+                {chip.label}
+              </Text>
             ))}
           </View>
 
@@ -166,59 +209,71 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
             placeholder="YYYY-MM-DD"
             autoCapitalize="none"
             keyboardType="numbers-and-punctuation"
-            style={{ borderWidth: 1, borderRadius: 12, padding: 12, fontSize: 16 }}
+            style={[commonInput]}
           />
-          {dueDateError ? <Text style={{ fontSize: 12 }}>{dueDateError}</Text> : null}
+          {dueDateError ? (
+            <Text style={{ fontSize: 12, color: "crimson" }}>
+              {dueDateError}
+            </Text>
+          ) : null}
 
-          <Text style={{ fontSize: 12, opacity: 0.7 }}>Tip: Use the quick buttons to avoid typing.</Text>
+          <Text style={{ fontSize: 12, opacity: 0.7 }}>
+            Tip: Use the quick buttons to avoid typing.
+          </Text>
         </View>
 
         {/* STATUS */}
-        <View style={{ marginBottom: 14 }}>
-          <Text style={{ fontSize: 14, fontWeight: "700", marginBottom: 6 }}>Status</Text>
-
-          <View style={{ flexDirection: "row" }}>
-            {[
-              { label: "Not Started", value: "not_started" },
-              { label: "In Progress", value: "in_progress" },
-              { label: "Completed", value: "completed" },
-            ].map((s, idx) => {
-              const selected = s.value === status;
-              return (
-                <Pressable
-                  key={s.value}
-                  onPress={() => setStatus(s.value as Status)}
-                  style={{
-                    flex: 1,
-                    paddingVertical: 12,
-                    borderRadius: 12,
-                    borderWidth: 1,
-                    alignItems: "center",
-                    opacity: selected ? 1 : 0.6,
-                    marginRight: idx === 2 ? 0 : 10,
-                  }}
-                >
-                  <Text style={{ fontWeight: selected ? "800" : "600" }}>{s.label}</Text>
-                </Pressable>
-              );
-            })}
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>Status</Text>
+          <View style={styles.row}>
+            {statusOptions.map((opt, idx) => (
+              <Button
+                key={opt.value}
+                label={opt.label}
+                variant={status === opt.value ? "primary" : "outline"}
+                onPress={() => setStatus(opt.value)}
+                style={{
+                  flex: 1,
+                  marginRight: idx === statusOptions.length - 1 ? 0 : 10,
+                }}
+              />
+            ))}
           </View>
         </View>
 
         {/* PRIORITY */}
-        <FormField
-          label="Priority"
-          helperText="Low = can wait, Medium = normal, High = urgent"
-        >
-          <ChipGroup value={priority} onChange={setPriority} />
-        </FormField>
-
-        {/* OPTIONAL DETAILS (progressive disclosure) */}
-        <Pressable onPress={toggleDetails} style={{ paddingVertical: 6, marginBottom: 10 }}>
-          <Text style={{ fontWeight: "800" }}>
-            {showDetails ? "Hide details" : "Add details (optional)"}
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>Priority</Text>
+          <Text style={styles.helperText}>
+            Low = can wait, Medium = normal, High = urgent
           </Text>
-        </Pressable>
+          <View style={styles.row}>
+            {priorityOptions.map((opt, idx) => (
+              <Button
+                key={opt.value}
+                label={opt.label}
+                variant={priority === opt.value ? "primary" : "outline"}
+                onPress={() => setPriority(opt.value)}
+                style={{
+                  flex: 1,
+                  marginRight: idx === priorityOptions.length - 1 ? 0 : 10,
+                }}
+              />
+            ))}
+          </View>
+        </View>
+
+        {/* OPTIONAL DETAILS */}
+        <Text
+          onPress={toggleDetails}
+          style={{
+            fontWeight: "800",
+            paddingVertical: 6,
+            marginBottom: 10,
+          }}
+        >
+          {showDetails ? "Hide details" : "Add details (optional)"}
+        </Text>
 
         {showDetails ? (
           <FormField label="Description (Optional)">
@@ -231,13 +286,13 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
         ) : null}
 
         {/* ACTIONS */}
-        <View style={{ flexDirection: "row", gap: 12, marginTop: 4 }}>
+        <View style={styles.actionsRow}>
           {onCancel ? (
             <Button
               label="Cancel"
+              variant="outline"
               onPress={onCancel}
-              variant="secondary"
-              style={{ flex: 1 }}
+              style={{ flex: 1, marginRight: 12 }}
             />
           ) : null}
           <Button
@@ -252,3 +307,27 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  section: {
+    marginBottom: 20,
+  },
+  sectionLabel: {
+    fontSize: 14,
+    fontWeight: "700",
+    marginBottom: 6,
+  },
+  helperText: {
+    fontSize: 12,
+    color: "#555",
+    marginBottom: 10,
+  },
+  row: {
+    flexDirection: "row",
+  },
+  actionsRow: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 4,
+  },
+});

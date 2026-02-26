@@ -1,9 +1,12 @@
+//Tiffany Santiago Garcia
+// Modal screen for adding and editing tasks, with form and delete option when editing
+
 import React, { useState } from 'react';
-import { StyleSheet, Pressable, Text } from 'react-native';
+import { StyleSheet, Pressable, Text, View } from 'react-native';
 import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import TaskForm, { TaskDraft } from '@/components/TaskForm';
 import { useTasks } from '@/context/TasksContext';
-import { ThemedView } from '@/components/themed-view';
+
 
 export default function ModalScreen() {
   const router = useRouter();
@@ -41,7 +44,7 @@ export default function ModalScreen() {
           ),
         }}
       />
-      <ThemedView style={styles.container}>
+      <View style={styles.container}>
         <TaskForm
           initial={editingTask}
           onSubmit={handleSubmit}
@@ -59,7 +62,7 @@ export default function ModalScreen() {
             <Text style={styles.deleteButtonText}>Delete Task</Text>
           </Pressable>
         ) : null}
-      </ThemedView>
+      </View>
     </>
   );
 }

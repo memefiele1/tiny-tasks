@@ -1,3 +1,6 @@
+//Tiffany Santiago Garcia 
+//Display card for individual tasks, showing title, due date, priority and status with color coding and expandable description
+
 import React, { useState } from "react";
 import { View, Text, Pressable } from "react-native";
 import type { Task } from "../context/TasksContext";

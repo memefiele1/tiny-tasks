@@ -1,3 +1,6 @@
+//Tiffany Santiago Garcia
+// Completed tasks screen showing all completed tasks with option to restore to in progress by editing
+
 import React, { useMemo } from "react";
 import { View, Text, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
