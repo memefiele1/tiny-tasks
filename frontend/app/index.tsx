@@ -1,4 +1,4 @@
-import PostRegistraion from "@/components/PostRegistration";
+import PostRegistration from "@/components/PostRegistration";
 import { View } from "react-native";
 
 export default function Index() {
@@ -12,7 +12,7 @@ export default function Index() {
     >
       {/* <Login /> */}
       {/* <Registration /> */}
-      <PostRegistraion />
+      <PostRegistration />
     </View>
   );
 }
