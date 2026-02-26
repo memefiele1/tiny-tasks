@@ -2,7 +2,7 @@
 // Tab layout defining the bottom tab navigation structure with icons and linking to main screens like Home and Settings
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function TabLayout() {
   return (
@@ -17,7 +17,7 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
+            <Ionicons name="home" size={28} color={color} />
           ),
         }}
       />
