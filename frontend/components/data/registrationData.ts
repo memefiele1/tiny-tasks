@@ -7,6 +7,13 @@ export const registraionData = [
     isSecureEntry: false,
   },
   {
+    key: "username",
+    label: "Username",
+    input: "",
+    placeholder: "Username",
+    isSecureEntry: false,
+  },
+  {
     key: "email",
     label: "Email",
     input: "",

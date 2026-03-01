@@ -13,12 +13,16 @@ import {
 } from "react-native";
 import { registraionData } from "./data/registrationData";
 
+
+// TO-DO - ADD USERNAME
 let initialData = {
   fullName: "",
-  email: "",
+  username: "",
+  email: "", 
   pswd: "",
   confirmPswd: ""
 }
+
 export default function Registration() {
   const [errors, setErrors] = useState("");
   const [userData, setUserData] = useState(initialData);

@@ -3,7 +3,7 @@ Author - Kayla Thornton
 Purpose - This function accepts login data from the user. When the user submits, this component validates their data and 
 redirects them to the dashboard upon successful login.
  */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   KeyboardAvoidingView,
   Text,
@@ -13,6 +13,11 @@ import {
 } from "react-native";
 
 // export type error = string | undefined;
+interface loginResponse {
+  user_id: number,
+  username: string,
+  email: string
+}
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -20,28 +25,32 @@ export default function Login() {
   const [errors, setErrors] = useState("");
 
   // Validate user login information
-  const validateForm = () : boolean => {
-    if (!username || !password) {
-      setErrors("Incorrect username or password");
-      return false;
-    } else {
-      return true;
+  const validateForm = async () => {
+    try {
+      const response = await fetch("/login");
+      const data = (await response).json();
+
+      console.log(data)
+    } catch (error) {
+      console.log(error)
+      // setError(error)
     }
   };
 
-  // route user to dashboard if data provided is successful
+  // clear form and route to dashboard if login attempt was successful
   const onLogin = () : void => {
-    if (validateForm()) {
+    validateForm()
+    if (!errors) {
       console.log("User has logged in");
       setUsername("");
       setPassword("");
       setErrors("");
       // route to dashboard
-    } else {
-      console.log("Unsuccessful login attempt");
-    }
+    } 
   };
 
+  useEffect(() => { validateForm() }, []);
+  
   // TO-DO - add "forgot password" and "sign-up" links to this page (I think these should be buttons on the homescreen)
   return (
     <View>
