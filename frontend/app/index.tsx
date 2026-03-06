@@ -1,4 +1,4 @@
-import Login from "@/components/Login";
+import LandingPage from "@/components/LandingPage";
 import { View } from "react-native";
 
 export default function Index() {
@@ -10,10 +10,10 @@ export default function Index() {
         alignItems: "center",
       }}
     >
-      <Login />
+      {/* <Login /> */}
       {/* <Registration /> */}
       {/* <PostRegistraion /> */}
-      {/* <LandingPage /> */}
+      <LandingPage />
     </View>
   );
 }

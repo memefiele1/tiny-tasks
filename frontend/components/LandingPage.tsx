@@ -2,8 +2,8 @@
 Author - Kayla Thornton
 Purpose - Provide user with login options so that they may get access to the app
  */
-import { GoogleSignin, isSuccessResponse } from '@react-native-google-signin/google-signin';
-import React, { useEffect } from 'react';
+import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from '@react-native-google-signin/google-signin';
+import React, { useEffect, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 
 GoogleSignin.configure({
@@ -12,6 +12,7 @@ GoogleSignin.configure({
 })
 
 export default function LandingPage() {
+    const [error, setError] = useState("");
     // check if user has already signed in
 
     // allow user to sign in using google credentials
@@ -22,10 +23,26 @@ export default function LandingPage() {
 
             if (isSuccessResponse(response)) {
                 console.log('Success');
+                setError('');
                 // make call to backend
+            } else {
+                setError('Request canceled by user')
             }
         } catch (error) {
-
+            if (isErrorWithCode(error)) {
+                switch (error.code) {
+                    case statusCodes.IN_PROGRESS:
+                        setError('Signin in progress');
+                        break;
+                    case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+                        setError('Play services not available');
+                        break;
+                    default:
+                        setError('An error occured while signing in');
+                }
+            } else {
+                setError('An error occured while signing in');
+            }
         }
     }
 
@@ -52,6 +69,7 @@ export default function LandingPage() {
                 Login or create an account to get started!
             </Text>
 
+            {error ? <Text>{ error } </Text> : null}
             <TouchableOpacity
                 accessibilityLabel="Login with Google"
                 onPress={handleGoogleSignin}
