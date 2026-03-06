@@ -13,8 +13,6 @@ import {
 } from "react-native";
 import { registraionData } from "./data/registrationData";
 
-
-// TO-DO - ADD USERNAME
 let initialData = {
   fullName: "",
   username: "",

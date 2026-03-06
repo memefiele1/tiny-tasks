@@ -27,7 +27,16 @@ export default function Login() {
   // Validate user login information
   const validateForm = async () => {
     try {
-      const response = await fetch("/login");
+      const url = 'http://localhost:3000';
+      const response = await fetch(`${url}/login`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            email: username,
+            password: password
+          })
+        } 
+      );
       const data = (await response).json();
 
       console.log(data)
