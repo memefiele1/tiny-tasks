@@ -14,20 +14,15 @@ import {
 import API_BASE_URL from "../utils/config";
 
 
-
-interface loginResponse {
-  user_id: number,
-  username: string,
-  email: string
-}
-
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState("");
+  // store user info
 
   // Validate user login information
-  const validateForm = async () => {
+  const validateUser = async () => {
+    // make request to backend endpoint to validate user credentials
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
@@ -35,13 +30,13 @@ export default function Login() {
         body: JSON.stringify({ email: username, password: password })
       });
       const data = await response.json();
-      console.log(data);
 
+      // route to login page if login successful
       if (response.ok) {
-        console.log("Successful login");
         setErrors("");
-      } else {
-        setErrors(data.message || "There was an issue signing-in");
+        onLogin();
+      } else if (response.status > 400){
+        setErrors("User not found");
       }
     } catch (error) {
       console.log(error);
@@ -49,18 +44,16 @@ export default function Login() {
     }
   };
   
-  // clear form and route to dashboard if login attempt was successful
-  const onLogin = () : void => {
-    validateForm();
-    if (!errors) {
-      console.log("User has logged in");
-      setUsername("");
-      setPassword("");
-      setErrors("");
-      // route to dashboard
-    } 
+  // clear form and route to dashboard on successful login 
+  const onLogin = async () => {
+    console.log("User has logged in");
+    setUsername("");
+    setPassword("");
+    setErrors("");
+    // route to dashboard
   };
 
+  // useEffect(() => { validateUser() }, [errors])
 
   
   // TO-DO - add "forgot password" and "sign-up" links to this page (I think these should be buttons on the homescreen)
@@ -116,7 +109,7 @@ export default function Login() {
 
         <TouchableOpacity
           accessibilityLabel="log in"
-          onPress={onLogin}
+          onPress={validateUser}
           style={{
             flex: 1,
             padding: 10,

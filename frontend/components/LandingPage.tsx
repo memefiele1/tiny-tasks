@@ -50,7 +50,7 @@ export default function LandingPage() {
 
     // send google signin response to backend
     const toBackend = async (user: object) => {
-        const response = await fetch(`${API_BASE_URL}/auth/google`, 
+        const response = await fetch(`${API_BASE_URL}/auth/googleAuth`, 
         {
             method: "POST",
             headers: { "Content-Type": "application/json" },
