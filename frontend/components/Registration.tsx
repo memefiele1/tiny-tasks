@@ -3,6 +3,7 @@ Author - Kayla Thornton
 Purpose - Create a new account if one doesn't already exist. After creating an account, users will be prompted 
 to set basic configurations for the app.
  */
+import API_BASE_URL from "../utils/config";
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -43,13 +44,31 @@ export default function Registration() {
   };
 
   // create new account if the user is a new user
-  const onRegister = () => {
+  const onRegister = async () => {
     if (validateRegistration()) {
-      console.log("Account has been successfully created");
-      setErrors("");
-      setUserData(initialData);
-    } else {
-      console.log("There was an error creating a new account");
+      try {
+        const response = await fetch(`${API_BASE_URL}/auth/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: userData.username,
+            email: userData.email,
+            password: userData.pswd
+          })
+        });
+        const data = await response.json();
+        console.log(data);
+        if (response.ok) {
+          console.log("Account has been successfully created");
+          setErrors("");
+          setUserData(initialData);
+        } else {
+          setErrors(data.message || "Error creating account");
+        }
+      } catch (error) {
+        console.log(error);
+        setErrors("Network error, please try again");
+      }
     }
   };
 
