@@ -2,6 +2,7 @@
 Author - Kayla Thornton
 Purpose - Provide user with login options so that they may get access to the app
  */
+import API_BASE_URL from '@/utils/config';
 import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from '@react-native-google-signin/google-signin';
 import React, { useEffect, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
@@ -20,11 +21,12 @@ export default function LandingPage() {
         try {
             await GoogleSignin.hasPlayServices();
             const response = await GoogleSignin.signIn();
+            const user = await response.data;
 
             if (isSuccessResponse(response)) {
                 console.log('Success');
                 setError('');
-                // make call to backend
+                // toBackend(user);
             } else {
                 setError('Request canceled by user')
             }
@@ -44,6 +46,16 @@ export default function LandingPage() {
                 setError('An error occured while signing in');
             }
         }
+    }
+
+    // send google signin response to backend
+    const toBackend = async (user: object) => {
+        const response = await fetch(`${API_BASE_URL}/auth/google`, 
+        {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user })
+        });
     }
 
     useEffect(() => { handleGoogleSignin() }, [])
