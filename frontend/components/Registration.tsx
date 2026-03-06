@@ -3,7 +3,6 @@ Author - Kayla Thornton
 Purpose - Create a new account if one doesn't already exist. After creating an account, users will be prompted 
 to set basic configurations for the app.
  */
-import API_BASE_URL from "../utils/config";
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -12,6 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import API_BASE_URL from "../utils/config";
 import { registraionData } from "./data/registrationData";
 
 let initialData = {
@@ -26,28 +26,29 @@ export default function Registration() {
   const [errors, setErrors] = useState("");
   const [userData, setUserData] = useState(initialData);
 
+  // update the UI as users complete form
   const handleRegistration = (key: string, value: string) => {
     setUserData((prev) => ({ ...prev, [key]: value }));
   };
 
   // validate user entered appropriate data and that the user doesn't already exist
-  const validateRegistration = () => {
-    const isEmpty = Object.values(userData).some((val) => !val);
+  // const validateRegistration = () => {
+  //   const isEmpty = Object.values(userData).some((val) => !val);
 
-    if (isEmpty) {
-      setErrors("Please fix any errors");
-      return false;
-    }
+  //   if (isEmpty) {
+  //     setErrors("Please fix any errors");
+  //     return false;
+  //   }
 
-    setErrors("");
-    return true;
-  };
+  //   setErrors("");
+  //   return true;
+  // };
 
   // create new account if the user is a new user
   const onRegister = async () => {
-    if (validateRegistration()) {
       try {
-        const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        const response = await fetch(`${API_BASE_URL}/auth/register`, 
+          {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -56,8 +57,10 @@ export default function Registration() {
             password: userData.pswd
           })
         });
+
         const data = await response.json();
         console.log(data);
+        
         if (response.ok) {
           console.log("Account has been successfully created");
           setErrors("");
@@ -69,7 +72,6 @@ export default function Registration() {
         console.log(error);
         setErrors("Network error, please try again");
       }
-    }
   };
 
   return (

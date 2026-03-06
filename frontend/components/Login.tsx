@@ -13,7 +13,8 @@ import {
 } from "react-native";
 import API_BASE_URL from "../utils/config";
 
-// export type error = string | undefined;
+
+
 interface loginResponse {
   user_id: number,
   username: string,
@@ -31,18 +32,26 @@ export default function Login() {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: username, password })
+        body: JSON.stringify({ email: username, password: password })
       });
       const data = await response.json();
       console.log(data);
+
+      if (response.ok) {
+        console.log("Successful login");
+        setErrors("");
+      } else {
+        setErrors(data.message || "There was an issue signing-in");
+      }
     } catch (error) {
       console.log(error);
+      setErrors("Network error, please try again");
     }
   };
   
   // clear form and route to dashboard if login attempt was successful
   const onLogin = () : void => {
-    validateForm()
+    validateForm();
     if (!errors) {
       console.log("User has logged in");
       setUsername("");
