@@ -1,4 +1,3 @@
-import LandingPage from "@/components/LandingPage";
 import { View } from "react-native";
 
 export default function Index() {
@@ -11,9 +10,8 @@ export default function Index() {
       }}
     >
       {/* <Login /> */}
-      {/* <Registration /> */}
-      {/* <PostRegistraion /> */}
-      <LandingPage />
+      {/* <PostRegistraion />
+      <LandingPage /> */}
     </View>
   );
 }
