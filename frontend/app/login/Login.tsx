@@ -53,8 +53,6 @@ export default function Login() {
     // route to dashboard
   };
 
-  // useEffect(() => { validateUser() }, [errors])
-
   
   // TO-DO - add "forgot password" and "sign-up" links to this page (I think these should be buttons on the homescreen)
   return (

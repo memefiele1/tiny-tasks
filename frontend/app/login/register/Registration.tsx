@@ -3,6 +3,8 @@ Author - Kayla Thornton
 Purpose - Create a new account if one doesn't already exist. After creating an account, users will be prompted 
 to set basic configurations for the app.
  */
+import { registraionData } from "@/data/registrationData";
+import API_BASE_URL from "@/utils/config";
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -11,8 +13,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import API_BASE_URL from "../utils/config";
-import { registraionData } from "./data/registrationData";
 
 let initialData = {
   fullName: "",
@@ -30,19 +30,6 @@ export default function Registration() {
   const handleRegistration = (key: string, value: string) => {
     setUserData((prev) => ({ ...prev, [key]: value }));
   };
-
-  // validate user entered appropriate data and that the user doesn't already exist
-  // const validateRegistration = () => {
-  //   const isEmpty = Object.values(userData).some((val) => !val);
-
-  //   if (isEmpty) {
-  //     setErrors("Please fix any errors");
-  //     return false;
-  //   }
-
-  //   setErrors("");
-  //   return true;
-  // };
 
   // create new account if the user is a new user
   const onRegister = async () => {
