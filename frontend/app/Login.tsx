@@ -4,6 +4,7 @@ Purpose - This function accepts login data from the user. When the user submits,
 redirects them to the dashboard upon successful login.
  */
 import API_BASE_URL from "@/utils/config";
+import { Link } from "expo-router";
 import React, { useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -122,7 +123,7 @@ export default function Login() {
 
         <Text style={{ fontSize: 16, textAlign: "center", color: "gray" }}>
           {" "}
-          Don&apos;t have an account? Register Here
+          Don&apos;t have an account? <Link href={"/Registration"}> Register here </Link>
         </Text>
       </KeyboardAvoidingView>
     </View>

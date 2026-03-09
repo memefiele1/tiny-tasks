@@ -4,7 +4,7 @@ Purpose - Provide user with login options so that they may get access to the app
  */
 import API_BASE_URL from '@/utils/config';
 import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from '@react-native-google-signin/google-signin';
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 
@@ -63,10 +63,6 @@ export default function LandingPage() {
 
     // useEffect(() => { handleGoogleSignin() }, [])
 
-    const handleRegistration = () : void => {
-        // route to registration page
-    }
-
     return(
         <View style={{ margin: 10 }}>
             <Text style={{ fontSize: 24, textAlign: "center" }}>
@@ -111,7 +107,7 @@ export default function LandingPage() {
             </TouchableOpacity>
 
             <Text style={{ fontSize: 16, textAlign: "center", color: "gray" }}>
-                Don't have an account? Create one here
+                Don't have an account? <Link href={"/register/Registration"}> Register here </Link>
             </Text>
         </View>
     )
