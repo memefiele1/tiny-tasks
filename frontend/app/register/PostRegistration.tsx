@@ -1,10 +1,10 @@
 /*  Author - Kayla Thornton
     Purpose - Allow users to set customized preferences after creating a new account.
  */
+import { CustomRadio } from "@/components/ui/inputs/CustomRadio";
+import { postRegistrationData } from "@/data/postRegistrationData";
 import { useRef, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
-import { postRegistrationData } from "./data/postRegistrationData";
-import { CustomRadio } from "./ui/inputs/CustomRadio";
 
 export default function PreferenceForm() {
   // track current selected option
