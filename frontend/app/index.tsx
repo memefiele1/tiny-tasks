@@ -107,7 +107,7 @@ export default function LandingPage() {
             </TouchableOpacity>
 
             <Text style={{ fontSize: 16, textAlign: "center", color: "gray" }}>
-                Don't have an account? <Link href={"/register/Registration"}> Register here </Link>
+                Don't have an account? <Link href={"/Registration"}> Register here </Link>
             </Text>
         </View>
     )

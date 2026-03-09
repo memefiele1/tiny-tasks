@@ -5,6 +5,7 @@ to set basic configurations for the app.
  */
 import { registraionData } from "@/data/registrationData";
 import API_BASE_URL from "@/utils/config";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -23,6 +24,7 @@ let initialData = {
 }
 
 export default function Registration() {
+  const router = useRouter();
   const [errors, setErrors] = useState("");
   const [userData, setUserData] = useState(initialData);
 
@@ -52,6 +54,7 @@ export default function Registration() {
           console.log("Account has been successfully created");
           setErrors("");
           setUserData(initialData);
+          router.navigate('/PostRegistration');
         } else {
           setErrors(data.message || "Error creating account");
         }
