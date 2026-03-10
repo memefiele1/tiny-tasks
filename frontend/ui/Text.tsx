@@ -32,30 +32,34 @@ interface TextProps{
 // set styling for all Headings
 export function Heading({children, style}: TextProps) {
     return(
-        <Text style={[styles.color, styles.heading, style]}>{children}</Text>
+        <Text style={[styles.heading, style]}>{children}</Text>
     );
 }
 
 export function Subheading({children, style}: TextProps) {
     return(
-        <Text style={[styles.color, styles.subheading, style]}>{children}</Text>
+        <Text style={[styles.subheading, style]}>{children}</Text>
     );
 }
 
 // set style for text body, can also change text to represent captions or errors
 export function BodyText({children, variant, style }: TextProps) {
+    // default test style
     let type;
+
     switch (variant){
         case 'caption':
             type = {
                 fontSize: 14,
                 color: COLORS.blueSteel
             }
+            break;
         case 'error':
             type = {
                 fontSize: 14,
                 color: COLORS.redAccent
             }
+            break;
     }
 
     return(
@@ -64,24 +68,26 @@ export function BodyText({children, variant, style }: TextProps) {
 }
 
 const styles = StyleSheet.create({
-    color: {
-        color: COLORS.blueSteel
-    },
     heading: {
         fontSize: 32, 
         fontWeight: 800,
+        textAlign: 'center',
+        color: COLORS.primaryBlue,
         padding: SPACING.sm,
         margin: SPACING.md
     },
     subheading: {
         fontSize: 24, 
         fontWeight: 700,
+        textAlign: 'center',
+        color: COLORS.blueSteel,
         padding: SPACING.sm,
         margin: SPACING.sm
     },
     bodyText: {
         fontSize: 16, 
         fontWeight: 400,
+        color: COLORS.blueSteel,
         padding: SPACING.sm,
         margin: SPACING.xs
     }

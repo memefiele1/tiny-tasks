@@ -1,8 +1,8 @@
 /*  Author - Kayla Thornton
     Purpose - Allow users to set customized preferences after creating a new account.
  */
-import { CustomRadio } from "@/components/ui/inputs/CustomRadio";
 import { postRegistrationData } from "@/data/postRegistrationData";
+import { CustomRadio } from "@/ui/CustomRadio";
 import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
@@ -15,9 +15,8 @@ export default function PreferenceForm() {
   
   // update currQuestion to object at current postRegistrationData index
   const onNext = () => {
-    // once user has answered all questions, route to dashboard
     indexRef.current++;
-    // if (indexRef.current > formLength) { 
+    // if (indexRef.current > formLength) {  // route to dashboard when user has answered all questions
     //   toDashboard();
     // };
 

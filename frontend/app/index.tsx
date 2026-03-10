@@ -2,11 +2,21 @@
 Author - Kayla Thornton
 Purpose - Provide user with login options so that they may get access to the app
  */
+import Button from '@/ui/Button';
+import Screen from '@/ui/Screen';
+import { BodyText, Heading, Subheading } from '@/ui/Text';
 import API_BASE_URL from '@/utils/config';
 import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from '@react-native-google-signin/google-signin';
 import { Link, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+
+const COLORS = {
+  primaryBlue: "#0039A6",
+  white: "#FFFFFF",
+  redAccent: "#CC0000",
+  blueSteel: "#374057",
+  vibrantBlue: "#00AEEF",
+};
 
 GoogleSignin.configure({
     webClientId: process.env.GOOGLE_CLIENT_ID,
@@ -64,51 +74,25 @@ export default function LandingPage() {
     // useEffect(() => { handleGoogleSignin() }, [])
 
     return(
-        <View style={{ margin: 10 }}>
-            <Text style={{ fontSize: 24, textAlign: "center" }}>
-            {" "}
-                Tiny Tasks{" "}
-            </Text>
-            <Text style={{ fontSize: 16, textAlign: "center", color: "gray" }}>
-                Task management app for students
-            </Text>
-            <Text style={{ fontSize: 16, textAlign: "center", color: "gray" }}>
-                Login or create an account to get started!
-            </Text>
+        <Screen style={{ backgroundColor: COLORS.primaryBlue }}>
+            <Heading style={{ color: COLORS.white }}> Tiny Tasks </Heading>
+            <Subheading style={{ color: COLORS.white }}> Task management app for students </Subheading>
+            <Subheading style={{ color: COLORS.white }}> Login or create an account to get started! </Subheading>
 
-            {error ? <Text>{ error } </Text> : null}
-            <TouchableOpacity
-                accessibilityLabel="Login with Google"
+            {error ? <BodyText > { error } </BodyText> : null}
+            
+            <Button 
+                label="Login with Google" 
                 onPress={handleGoogleSignin}
-                style={{
-                flex: 1,
-                padding: 10,
-                borderRadius: 14,
-                borderWidth: 1,
-                alignItems: "center",
-                }}
-            >
-                <Text style={{ fontSize: 18 }}> Sign-in with Google </Text>
-            </TouchableOpacity>
+                variant="secondary" />
+            
+            <Button 
+                label="Login with email"
+                onPress={() => router.navigate('./Login')} />
 
-            <TouchableOpacity
-                accessibilityLabel="Login with email"
-                onPress={() => router.navigate('./Login')}
-                style={{
-                flex: 1,
-                padding: 10,
-                borderRadius: 14,
-                borderWidth: 1,
-                backgroundColor: "black",
-                alignItems: "center",
-                }}
-            >
-                <Text style={{ fontSize: 18, color: "white" }}> Sign-in with Email </Text>
-            </TouchableOpacity>
-
-            <Text style={{ fontSize: 16, textAlign: "center", color: "gray" }}>
-                Don't have an account? <Link href={"/Registration"}> Register here </Link>
-            </Text>
-        </View>
+            <BodyText style={{ color: COLORS.white, textAlign: 'center' }}> 
+                 Don't have an account? <Link href={"/Registration"} style={{ color: "#00AEEF"}}> Register here </Link>
+            </BodyText>
+        </Screen>
     )
 }
