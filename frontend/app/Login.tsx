@@ -4,7 +4,7 @@ Purpose - This function accepts login data from the user. When the user submits,
 redirects them to the dashboard upon successful login.
  */
 import API_BASE_URL from "@/utils/config";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -16,6 +16,7 @@ import {
 
 
 export default function Login() {
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState("");
@@ -34,7 +35,6 @@ export default function Login() {
 
       // route to login page if login successful
       if (response.ok) {
-        setErrors("");
         onLogin();
       } else if (response.status > 400){
         setErrors("User not found");
@@ -51,7 +51,7 @@ export default function Login() {
     setUsername("");
     setPassword("");
     setErrors("");
-    // route to dashboard
+    router.navigate('./(tabs)');
   };
 
   

@@ -3,12 +3,13 @@
  */
 import { CustomRadio } from "@/components/ui/inputs/CustomRadio";
 import { postRegistrationData } from "@/data/postRegistrationData";
+import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 export default function PreferenceForm() {
-  // track current selected option
-  const indexRef = useRef<number>(0);
+  const router = useRouter();
+  const indexRef = useRef<number>(0); // track current selected option
   const formLength = postRegistrationData.length;
   const [currQuestion, setCurrQuestion] = useState(postRegistrationData[indexRef.current]);
   
@@ -28,8 +29,10 @@ export default function PreferenceForm() {
     setCurrQuestion(postRegistrationData[indexRef.current]);
   };
 
+  // route to dashboard if users skip form or have finished 
   const toDashboard = () => {
     console.log("Route to dashboard");
+    // router.navigate('./(tabs)');
   }
 
   // render each question to screen

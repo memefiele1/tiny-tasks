@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /*
 Author - Kayla Thornton
 Purpose - Provide user with login options so that they may get access to the app
@@ -113,23 +112,3 @@ export default function LandingPage() {
         </View>
     )
 }
-=======
-import PostRegistration from "@/components/PostRegistration";
-import { View } from "react-native";
-
-export default function Index() {
-  return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      {/* <Login /> */}
-      {/* <Registration /> */}
-      <PostRegistration />
-    </View>
-  );
-}
->>>>>>> c15f6fe5d4522f1c498dbb6bfe8aa302520318e9
