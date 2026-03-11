@@ -3,20 +3,14 @@ Author - Kayla Thornton
 Purpose - Provide user with login options so that they may get access to the app
  */
 import Button from '@/ui/Button';
+import { COLORS, SPACING } from '@/ui/CustomStyles';
 import Screen from '@/ui/Screen';
 import { BodyText, Heading, Subheading } from '@/ui/Text';
 import API_BASE_URL from '@/utils/config';
 import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from '@react-native-google-signin/google-signin';
 import { Link, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-
-const COLORS = {
-  primaryBlue: "#0039A6",
-  white: "#FFFFFF",
-  redAccent: "#CC0000",
-  blueSteel: "#374057",
-  vibrantBlue: "#00AEEF",
-};
+import { View } from 'react-native';
 
 GoogleSignin.configure({
     webClientId: process.env.GOOGLE_CLIENT_ID,
@@ -74,25 +68,32 @@ export default function LandingPage() {
     // useEffect(() => { handleGoogleSignin() }, [])
 
     return(
-        <Screen style={{ backgroundColor: COLORS.primaryBlue }}>
-            <Heading style={{ color: COLORS.white }}> Tiny Tasks </Heading>
-            <Subheading style={{ color: COLORS.white }}> Task management app for students </Subheading>
-            <Subheading style={{ color: COLORS.white }}> Login or create an account to get started! </Subheading>
+        <Screen style={{ backgroundColor: COLORS.primaryBlue, justifyContent: 'space-between' }}>
+            <View>
+                <Heading style={{ color: COLORS.white }}> Tiny Tasks </Heading>
+                <Subheading style={{ color: COLORS.white }}> Task management app for students </Subheading>
+                <Subheading style={{ color: COLORS.white }}> Login or create an account to get started! </Subheading>
 
-            {error ? <BodyText > { error } </BodyText> : null}
+                {error ? <BodyText > { error } </BodyText> : null}
+            </View>
             
-            <Button 
-                label="Login with Google" 
-                onPress={handleGoogleSignin}
-                variant="secondary" />
+            <View>
+               <Button 
+                    label="Login with Google" 
+                    onPress={handleGoogleSignin}
+                    variant="secondary"
+                    style={{ margin: SPACING.sm }} />
             
-            <Button 
-                label="Login with email"
-                onPress={() => router.navigate('./Login')} />
+                <Button 
+                    label="Login with email"
+                    onPress={() => router.navigate('./Login')} 
+                    style={{ margin: SPACING.sm }} />
 
-            <BodyText style={{ color: COLORS.white, textAlign: 'center' }}> 
-                 Don't have an account? <Link href={"/Registration"} style={{ color: "#00AEEF"}}> Register here </Link>
-            </BodyText>
+                <BodyText style={{ color: COLORS.white, textAlign: 'center' }}> 
+                    Don't have an account? <Link href={"/Registration"} style={{ color: COLORS.vibrantBlue}}> Register here </Link>
+                </BodyText> 
+            </View>
+            
         </Screen>
     )
 }

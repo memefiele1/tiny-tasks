@@ -4,22 +4,7 @@
 
 import React, { ReactNode } from "react";
 import { StyleSheet, Text } from "react-native";
-
-const COLORS = {
-  primaryBlue: "#0039A6",
-  white: "#FFFFFF",
-  redAccent: "#CC0000",
-  blueSteel: "#374057",
-  vibrantBlue: "#00AEEF",
-};
-
-const SPACING = {
-  xs: 4,
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 20,
-} as const;
+import { COLORS, SPACING } from "./CustomStyles";
 
 type variant = "error" | "caption";
 
@@ -78,7 +63,7 @@ const styles = StyleSheet.create({
     },
     subheading: {
         fontSize: 24, 
-        fontWeight: 700,
+        fontWeight: 500,
         textAlign: 'center',
         color: COLORS.blueSteel,
         padding: SPACING.sm,
