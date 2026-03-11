@@ -7,7 +7,7 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
 const router = express.Router();
 
-// Configure strategy ONCE
+// Configure strategy 
 passport.use(
   new GoogleStrategy(
     {
