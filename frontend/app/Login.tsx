@@ -4,15 +4,15 @@ Purpose - This function accepts login data from the user. When the user submits,
 redirects them to the dashboard upon successful login.
  */
 
+import Button from "@/ui/Button";
+import Screen from "@/ui/Screen";
+import { BodyText, Heading, Subheading } from "@/ui/Text";
 import API_BASE_URL from "@/utils/config";
 import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   KeyboardAvoidingView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+  TextInput
 } from "react-native";
 
 
@@ -58,24 +58,23 @@ export default function Login() {
   
   // TO-DO - add "forgot password" and "sign-up" links to this page (I think these should be buttons on the homescreen)
   return (
-    <View>
+    <Screen>
       <KeyboardAvoidingView>
-        <View style={{ margin: 10 }}>
-          <Text style={{ fontSize: 24, textAlign: "center" }}>
-            {" "}
-            Tiny Tasks{" "}
-          </Text>
-          <Text style={{ fontSize: 16, textAlign: "center", color: "gray" }}>
+        <Screen>
+          <Heading>
+            Tiny Tasks
+          </Heading>
+          <Subheading>
             Task management app for students
-          </Text>
-        </View>
+          </Subheading>
+        </Screen>
 
-        <View style={{ gap: 10, marginBottom: 16 }}>
+        <Screen>
           { errors  ? (
-            <Text style={{ fontSize: 12, color: "red" }}> {errors} </Text>
+            <BodyText variant="error"> {errors} </BodyText>
           ) : null}
 
-          <Text style={{ fontSize: 14, fontWeight: "700" }}> Username </Text>
+          <BodyText> Username </BodyText>
           <TextInput
             placeholder="Username"
             value={username}
@@ -90,7 +89,7 @@ export default function Login() {
             }}
           />
 
-          <Text style={{ fontSize: 14, fontWeight: "700" }}> Password </Text>
+          <BodyText> Password </BodyText>
           <TextInput
             placeholder="Password"
             value={password}
@@ -105,29 +104,20 @@ export default function Login() {
               fontSize: 14,
             }}
           />
-        </View>
+        </Screen>
 
         <Link href="/ForgotPassword"> Forgot Password? </Link>
-        <TouchableOpacity
-          accessibilityLabel="log in"
-          onPress={validateUser}
-          style={{
-            flex: 1,
-            padding: 10,
-            borderRadius: 14,
-            borderWidth: 1,
-            backgroundColor: "black",
-            alignItems: "center",
-          }}
-        >
-          <Text style={{ fontSize: 18, color: "white" }}> Log In </Text>
-        </TouchableOpacity>
 
-        <Text style={{ fontSize: 16, textAlign: "center", color: "gray" }}>
-          {" "}
+        <Button 
+          label="Log In"
+          onPress={validateUser}
+        />
+
+        <BodyText>
           Don&apos;t have an account? <Link href={"/Registration"}> Register here </Link>
-        </Text>
+        </BodyText>
+
       </KeyboardAvoidingView>
-    </View>
+    </Screen>
   );
 }
