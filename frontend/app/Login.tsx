@@ -107,6 +107,7 @@ export default function Login() {
           />
         </View>
 
+        <Link href="/ForgotPassword"> Forgot Password? </Link>
         <TouchableOpacity
           accessibilityLabel="log in"
           onPress={validateUser}
