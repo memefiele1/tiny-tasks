@@ -20,6 +20,7 @@ const getMorningTasks = require('./api/tasks/getMorning');
 const getAfternoonTasks = require('./api/tasks/getAfternoon');
 const getFilteredTasks = require('./api/tasks/getFiltered');
 const { setViewPreference, getViewPreference } = require('./api/tasks/setViewPreference');
+const { estimateTask } = require('./api/tasks/estimateTask');
 
 // ── TIMER ROUTES ──────────────────────────────────
 const startTimer = require('./api/timer/start');
@@ -42,7 +43,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Google Auth session middleware
 app.use(
   session({
     secret: process.env.JWT_SECRET || 'dev_session_secret',
@@ -55,7 +55,7 @@ app.use(passport.session());
 app.use('/auth', googleAuthRoutes);
 app.use('/auth', authRoutes);
 
-// ── ROUTES ────────────────────────────────────────
+// ── HEALTH ────────────────────────────────────────
 app.get('/health', (req, res) => {
   res.status(200).json({ success: true, message: 'Tiny Tasks API is running' });
 });
@@ -64,16 +64,15 @@ app.get('/health', (req, res) => {
 app.post('/api/tasks', createTask);
 app.get('/api/tasks/today/:user_id', getTodayTasks);
 app.get('/api/tasks/user/:user_id', getAllTasks);
+app.get('/api/tasks/morning/:user_id', getMorningTasks);
+app.get('/api/tasks/afternoon/:user_id', getAfternoonTasks);
+app.get('/api/tasks/filtered/:user_id', getFilteredTasks);
+app.get('/api/tasks/:task_id/estimate', estimateTask);
 app.put('/api/tasks/:task_id', updateTask);
 app.delete('/api/tasks/:task_id', deleteTask);
 app.patch('/api/tasks/:task_id/complete', completeTask);
 
-// Sprint 2 — half-day view + filtering
-app.get('/api/tasks/morning/:user_id', getMorningTasks);
-app.get('/api/tasks/afternoon/:user_id', getAfternoonTasks);
-app.get('/api/tasks/filtered/:user_id', getFilteredTasks);
-
-// Sprint 2 — user view preferences
+// ── PREFERENCE ENDPOINTS ──────────────────────────
 app.get('/api/preferences/:user_id', getViewPreference);
 app.put('/api/preferences/:user_id', setViewPreference);
 
@@ -99,6 +98,7 @@ app.listen(PORT, () => {
   console.log('   GET     /api/tasks/morning/:user_id');
   console.log('   GET     /api/tasks/afternoon/:user_id');
   console.log('   GET     /api/tasks/filtered/:user_id');
+  console.log('   GET     /api/tasks/:task_id/estimate');
   console.log('   PUT     /api/tasks/:task_id');
   console.log('   DELETE  /api/tasks/:task_id');
   console.log('   PATCH   /api/tasks/:task_id/complete');
@@ -120,4 +120,3 @@ app.listen(PORT, () => {
 });
 
 module.exports = app;
-

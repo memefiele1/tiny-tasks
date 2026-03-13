@@ -3,14 +3,15 @@
 // Urgency score formula: (priority_weight * 10) - days_until_due
 // Author: Miracle Emefiele
 
+
 const db = require('../../config/database');
+const { estimateCompletionTime } = require('./estimateTask');
 
 // Priority weights — higher number = more urgent
 // In your schema: priority 1 = High, 2 = Medium, 3 = Low
 const PRIORITY_WEIGHTS = { 1: 3, 2: 2, 3: 1 };
 
 // Only show tasks with urgency score above this threshold
-// Tasks due far in the future will score below this and stay hidden
 const VISIBILITY_THRESHOLD = -7;
 
 function calculateUrgencyScore(priority, due_date) {
@@ -25,7 +26,6 @@ async function getFilteredTasks(req, res) {
   try {
     const { user_id } = req.params;
     const { date, view } = req.query;
-    // view can be 'full', 'morning', or 'afternoon'
 
     if (!user_id) {
       return res.status(400).json({ success: false, error: 'user_id is required' });
@@ -33,7 +33,6 @@ async function getFilteredTasks(req, res) {
 
     const targetDate = date || new Date().toISOString().split('T')[0];
 
-    // Build base query — fetch all incomplete tasks for this user
     let sql = `
       SELECT * FROM tasks
       WHERE user_id = ?
@@ -41,7 +40,6 @@ async function getFilteredTasks(req, res) {
     `;
     const params = [user_id];
 
-    // Apply half-day view filter if requested
     if (view === 'morning') {
       sql += ` AND DATE(due_date) = ? AND strftime('%H', due_date) < '12'`;
       params.push(targetDate);
@@ -49,20 +47,20 @@ async function getFilteredTasks(req, res) {
       sql += ` AND DATE(due_date) = ? AND strftime('%H', due_date) >= '12'`;
       params.push(targetDate);
     } else {
-      // Full day view — show tasks due today or overdue
       sql += ` AND DATE(due_date) <= ?`;
       params.push(targetDate);
     }
 
     const tasks = await db.allAsync(sql, params);
 
-    // Calculate urgency score for each task
-    const scoredTasks = tasks.map(task => ({
-      ...task,
-      urgency_score: calculateUrgencyScore(task.priority, task.due_date)
-    }));
+    // Calculate urgency score AND estimation for each task
+    const scoredTasks = tasks.map(task => {
+      const urgency_score = calculateUrgencyScore(task.priority, task.due_date);
+      const estimation = estimateCompletionTime(task);
+      return { ...task, urgency_score, estimation };
+    });
 
-    // Filter out tasks below visibility threshold (due too far in future)
+    // Filter out tasks below visibility threshold
     const visibleTasks = scoredTasks.filter(task => task.urgency_score > VISIBILITY_THRESHOLD);
 
     // Sort by urgency score descending, break ties with oldest created_at first
@@ -71,11 +69,14 @@ async function getFilteredTasks(req, res) {
       return new Date(a.created_at) - new Date(b.created_at);
     });
 
+    const warnings = visibleTasks.filter(t => t.estimation.warning).length;
+
     return res.status(200).json({
       success: true,
       view: view || 'full',
       date: targetDate,
       count: visibleTasks.length,
+      warnings,
       tasks: visibleTasks
     });
 
