@@ -21,6 +21,7 @@ const getAfternoonTasks = require('./api/tasks/getAfternoon');
 const getFilteredTasks = require('./api/tasks/getFiltered');
 const { setViewPreference, getViewPreference } = require('./api/tasks/setViewPreference');
 const { estimateTask } = require('./api/tasks/estimateTask');
+const rescheduleTasks = require('./api/tasks/reschedule');
 
 // ── TIMER ROUTES ──────────────────────────────────
 const startTimer = require('./api/timer/start');
@@ -71,6 +72,7 @@ app.get('/api/tasks/:task_id/estimate', estimateTask);
 app.put('/api/tasks/:task_id', updateTask);
 app.delete('/api/tasks/:task_id', deleteTask);
 app.patch('/api/tasks/:task_id/complete', completeTask);
+app.post('/api/tasks/reschedule/:user_id', rescheduleTasks);
 
 // ── PREFERENCE ENDPOINTS ──────────────────────────
 app.get('/api/preferences/:user_id', getViewPreference);
@@ -115,6 +117,7 @@ app.listen(PORT, () => {
   console.log('   Archive Endpoints:');
   console.log('   GET     /api/archive/:user_id');
   console.log('');
+  console.log('   POST    /api/tasks/reschedule/:user_id');
 
   startCleanupJob();
 });
