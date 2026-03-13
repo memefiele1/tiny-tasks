@@ -3,6 +3,7 @@ Author - Kayla Thornton
 Purpose - This function accepts login data from the user. When the user submits, this component validates their data and 
 redirects them to the dashboard upon successful login.
  */
+import API_BASE_URL from "../utils/config";
 import React, { useState, useEffect } from "react";
 import {
   KeyboardAvoidingView,
@@ -27,16 +28,18 @@ export default function Login() {
   // Validate user login information
   const validateForm = async () => {
     try {
-      const response = await fetch("/login");
-      const data = (await response).json();
-
-      console.log(data)
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: username, password })
+      });
+      const data = await response.json();
+      console.log(data);
     } catch (error) {
-      console.log(error)
-      // setError(error)
+      console.log(error);
     }
   };
-
+  
   // clear form and route to dashboard if login attempt was successful
   const onLogin = () : void => {
     validateForm()
@@ -49,7 +52,7 @@ export default function Login() {
     } 
   };
 
-  useEffect(() => { validateForm() }, []);
+
   
   // TO-DO - add "forgot password" and "sign-up" links to this page (I think these should be buttons on the homescreen)
   return (
