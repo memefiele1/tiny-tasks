@@ -2,16 +2,25 @@
     Purpose - Allow users to set customized preferences after creating a new account.
  */
 import { useRef, useState } from "react";
+import { useRouter } from "expo-router";
 import { Text, TouchableOpacity, View } from "react-native";
 import { postRegistrationData } from "./data/postRegistrationData";
 import { CustomRadio } from "./ui/inputs/CustomRadio";
+
+
 
 export default function PreferenceForm() {
   // track current selected option
   const indexRef = useRef<number>(0);
   const formLength = postRegistrationData.length;
   const [currQuestion, setCurrQuestion] = useState(postRegistrationData[indexRef.current]);
+  const router = useRouter();
   
+  {/*for routing to google permissions screen*/}
+  const toGooglePermissions = () => {
+    router.push("/google-permissions");
+  };
+
   // update currQuestion to object at current postRegistrationData index
   const onNext = () => {
     // once user has answered all questions, route to dashboard
@@ -75,6 +84,23 @@ export default function PreferenceForm() {
           }}>
         <Text style={{fontSize: 12}}> Skip </Text>
       </TouchableOpacity>
+
+        {/* for google permissions */}
+       <TouchableOpacity
+        accessibilityLabel="skip"
+        onPress={toGooglePermissions}
+        style={{
+          flex: 1,
+          padding: 10,
+          borderRadius: 14,
+          borderWidth: 1,
+          backgroundColor: "white",
+          alignItems: "center",
+        }}
+      >
+        <Text style={{ fontSize: 12 }}>Skip</Text>
+      </TouchableOpacity>
+
     </View>
   );
 }
