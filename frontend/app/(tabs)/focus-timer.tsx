@@ -16,6 +16,11 @@ const priorityColors = {
   low: "#6bcB77",
 } as const;
 
+const priorityOrder = {
+    high: 3,
+    medium: 2,
+    low: 1,
+  } as const;
 export default function FocusTimerScreen() {
   const { tasks } = useTasks();
 
@@ -24,11 +29,7 @@ export default function FocusTimerScreen() {
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const priorityOrder = {
-    high: 3,
-    medium: 2,
-    low: 1,
-  } as const;
+  
 
 const parseTaskDateTime = (dueDate?: string, time?: string) => {
   if (!dueDate) return Number.MAX_SAFE_INTEGER;

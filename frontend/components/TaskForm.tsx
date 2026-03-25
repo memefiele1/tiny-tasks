@@ -33,6 +33,7 @@ type Props = {
   initial?: Partial<TaskDraft>;
 };
 
+
 const formatYYYYMMDD = (d: Date) => d.toISOString().slice(0, 10);
 const addDays = (days: number) => {
   const d = new Date();
@@ -63,6 +64,7 @@ const commonInput = {
 export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
   const scrollRef = useRef<ScrollView | null>(null);
 
+  
   const [title, setTitle] = useState(initial?.title ?? "");
   const [priority, setPriority] = useState<Priority>(
     initial?.priority ?? "medium"
@@ -97,6 +99,7 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
       : "Use YYYY-MM-DD (ex: 2026-02-06) or tap a quick option.";
   }, [dueDate]);
 
+
   const canSave = useMemo(() => {
     return (
       title.trim().length > 0 &&
@@ -106,7 +109,7 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
       !dueDateError &&
       !timeError
     );
-  }, [title, dueDate, titleError, dueDateError, timeError]);
+  }, [title, dueDate, titleError, dueDateError, timeError,time]);
 
   const handleSubmit = () => {
     if (!canSave) {
@@ -122,14 +125,15 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
       description: description.trim(),
       priority,
       dueDate: dueDate.trim(),
-      status,
       time: time.trim(),
+      status,
     });
 
     setTitle("");
     setPriority("medium");
     setDueDate("");
     setDescription("");
+    setTime("");
     setShowDetails(false);
   };
 
@@ -234,24 +238,44 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
           </Text>
         </View>
 
-        {/* TIME */}
         <View style={styles.section}>
-        <Text style={styles.sectionLabel}>Time</Text>
+          <Text style={styles.sectionLabel}>Time</Text>
 
-        <TextInput
-          value={time}
-          onChangeText={setTime}
-          placeholder="e.g. 2:00 PM"
-          autoCapitalize="characters"
-          style={commonInput}
-        />
+          <View style={{ flexDirection: "row", flexWrap: "wrap", marginBottom: 8 }}>
+            {["9:00 AM", "12:00 PM", "2:00 PM", "6:00 PM"].map((slot) => (
+              <Text
+                key={slot}
+                onPress={() => setTime(slot)}
+                style={{
+                  paddingVertical: 10,
+                  paddingHorizontal: 12,
+                  borderRadius: 999,
+                  borderWidth: 1,
+                  marginRight: 10,
+                  marginBottom: 10,
+                  fontWeight: "700",
+                }}
+              >
+                {slot}
+              </Text>
+            ))}
+          </View>
 
-        {timeError ? (
-          <Text style={{ fontSize: 12, color: "crimson", marginTop: 4 }}>
-            {timeError}
-          </Text>
-        ) : null}
-      </View>
+          <TextInput
+            value={time}
+            onChangeText={setTime}
+            placeholder="e.g., 2:00 PM"
+            autoCapitalize="characters"
+            style={[commonInput]}
+          />
+
+          {timeError ? (
+            <Text style={{ fontSize: 12, color: "crimson" }}>
+              {timeError}
+            </Text>
+          ) : null}
+        </View> 
+
 
 
         {/* STATUS */}

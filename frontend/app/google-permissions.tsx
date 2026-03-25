@@ -1,3 +1,5 @@
+//Tiffany Santiago Garcia Google Permissions Screen
+
 import React from "react";
 import { View, Text, Pressable, StyleSheet, SafeAreaView, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
