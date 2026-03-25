@@ -71,7 +71,6 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
   );
   const [time, setTime] = useState(initial?.time ?? "");
   const [dueDate, setDueDate] = useState(initial?.dueDate ?? "");
-  const [time, setTime] = useState(initial?.time ?? "");
   const [status, setStatus] = useState<Status>(
     initial?.status ?? "not_started"
   );
@@ -100,11 +99,6 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
       : "Use YYYY-MM-DD (ex: 2026-02-06) or tap a quick option.";
   }, [dueDate]);
 
-  const timeError = useMemo(() => {
-  if (time.length === 0) return "";
-  const ok = /^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i.test(time.trim());
-  return ok ? "" : "Use HH:MM AM/PM (ex: 2:00 PM).";
-}, [time]);
 
   const canSave = useMemo(() => {
     return (
@@ -115,7 +109,7 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
       !dueDateError &&
       !timeError
     );
-  }, [title, dueDate, titleError, dueDateError, timeError]);
+  }, [title, dueDate, titleError, dueDateError, timeError,time]);
 
   const handleSubmit = () => {
     if (!canSave) {
@@ -133,7 +127,6 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
       dueDate: dueDate.trim(),
       time: time.trim(),
       status,
-      time: time.trim(),
     });
 
     setTitle("");
