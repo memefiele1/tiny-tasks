@@ -23,6 +23,7 @@ export type TaskDraft = {
   description: string;
   priority: Priority;
   dueDate: string;
+  time: string;
   status: Status;
 };
 
@@ -31,6 +32,7 @@ type Props = {
   onCancel?: () => void;
   initial?: Partial<TaskDraft>;
 };
+
 
 const formatYYYYMMDD = (d: Date) => d.toISOString().slice(0, 10);
 const addDays = (days: number) => {
@@ -62,11 +64,13 @@ const commonInput = {
 export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
   const scrollRef = useRef<ScrollView | null>(null);
 
+  
   const [title, setTitle] = useState(initial?.title ?? "");
   const [priority, setPriority] = useState<Priority>(
     initial?.priority ?? "medium"
   );
   const [dueDate, setDueDate] = useState(initial?.dueDate ?? "");
+  const [time, setTime] = useState(initial?.time ?? "");
   const [status, setStatus] = useState<Status>(
     initial?.status ?? "not_started"
   );
@@ -88,14 +92,21 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
       : "Use YYYY-MM-DD (ex: 2026-02-06) or tap a quick option.";
   }, [dueDate]);
 
+  const timeError = useMemo(() => {
+  if (time.length === 0) return "";
+  const ok = /^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i.test(time.trim());
+  return ok ? "" : "Use HH:MM AM/PM (ex: 2:00 PM).";
+}, [time]);
+
   const canSave = useMemo(() => {
     return (
       title.trim().length > 0 &&
       dueDate.trim().length > 0 &&
       !titleError &&
-      !dueDateError
+      !dueDateError &&
+      !timeError
     );
-  }, [title, dueDate, titleError, dueDateError]);
+  }, [title, dueDate, titleError, dueDateError, timeError]);
 
   const handleSubmit = () => {
     if (!canSave) {
@@ -111,6 +122,7 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
       description: description.trim(),
       priority,
       dueDate: dueDate.trim(),
+      time: time.trim(),
       status,
     });
 
@@ -118,6 +130,7 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
     setPriority("medium");
     setDueDate("");
     setDescription("");
+    setTime("");
     setShowDetails(false);
   };
 
@@ -221,6 +234,46 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
             Tip: Use the quick buttons to avoid typing.
           </Text>
         </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>Time</Text>
+
+          <View style={{ flexDirection: "row", flexWrap: "wrap", marginBottom: 8 }}>
+            {["9:00 AM", "12:00 PM", "2:00 PM", "6:00 PM"].map((slot) => (
+              <Text
+                key={slot}
+                onPress={() => setTime(slot)}
+                style={{
+                  paddingVertical: 10,
+                  paddingHorizontal: 12,
+                  borderRadius: 999,
+                  borderWidth: 1,
+                  marginRight: 10,
+                  marginBottom: 10,
+                  fontWeight: "700",
+                }}
+              >
+                {slot}
+              </Text>
+            ))}
+          </View>
+
+          <TextInput
+            value={time}
+            onChangeText={setTime}
+            placeholder="e.g., 2:00 PM"
+            autoCapitalize="characters"
+            style={[commonInput]}
+          />
+
+          {timeError ? (
+            <Text style={{ fontSize: 12, color: "crimson" }}>
+              {timeError}
+            </Text>
+          ) : null}
+        </View> 
+
+
 
         {/* STATUS */}
         <View style={styles.section}>

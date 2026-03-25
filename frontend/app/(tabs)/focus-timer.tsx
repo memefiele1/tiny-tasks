@@ -3,10 +3,10 @@ import {
   View,
   Text,
   Pressable,
-  SafeAreaView,
   StyleSheet,
   Animated,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 
 const DEFAULT_TIME = 25 * 60; // 25 minutes in seconds
