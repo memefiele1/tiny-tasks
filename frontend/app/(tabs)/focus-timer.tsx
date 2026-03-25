@@ -94,7 +94,8 @@ const FocusTimerScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.bg}>
-      
+      <View style={{ padding: 20 }}></View>
+      <Text style={styles.headerTitle}>Focus Timer</Text>
       <View style={styles.taskCard}>
         <View style={{ flex: 1 }}>
           <Text style={styles.taskLabel}>Current Task</Text>
