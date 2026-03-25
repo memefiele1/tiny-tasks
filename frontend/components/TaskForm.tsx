@@ -23,6 +23,7 @@ export type TaskDraft = {
   description: string;
   priority: Priority;
   dueDate: string;
+  time: string;
   status: Status;
 };
 
@@ -66,6 +67,7 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
   const [priority, setPriority] = useState<Priority>(
     initial?.priority ?? "medium"
   );
+  const [time, setTime] = useState(initial?.time ?? "");
   const [dueDate, setDueDate] = useState(initial?.dueDate ?? "");
   const [status, setStatus] = useState<Status>(
     initial?.status ?? "not_started"
@@ -80,6 +82,13 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
     return title.trim().length === 0 ? "Task name can't be blank." : "";
   }, [title]);
 
+  const timeError = useMemo(() => {
+    if (time.length === 0) return "";
+
+    const ok = /^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i.test(time.trim());
+    return ok ? "" : "Use format HH:MM AM/PM (e.g., 2:00 PM)";
+  }, [time]);
+
   const dueDateError = useMemo(() => {
     if (dueDate.length === 0) return "";
     const ok = /^\d{4}-\d{2}-\d{2}$/.test(dueDate.trim());
@@ -92,10 +101,12 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
     return (
       title.trim().length > 0 &&
       dueDate.trim().length > 0 &&
+      time.trim().length > 0 &&
       !titleError &&
-      !dueDateError
+      !dueDateError &&
+      !timeError
     );
-  }, [title, dueDate, titleError, dueDateError]);
+  }, [title, dueDate, titleError, dueDateError, timeError]);
 
   const handleSubmit = () => {
     if (!canSave) {
@@ -112,6 +123,7 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
       priority,
       dueDate: dueDate.trim(),
       status,
+      time: time.trim(),
     });
 
     setTitle("");
@@ -221,6 +233,26 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
             Tip: Use the quick buttons to avoid typing.
           </Text>
         </View>
+
+        {/* TIME */}
+        <View style={styles.section}>
+        <Text style={styles.sectionLabel}>Time</Text>
+
+        <TextInput
+          value={time}
+          onChangeText={setTime}
+          placeholder="e.g. 2:00 PM"
+          autoCapitalize="characters"
+          style={commonInput}
+        />
+
+        {timeError ? (
+          <Text style={{ fontSize: 12, color: "crimson", marginTop: 4 }}>
+            {timeError}
+          </Text>
+        ) : null}
+      </View>
+
 
         {/* STATUS */}
         <View style={styles.section}>
