@@ -21,11 +21,12 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState("");
-  // store user info
+  // const [token, setToken] = useState(null);
 
-  // Validate user login information
+  // grant access to app if user already signed-in
+ 
+  // make request to backend endpoint to validate user credentials
   const validateUser = async () => {
-    // make request to backend endpoint to validate user credentials
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
@@ -35,11 +36,9 @@ export default function Login() {
       const data = await response.json();
 
       // route to login page if login successful
-      if (response.ok) {
-        onLogin();
-      } else if (response.status > 400){
-        setErrors("User not found");
-      }
+      if (response.ok) onLogin();
+      else setErrors(data.message);
+      
     } catch (error) {
       console.log(error);
       setErrors("Network error, please try again");
@@ -47,8 +46,7 @@ export default function Login() {
   };
   
   // clear form and route to dashboard on successful login 
-  const onLogin = async () => {
-    console.log("User has logged in");
+  const onLogin = () => {
     setUsername("");
     setPassword("");
     setErrors("");
@@ -56,7 +54,6 @@ export default function Login() {
   };
 
   
-  // TO-DO - add "forgot password" and "sign-up" links to this page (I think these should be buttons on the homescreen)
   return (
     <Screen>
       <KeyboardAvoidingView>

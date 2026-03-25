@@ -9,7 +9,7 @@ import { BodyText, Heading, Subheading } from '@/ui/Text';
 import API_BASE_URL from '@/utils/config';
 import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from '@react-native-google-signin/google-signin';
 import { Link, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 GoogleSignin.configure({
@@ -21,7 +21,13 @@ export default function LandingPage() {
     const router = useRouter();
     const [error, setError] = useState("");
 
-    // check if user has already signed in
+    useEffect(() => { currentSession() }, []);
+    
+    // route to dashboard if user is signed in
+    const currentSession = async () => {
+        const isSignedIn = GoogleSignin.getCurrentUser();
+        if (isSignedIn) router.navigate('./(tabs)');
+    }
 
     // allow user to sign in using google credentials
     const handleGoogleSignin = async () => {
@@ -35,7 +41,7 @@ export default function LandingPage() {
                 setError('');
                 // toBackend(user);
             } else {
-                setError('Request canceled by user')
+                setError('Request canceled by user');
             }
         } catch (error) {
             if (isErrorWithCode(error)) {
@@ -64,8 +70,6 @@ export default function LandingPage() {
             body: JSON.stringify({ user })
         });
     }
-
-    // useEffect(() => { handleGoogleSignin() }, [])
 
     return(
         <Screen style={{ backgroundColor: COLORS.primaryBlue, justifyContent: 'space-between' }}>
