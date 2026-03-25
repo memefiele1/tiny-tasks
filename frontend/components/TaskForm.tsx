@@ -69,6 +69,7 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
   const [priority, setPriority] = useState<Priority>(
     initial?.priority ?? "medium"
   );
+  const [time, setTime] = useState(initial?.time ?? "");
   const [dueDate, setDueDate] = useState(initial?.dueDate ?? "");
   const [time, setTime] = useState(initial?.time ?? "");
   const [status, setStatus] = useState<Status>(
@@ -83,6 +84,13 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
     if (title.length === 0) return "";
     return title.trim().length === 0 ? "Task name can't be blank." : "";
   }, [title]);
+
+  const timeError = useMemo(() => {
+    if (time.length === 0) return "";
+
+    const ok = /^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i.test(time.trim());
+    return ok ? "" : "Use format HH:MM AM/PM (e.g., 2:00 PM)";
+  }, [time]);
 
   const dueDateError = useMemo(() => {
     if (dueDate.length === 0) return "";
@@ -102,6 +110,7 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
     return (
       title.trim().length > 0 &&
       dueDate.trim().length > 0 &&
+      time.trim().length > 0 &&
       !titleError &&
       !dueDateError &&
       !timeError
@@ -124,6 +133,7 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
       dueDate: dueDate.trim(),
       time: time.trim(),
       status,
+      time: time.trim(),
     });
 
     setTitle("");

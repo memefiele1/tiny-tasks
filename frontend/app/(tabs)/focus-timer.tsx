@@ -1,343 +1,366 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
   Pressable,
   StyleSheet,
-  Animated,
 } from "react-native";
+import { useTasks } from "../../context/TasksContext";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
 
-const DEFAULT_TIME = 25 * 60; // 25 minutes in seconds
-
-
-
-// Placeholder data
-const currentTask = {
-  title: "Read Chapter 5",
-  time: "8:00–8:30 AM",
-  priority: "high" as const,
-};
-const upNext = [
-  { title: "Math Homework", time: "9:00 AM", priority: "medium" as const },
-  { title: "Science Project", time: "10:00 AM", priority: "low" as const },
-];
+const FOCUS_DURATION = 25 * 60;
 
 const priorityColors = {
   high: "#ff6b6b",
   medium: "#ffd166",
-  low: "#6BCB77",
-};
+  low: "#6bcB77",
+} as const;
 
+export default function FocusTimerScreen() {
+  const { tasks } = useTasks();
 
-
-type Priority = keyof typeof priorityColors;
-
-const FocusTimerScreen: React.FC = () => {
-  const router = useRouter();
-  const [timeLeft, setTimeLeft] = useState(DEFAULT_TIME);
+  const [timeLeft, setTimeLeft] = useState(FOCUS_DURATION);
   const [isRunning, setIsRunning] = useState(false);
+
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Progress bar animation
-  const progress = (DEFAULT_TIME - timeLeft) / DEFAULT_TIME;
-  const progressAnim = useRef(new Animated.Value(progress)).current;
+  const priorityOrder = {
+    high: 3,
+    medium: 2,
+    low: 1,
+  } as const;
+
+const parseTaskDateTime = (dueDate?: string, time?: string) => {
+  if (!dueDate) return Number.MAX_SAFE_INTEGER;
+
+  const baseDate = new Date(dueDate);
+  if (Number.isNaN(baseDate.getTime())) return Number.MAX_SAFE_INTEGER;
+
+  let hours = 23;
+  let minutes = 59;
+
+  if (time) {
+    const match = time.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+
+    if (match) {
+      let hour = Number(match[1]);
+      const minute = Number(match[2]);
+      const period = match[3].toUpperCase();
+
+      if (period === "AM" && hour === 12) hour = 0;
+      if (period === "PM" && hour !== 12) hour += 12;
+
+      hours = hour;
+      minutes = minute;
+    }
+  }
+
+  const combined = new Date(dueDate);
+  combined.setHours(hours, minutes, 0, 0);
+
+  return combined.getTime();
+};
+
+const activeTasks = useMemo(() => {
+  return tasks.filter(
+    (task) => task.status !== "completed" && task.status !== "deleted"
+  );
+}, [tasks]);
+
+const sortedTasks = useMemo(() => {
+  return [...activeTasks].sort((a, b) => {
+    const dateTimeDiff =
+      parseTaskDateTime(a.dueDate, a.time) - parseTaskDateTime(b.dueDate, b.time);
+
+    if (dateTimeDiff !== 0) return dateTimeDiff;
+
+    return priorityOrder[b.priority] - priorityOrder[a.priority];
+  });
+}, [activeTasks]);
+
+const currentTask = useMemo(() => {
+  return sortedTasks[0] ?? null;
+}, [sortedTasks]);
+
+const upNext = useMemo(() => {
+  if (!currentTask) return [];
+  return sortedTasks.filter((task) => task.id !== currentTask.id).slice(0, 3);
+}, [sortedTasks, currentTask]);
+
 
   useEffect(() => {
-    Animated.timing(progressAnim, {
-      toValue: progress,
-      duration: 300,
-      useNativeDriver: false,
-    }).start();
-  }, [progress]);
+    if (!isRunning) {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      return;
+    }
 
-  useEffect(() => {
-    if (isRunning && timeLeft > 0) {
-      intervalRef.current = setInterval(() => {
-        setTimeLeft((t) => (t > 0 ? t - 1 : 0));
-      }, 1000);
-    } else if (!isRunning && intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-    if (timeLeft === 0 && intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-      setIsRunning(false);
-    }
+    intervalRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+          }
+          setIsRunning(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
     };
-  }, [isRunning, timeLeft]);
+  }, [isRunning]);
 
-  const formatTime = (secs: number) => {
-    const m = Math.floor(secs / 60)
-      .toString()
-      .padStart(2, "0");
-    const s = (secs % 60).toString().padStart(2, "0");
-    return `${m}:${s}`;
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
+
+  const progress = (FOCUS_DURATION - timeLeft) / FOCUS_DURATION;
 
   const handleStartPause = () => {
-    setIsRunning((r) => !r);
-  };
-  const handleReset = () => {
-    setIsRunning(false);
-    setTimeLeft(DEFAULT_TIME);
+    setIsRunning((prev) => !prev);
   };
 
-  
+  const handleReset = () => {
+    setIsRunning(false);
+    setTimeLeft(FOCUS_DURATION);
+  };
 
   return (
     <SafeAreaView style={styles.bg}>
-      <View style={{ padding: 20 }}></View>
-      <Text style={styles.headerTitle}>Focus Timer</Text>
-      <View style={styles.taskCard}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.taskLabel}>Current Task</Text>
-          <Text style={styles.taskTitle}>{currentTask.title}</Text>
-          <Text style={styles.taskTime}>{currentTask.time}</Text>
-        </View>
-        <View
-          style={[
-            styles.priorityDot,
-            { backgroundColor: priorityColors[currentTask.priority] },
-          ]}
-        />
-      </View>
-      <View style={styles.timerCard}>
-        <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
-        <View style={styles.progressBarWrap}>
-          <Animated.View
+      <View style={styles.screen}>
+        <Text style={styles.headerTitle}>Focus Timer</Text>
+
+        <View style={styles.taskCard}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.taskLabel}>Current Task</Text>
+            <Text style={styles.taskTitle}>
+              {currentTask ? currentTask.title : "No active task"}
+            </Text>
+            <Text style={styles.taskTime}>
+              {currentTask?.time ?? "Add a task to get started"}
+            </Text>
+          </View>
+
+          <View
             style={[
-              styles.progressBar,
-              { width: progressAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ["0%", "100%"],
-                }) },
+              styles.priorityDot,
+              {
+                backgroundColor: currentTask
+                  ? priorityColors[currentTask.priority]
+                  : "#D9DCE3",
+              },
             ]}
           />
         </View>
-        <View style={styles.buttonRow}>
-          <Pressable
-            style={[styles.button, styles.primaryBtn]}
-            onPress={handleStartPause}
-            accessibilityLabel={isRunning ? "Pause timer" : "Start timer"}
-          >
-            <Text style={styles.buttonText}>{isRunning ? "Pause" : "Start"}</Text>
-          </Pressable>
-          <Pressable
-            style={[styles.button, styles.resetBtn]}
-            onPress={handleReset}
-            accessibilityLabel="Reset timer"
-          >
-            <Text style={[styles.buttonText, styles.resetText]}>Reset</Text>
-          </Pressable>
-        </View>
-      </View>
-      <Text style={styles.upNextTitle}>Up Next</Text>
-      <View style={styles.upNextList}>
-        {upNext.map((task, idx) => (
-          <View key={idx} style={styles.upNextCard}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.upNextTaskTitle}>{task.title}</Text>
-              <Text style={styles.upNextTaskTime}>{task.time}</Text>
-            </View>
+
+        <View style={styles.timerWrap}>
+          <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
+
+          <View style={styles.progressBarBg}>
             <View
-              style={[
-                styles.upNextPriorityDot,
-                { backgroundColor: priorityColors[task.priority] },
-              ]}
+              style={[styles.progressBarFill, { width: `${progress * 100}%` }]}
             />
           </View>
-        ))}
+
+          <View style={styles.buttonRow}>
+            <Pressable style={styles.primaryButton} onPress={handleStartPause}>
+              <Text style={styles.primaryButtonText}>
+                {isRunning ? "Pause" : "Start"}
+              </Text>
+            </Pressable>
+
+            <Pressable style={styles.secondaryButton} onPress={handleReset}>
+              <Text style={styles.secondaryButtonText}>Reset</Text>
+            </Pressable>
+          </View>
+        </View>
+
+        <Text style={styles.upNextTitle}>Up Next</Text>
+
+        <View style={styles.upNextList}>
+          {upNext.length === 0 ? (
+            <Text style={styles.emptyText}>No upcoming tasks yet.</Text>
+          ) : (
+            upNext.map((task) => (
+              <View key={task.id} style={styles.upNextCard}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.upNextTaskTitle}>{task.title}</Text>
+                  <Text style={styles.upNextTaskTime}>
+                    {task.time ? task.time : task.dueDate}
+                  </Text>
+                </View>
+
+                <View
+                  style={[
+                    styles.upNextPriorityDot,
+                    { backgroundColor: priorityColors[task.priority] },
+                  ]}
+                />
+              </View>
+            ))
+          )}
+        </View>
       </View>
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   bg: {
     flex: 1,
-    backgroundColor: "#f7fafd",
+    backgroundColor: "#F7F8FA",
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 12,
-    backgroundColor: "#f7fafd",
-  },
-  backBtn: {
-    width: 32,
-    height: 32,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 16,
-  },
-  backArrow: {
-    fontSize: 24,
-    color: "#4F8CFF",
-    fontWeight: "700",
+  screen: {
+    flex: 1,
+    padding: 20,
   },
   headerTitle: {
-    flex: 1,
-    textAlign: "center",
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "800",
-    color: "#1a237e",
-    letterSpacing: 0.2,
+    color: "#111827",
+    marginBottom: 16,
   },
   taskCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#D9DCE3",
+    padding: 16,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    marginHorizontal: 18,
-    marginTop: 18,
-    padding: 18,
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    marginBottom: 20,
   },
   taskLabel: {
     fontSize: 13,
-    color: "#607d8b",
     fontWeight: "700",
-    marginBottom: 2,
+    color: "#6B7280",
+    marginBottom: 6,
+    textTransform: "uppercase",
   },
   taskTitle: {
-    fontSize: 17,
-    fontWeight: "700",
-    color: "#222",
-    marginBottom: 2,
+    fontSize: 18,
+    fontWeight: "800",
+    color: "#111827",
   },
   taskTime: {
+    marginTop: 6,
     fontSize: 14,
-    color: "#4F8CFF",
-    fontWeight: "600",
+    color: "#6B7280",
   },
   priorityDot: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
+    width: 14,
+    height: 14,
+    borderRadius: 999,
     marginLeft: 12,
-    borderWidth: 2,
-    borderColor: "#f7fafd",
   },
-  timerCard: {
-    backgroundColor: "#fff",
-    borderRadius: 20,
-    marginHorizontal: 18,
-    marginTop: 28,
+  timerWrap: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#D9DCE3",
+    padding: 20,
     alignItems: "center",
-    paddingVertical: 32,
-    paddingHorizontal: 12,
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
+    marginBottom: 24,
   },
   timerText: {
-    fontSize: 56,
+    fontSize: 52,
     fontWeight: "800",
-    color: "#1a237e",
-    letterSpacing: 1,
-    marginBottom: 10,
+    color: "#111827",
+    marginBottom: 20,
   },
-  progressBarWrap: {
-    width: "90%",
+  progressBarBg: {
+    width: "100%",
     height: 10,
-    backgroundColor: "#e3eafc",
-    borderRadius: 6,
+    backgroundColor: "#E5E7EB",
+    borderRadius: 999,
     overflow: "hidden",
-    marginBottom: 18,
-    alignSelf: "center",
+    marginBottom: 20,
   },
-  progressBar: {
-    height: 10,
-    backgroundColor: "#4F8CFF",
-    borderRadius: 6,
+  progressBarFill: {
+    height: "100%",
+    backgroundColor: "#2F5BD2",
+    borderRadius: 999,
   },
   buttonRow: {
     flexDirection: "row",
-    justifyContent: "center",
-    width: "90%",
-    marginTop: 8,
     gap: 12,
+    width: "100%",
   },
-  button: {
+  primaryButton: {
     flex: 1,
-    paddingVertical: 13,
-    borderRadius: 10,
+    backgroundColor: "#2F5BD2",
+    paddingVertical: 14,
+    borderRadius: 14,
     alignItems: "center",
-    marginHorizontal: 4,
+    justifyContent: "center",
   },
-  primaryBtn: {
-    backgroundColor: "#4F8CFF",
-  },
-  resetBtn: {
-    backgroundColor: "#f1f3f4",
-    borderWidth: 1,
-    borderColor: "#e0e0e0",
-  },
-  buttonText: {
+  primaryButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "800",
     fontSize: 16,
-    fontWeight: "700",
-    color: "#fff",
   },
-  resetText: {
-    color: "#4F8CFF",
+  secondaryButton: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#D9DCE3",
+    paddingVertical: 14,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  secondaryButtonText: {
+    color: "#111827",
+    fontWeight: "800",
+    fontSize: 16,
   },
   upNextTitle: {
-    fontSize: 17,
-    fontWeight: "700",
-    color: "#1a237e",
-    marginLeft: 24,
-    marginTop: 32,
-    marginBottom: 8,
+    fontSize: 20,
+    fontWeight: "800",
+    color: "#111827",
+    marginBottom: 12,
   },
   upNextList: {
-    marginHorizontal: 18,
-    marginBottom: 24,
+    gap: 12,
   },
   upNextCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#D9DCE3",
+    padding: 16,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
-    borderRadius: 14,
-    padding: 14,
-    marginBottom: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
   },
   upNextTaskTitle: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: "700",
-    color: "#222",
-    marginBottom: 2,
+    color: "#111827",
   },
   upNextTaskTime: {
-    fontSize: 13,
-    color: "#4F8CFF",
-    fontWeight: "600",
+    marginTop: 4,
+    fontSize: 14,
+    color: "#6B7280",
   },
   upNextPriorityDot: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    marginLeft: 10,
-    borderWidth: 1.5,
-    borderColor: "#f7fafd",
+    width: 12,
+    height: 12,
+    borderRadius: 999,
+    marginLeft: 12,
+  },
+  emptyText: {
+    fontSize: 14,
+    color: "#6B7280",
   },
 });
-
-export default FocusTimerScreen;
