@@ -23,10 +23,10 @@ export default function LandingPage() {
 
     useEffect(() => { currentSession() }, []);
     
-    // route to dashboard if user is signed in
+    // route to dashboard if user is signed in, run on mount
     const currentSession = async () => {
         const isSignedIn = GoogleSignin.getCurrentUser();
-        if (isSignedIn) router.navigate('./(tabs)');
+        if (isSignedIn) router.navigate('./(tabs)'); // UPDATE - SEND USER ID TO HOMEPAGE
     }
 
     // allow user to sign in using google credentials
@@ -34,12 +34,12 @@ export default function LandingPage() {
         try {
             await GoogleSignin.hasPlayServices();
             const response = await GoogleSignin.signIn();
-            const user = await response.data;
+            const user = await response.data; // user info which includes access token, email, id, ...
 
             if (isSuccessResponse(response)) {
                 console.log('Success');
+                // verifyUser(user);
                 setError('');
-                // toBackend(user);
             } else {
                 setError('Request canceled by user');
             }
@@ -62,7 +62,7 @@ export default function LandingPage() {
     }
 
     // send google signin response to backend
-    const toBackend = async (user: object) => {
+    const verifyUser = async (user: object) => {
         const response = await fetch(`${API_BASE_URL}/auth/googleAuth`, 
         {
             method: "POST",

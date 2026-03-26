@@ -50,7 +50,7 @@ export default function Login() {
     setUsername("");
     setPassword("");
     setErrors("");
-    router.navigate('./(tabs)');
+    router.navigate('./(tabs)'); // UPDATE - PASS USER ID
   };
 
   
