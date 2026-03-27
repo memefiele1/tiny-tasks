@@ -4,9 +4,9 @@ const Layout = () => {
     return (
         <Stack>
             <Stack.Screen name="index" options={{ headerShown: false}}/>
-            <Stack.Screen name="Login" options={{ headerTitle: 'Back'}}/>
-            <Stack.Screen name="Registration" options={{ headerTitle: 'Back'}}/>
-            <Stack.Screen name="ForgotPassword" options={{ headerTitle: 'Back'}}/>
+            <Stack.Screen name="Login" options={{ headerShown: false}}/>
+            <Stack.Screen name="Registration" options={{ headerTitle: ''}}/>
+            <Stack.Screen name="ForgotPassword" options={{ headerTitle: ''}}/>
         </Stack>
     )
 }

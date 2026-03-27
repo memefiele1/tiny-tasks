@@ -5,15 +5,13 @@ redirects them to the dashboard upon successful login.
  */
 
 import Button from "@/ui/Button";
+import { COLORS, SPACING } from "@/ui/CustomStyles";
 import Screen from "@/ui/Screen";
 import { BodyText, Heading, Subheading } from "@/ui/Text";
 import API_BASE_URL from "@/utils/config";
 import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
-import {
-  KeyboardAvoidingView,
-  TextInput
-} from "react-native";
+import { KeyboardAvoidingView, TextInput } from "react-native";
 
 
 export default function Login() {
@@ -55,23 +53,15 @@ export default function Login() {
 
   
   return (
-    <Screen>
-      <KeyboardAvoidingView>
+      <KeyboardAvoidingView style={{ justifyContent: 'space-between'}}>
         <Screen>
-          <Heading>
-            Tiny Tasks
-          </Heading>
-          <Subheading>
-            Task management app for students
-          </Subheading>
+          <Heading> Tiny Tasks </Heading>
+          <Subheading> Task management app for students </Subheading>
         </Screen>
 
         <Screen>
-          { errors  ? (
-            <BodyText variant="error"> {errors} </BodyText>
-          ) : null}
+          { errors  ? ( <BodyText variant="error"> {errors} </BodyText> ) : null}
 
-          <BodyText> Username </BodyText>
           <TextInput
             placeholder="Username"
             value={username}
@@ -83,10 +73,10 @@ export default function Login() {
               borderRadius: 12,
               padding: 10,
               fontSize: 14,
+              marginBottom: SPACING.lg
             }}
           />
 
-          <BodyText> Password </BodyText>
           <TextInput
             placeholder="Password"
             value={password}
@@ -99,22 +89,25 @@ export default function Login() {
               borderRadius: 12,
               padding: 10,
               fontSize: 14,
+              marginBottom: SPACING.lg
             }}
           />
+        
+          <BodyText>
+            <Link href="/ForgotPassword" style={{ color: COLORS.vibrantBlue }}> Forgot Password? </Link>
+          </BodyText>
+
+          <Button 
+            label="Log In"
+            onPress={validateUser}
+          />
+
+          <BodyText>
+            Don&apos;t have an account? <Link href={"/Registration"} style={{ color: COLORS.vibrantBlue }}> Register here </Link>
+          </BodyText>
         </Screen>
-
-        <Link href="/ForgotPassword"> Forgot Password? </Link>
-
-        <Button 
-          label="Log In"
-          onPress={validateUser}
-        />
-
-        <BodyText>
-          Don&apos;t have an account? <Link href={"/Registration"}> Register here </Link>
-        </BodyText>
+        
 
       </KeyboardAvoidingView>
-    </Screen>
   );
 }
