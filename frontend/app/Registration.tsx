@@ -4,16 +4,14 @@ Purpose - Create a new account if one doesn't already exist. After creating an a
 to set basic configurations for the app.
  */
 import { registraionData } from "@/data/registrationData";
+import Button from "@/ui/Button";
+import { SPACING } from "@/ui/CustomStyles";
+import Screen from "@/ui/Screen";
+import { BodyText, Heading, Subheading } from "@/ui/Text";
 import API_BASE_URL from "@/utils/config";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import {
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { TextInput, View } from "react-native";
 
 let initialData = {
   fullName: "",
@@ -65,29 +63,21 @@ export default function Registration() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      <View style={{ margin: 10 }}>
-        <Text style={{ fontSize: 24, textAlign: "center" }}>
-          {" "}
-          Create an Account{" "}
-        </Text>
-        <Text style={{ fontSize: 16, textAlign: "center", color: "gray" }}>
-          {" "}
-          Join Tiny Tasks Today!{" "}
-        </Text>
-      </View>
+    // TO-DO - SET SCROLLABLE TO TRUE
+    <Screen scrollable={true} > 
+        <Heading> Create an Account </Heading>
+        <Subheading> Join Tiny Tasks Today! </Subheading>
+      
 
-      <ScrollView>
-        { errors  ? (
-          <Text style={{ fontSize: 16, color: "red" }}>{errors}</Text>
-        ) : null}
+      <Screen>
+        { errors  ? ( <BodyText variant="error">{errors}</BodyText> ) : null }
+        
         {/* render each input field to screen */}
         {registraionData.map((data) => {
           return (
-            <View key={data.key} style={{ margin: 10 }}>
-              <Text style={{ fontSize: 14, fontWeight: "700" }}>
-                {data.label}
-              </Text>
+            <View key={data.key} style={{ margin: SPACING.xs }}>
+              <BodyText> { data.label } </BodyText>
+
               <TextInput
                 placeholder={data.placeholder}
                 value={userData[data.key as keyof typeof userData]}
@@ -106,26 +96,17 @@ export default function Registration() {
           );
         })}
 
-        <Text style={{ fontSize: 12, color: "gray", margin: 10 }}>
-          {" "}
+        <BodyText variant='caption'>
           Passwords must: be 8 characters long (minimum), one numeric value, one
-          uppercase letter, and one lowecase letter{" "}
-        </Text>
-        <TouchableOpacity
-          accessibilityLabel="create new account"
+          uppercase letter, and one lowecase letter
+        </BodyText>
+
+        <Button
+          label="Create Account"
           onPress={onRegister}
-          style={{
-            flex: 1,
-            padding: 10,
-            borderRadius: 14,
-            borderWidth: 1,
-            backgroundColor: "black",
-            alignItems: "center",
-          }}
-        >
-          <Text style={{ fontSize: 18, color: "white" }}> Create Account </Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </View>
+        />
+        
+      </Screen>
+    </Screen>
   );
 }
