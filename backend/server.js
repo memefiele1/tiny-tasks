@@ -20,7 +20,7 @@ const completeTask = require('./api/tasks/complete');
 //googleauth imports
 const session = require("express-session");
 const passport = require("passport");
-const googleAuthRoutes = require("./routes/googleAuth");
+// const googleAuthRoutes = require("./routes/googleAuth");
 // Archive routes
 const getArchive = require('./api/archive/getArchive');
 const { startCleanupJob } = require('./api/archive/cleanup');
@@ -41,7 +41,7 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
-app.use("/auth", googleAuthRoutes);
+// app.use("/auth", googleAuthRoutes);
 
 app.use('/auth', authRoutes);
 app.use(express.urlencoded({ extended: true }));
