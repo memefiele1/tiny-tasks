@@ -3,6 +3,7 @@
  */
 import { postRegistrationData } from "@/data/postRegistrationData";
 import { CustomRadio } from "@/ui/CustomRadio";
+import Button from "@/ui/Button";
 import Screen from "@/ui/Screen";
 import { Heading } from "@/ui/Text";
 import { Link, useRouter } from "expo-router";
@@ -15,6 +16,11 @@ export default function PreferenceForm() {
   const formLength = postRegistrationData.length;
   const [currQuestion, setCurrQuestion] = useState(postRegistrationData[indexRef.current]);
   
+  {/*for routing to google permissions screen*/}
+  const toGooglePermissions = () => {
+    router.push("./google-permissions");
+  };
+
   // update currQuestion to object at current postRegistrationData index
   const onNext = () => {
     indexRef.current++;
@@ -63,7 +69,12 @@ export default function PreferenceForm() {
       <CustomRadio options={currQuestion.options} />
 
       {/* skip */}
-      <Link href="/(tabs)"> Skip </Link>
+
+      {/* for google permissions */}
+      
+
+      {/* skip */}
+      <Link href='./(tabs)'> Skip </Link>
     </Screen>
   );
 }
