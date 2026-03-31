@@ -3,9 +3,11 @@
  */
 import { postRegistrationData } from "@/data/postRegistrationData";
 import { CustomRadio } from "@/ui/CustomRadio";
-import { useRouter } from "expo-router";
+import Screen from "@/ui/Screen";
+import { Heading } from "@/ui/Text";
+import { Link, useRouter } from "expo-router";
 import { useRef, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity } from "react-native";
 
 export default function PreferenceForm() {
   const router = useRouter();
@@ -16,9 +18,9 @@ export default function PreferenceForm() {
   // update currQuestion to object at current postRegistrationData index
   const onNext = () => {
     indexRef.current++;
-    // if (indexRef.current > formLength) {  // route to dashboard when user has answered all questions
-    //   toDashboard();
-    // };
+
+    // route to dashboard when user has answered all questions
+    if (indexRef.current > formLength) router.navigate('./(tabs)');
 
     setCurrQuestion(postRegistrationData[indexRef.current]);
   };
@@ -28,15 +30,9 @@ export default function PreferenceForm() {
     setCurrQuestion(postRegistrationData[indexRef.current]);
   };
 
-  // route to dashboard if users skip form or have finished 
-  const toDashboard = () => {
-    console.log("Route to dashboard");
-    // router.navigate('./(tabs)');
-  }
-
   // render each question to screen
   return (
-    <View>
+    <Screen> 
       {/* progress indicator */}
       <TouchableOpacity accessibilityLabel="back" onPress={ indexRef.current == 0 ? undefined : onBack } style={{
             flex: 1,
@@ -61,22 +57,13 @@ export default function PreferenceForm() {
       </TouchableOpacity>
 
       {/* title component */}
-      <Text style={{fontSize: 24}}>{currQuestion.title}</Text> 
+      <Heading> {currQuestion.title} </Heading> 
 
       {/* answer section */}
       <CustomRadio options={currQuestion.options} />
 
       {/* skip */}
-      <TouchableOpacity accessibilityLabel="skip" onPress={toDashboard} style={{
-            flex: 1,
-            padding: 10,
-            borderRadius: 14,
-            borderWidth: 1,
-            backgroundColor: "white",
-            alignItems: "center",
-          }}>
-        <Text style={{fontSize: 12}}> Skip </Text>
-      </TouchableOpacity>
-    </View>
+      <Link href="/(tabs)"> Skip </Link>
+    </Screen>
   );
 }
