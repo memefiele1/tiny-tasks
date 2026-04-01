@@ -36,7 +36,9 @@ export default function TaskCard({ task, onEdit, onComplete }: Props) {
     >
       <Text style={{ fontSize: 18, fontWeight: "800" }}>{task.title}</Text>
 
-      <Text style={{ marginTop: 6 }}>Due: {task.dueDate}</Text>
+      <Text style={{ marginTop: 6 }}>
+        Due: {task.dueDate} at {task.time}
+      </Text>
 
       <Text style={{ marginTop: 6 }}>
         Status: {statusValue.replace("_", " ").toUpperCase()}

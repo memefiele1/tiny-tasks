@@ -53,7 +53,8 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
-app.use('/auth', googleAuthRoutes);
+// app.use("/auth", googleAuthRoutes);
+
 app.use('/auth', authRoutes);
 
 // ── HEALTH ────────────────────────────────────────
