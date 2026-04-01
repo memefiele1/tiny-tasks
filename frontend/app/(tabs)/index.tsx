@@ -1,11 +1,7 @@
-<<<<<<< HEAD
-import React, { useState } from "react";
-=======
 //Tiffany Santiago Garcia
 // Main screen showing active tasks with daily and half-day views, filtered by date/time and sorted by priority
 
 import React, { useMemo, useState } from "react";
->>>>>>> 3466868b3dd2e52c9b11fc70b21279ca15885850
 import { View, Text, Pressable, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import TaskForm, { TaskDraft } from "../../components/TaskForm";
@@ -70,62 +66,6 @@ export default function HomeScreen() {
   const [tasks, setTasks] = useState<TaskDraft[]>([]);
   const [showForm, setShowForm] = useState(false);
 
-<<<<<<< HEAD
-  const handleCreateTask = (draft: TaskDraft) => {
-  console.log("Submitted task:", draft);
-  setTasks(prev => [draft, ...prev]);
-};
-
-
-  return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View style={{ flex: 1, padding: 20, gap: 12 }}>
-        {/* Header */}
-        <Text style={{ fontSize: 24, fontWeight: "800" }}>My Tasks</Text>
-
-        {/* Add / Close button */}
-        <Pressable
-          onPress={() => setShowForm((s) => !s)}
-          style={{
-            paddingVertical: 10,
-            paddingHorizontal: 14,
-            borderWidth: 1,
-            borderRadius: 12,
-            alignSelf: "flex-start",
-          }}
-        >
-          <Text style={{ fontWeight: "800" }}>
-            {showForm ? "Close" : "+ Add Task"}
-          </Text>
-        </Pressable>
-
-        {/* Form (only when user asks) */}
-        {showForm ? <TaskForm onSubmit={handleCreateTask} /> : null}
-
-        {/* Empty state */}
-        {!showForm && tasks.length === 0 ? (
-          <Text style={{ opacity: 0.7, marginTop: 12 }}>
-            Tasks will appear here. Tap “+ Add Task” to create one.
-          </Text>
-        ) : null}
-
-        {/* Task list */}
-        <ScrollView style={{ marginTop: 8 }}>
-          {[...tasks]
-            .sort((a, b) => {
-              const priorityOrder = {
-                high: 3,
-                medium: 2,
-                low: 1,
-             };
-
-    return priorityOrder[b.priority] - priorityOrder[a.priority];
-  })
-  .map((task, index) => (
-    <TaskCard key={index} task={task} />
-))}
-
-=======
   const [viewMode, setViewMode] = useState<ViewMode>("daily");
   const [halfDayMode, setHalfDayMode] = useState<HalfDayMode>("morning");
 
@@ -260,7 +200,6 @@ export default function HomeScreen() {
               }
             />
           ))}
->>>>>>> 3466868b3dd2e52c9b11fc70b21279ca15885850
         </ScrollView>
 
         <Pressable
