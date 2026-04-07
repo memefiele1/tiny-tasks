@@ -15,6 +15,11 @@ export default function PreferenceForm() {
   const formLength = postRegistrationData.length;
   const [currQuestion, setCurrQuestion] = useState(postRegistrationData[indexRef.current]);
   
+  {/*for routing to google permissions screen*/}
+  const toGooglePermissions = () => {
+    router.push("./google-permissions");
+  };
+
   // update currQuestion to object at current postRegistrationData index
   const onNext = () => {
     indexRef.current++;

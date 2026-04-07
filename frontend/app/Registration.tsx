@@ -47,12 +47,13 @@ export default function Registration() {
 
         const data = await response.json();
         console.log(data);
+        // TO-DO - GET USER ID FROM RESPONSE
         
         if (response.ok) {
           console.log("Account has been successfully created");
           setErrors("");
           setUserData(initialData);
-          router.navigate('/PostRegistration');
+          router.navigate('/PostRegistration'); // TO-DO - SEND USER DATA TO POST-REGISTRATION
         } else {
           setErrors(data.message || "Error creating account");
         }
@@ -63,7 +64,6 @@ export default function Registration() {
   };
 
   return (
-    // TO-DO - SET SCROLLABLE TO TRUE
     <Screen scrollable={true} > 
         <Heading> Create an Account </Heading>
         <Subheading> Join Tiny Tasks Today! </Subheading>

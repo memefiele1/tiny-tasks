@@ -32,9 +32,11 @@ export default function Login() {
         body: JSON.stringify({ email: username, password: password })
       });
       const data = await response.json();
-
+      // TO-DO - GET USER ID FROM RESPONSE
+      const id = data.user.user_id;
+      
       // route to login page if login successful
-      if (response.ok) onLogin();
+      if (response.ok) onLogin(id);
       else setErrors(data.message);
       
     } catch (error) {
@@ -44,11 +46,11 @@ export default function Login() {
   };
   
   // clear form and route to dashboard on successful login 
-  const onLogin = () => {
+  const onLogin = ( id: string ) => {
     setUsername("");
     setPassword("");
     setErrors("");
-    router.navigate('./(tabs)');
+    router.navigate(`./(tabs)/${id}`); // use id as parameter to get user
   };
 
   
