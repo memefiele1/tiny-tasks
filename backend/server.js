@@ -15,6 +15,7 @@ const getAllTasks = require('./api/tasks/getAll');
 const updateTask = require('./api/tasks/update');
 const deleteTask = require('./api/tasks/delete');
 const completeTask = require('./api/tasks/complete');
+
 // Sprint 2 task routes
 const getMorningTasks = require('./api/tasks/getMorning');
 const getAfternoonTasks = require('./api/tasks/getAfternoon');
@@ -30,7 +31,17 @@ const getTimerHistory = require('./api/timer/history');
 
 // ── ARCHIVE ROUTES ────────────────────────────────
 const getArchive = require('./api/archive/getArchive');
+const restoreTask = require('./api/archive/restore');
+const permanentDelete = require('./api/archive/permanentDelete');
 const { startCleanupJob } = require('./api/archive/cleanup');
+
+// ── SYNC ROUTES ───────────────────────────────────
+const { getNetworkStatus } = require('./api/sync/offlineDetection');
+const { addToQueue, getPendingQueue } = require('./api/sync/syncQueue');
+const { runAutoSync } = require('./api/sync/autoSync');
+
+// ── CACHE MIDDLEWARE ──────────────────────────────
+const { cacheMiddleware } = require('./middleware/cache');
 
 // ── GOOGLE AUTH ───────────────────────────────────
 const session = require('express-session');
@@ -53,8 +64,7 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
-// app.use("/auth", googleAuthRoutes);
-
+// app.use('/auth', googleAuthRoutes);
 app.use('/auth', authRoutes);
 
 // ── HEALTH ────────────────────────────────────────
@@ -64,7 +74,7 @@ app.get('/health', (req, res) => {
 
 // ── TASK ENDPOINTS ────────────────────────────────
 app.post('/api/tasks', createTask);
-app.get('/api/tasks/today/:user_id', getTodayTasks);
+app.get('/api/tasks/today/:user_id', cacheMiddleware(req => `today_${req.params.user_id}`), getTodayTasks);
 app.get('/api/tasks/user/:user_id', getAllTasks);
 app.get('/api/tasks/morning/:user_id', getMorningTasks);
 app.get('/api/tasks/afternoon/:user_id', getAfternoonTasks);
@@ -86,6 +96,14 @@ app.get('/api/timer/history/:user_id', getTimerHistory);
 
 // ── ARCHIVE ENDPOINTS ─────────────────────────────
 app.get('/api/archive/:user_id', getArchive);
+app.post('/api/archive/:archive_id/restore', restoreTask);
+app.delete('/api/archive/:archive_id', permanentDelete);
+
+// ── SYNC ENDPOINTS ────────────────────────────────
+app.get('/api/sync/status', getNetworkStatus);
+app.post('/api/sync/queue', addToQueue);
+app.get('/api/sync/queue/:user_id', getPendingQueue);
+app.post('/api/sync/run/:user_id', runAutoSync);
 
 // ── START SERVER ──────────────────────────────────
 app.listen(PORT, () => {
@@ -96,7 +114,7 @@ app.listen(PORT, () => {
   console.log('');
   console.log('   Task Endpoints:');
   console.log('   POST    /api/tasks');
-  console.log('   GET     /api/tasks/today/:user_id');
+  console.log('   GET     /api/tasks/today/:user_id  [CACHED 5min]');
   console.log('   GET     /api/tasks/user/:user_id');
   console.log('   GET     /api/tasks/morning/:user_id');
   console.log('   GET     /api/tasks/afternoon/:user_id');
@@ -105,6 +123,7 @@ app.listen(PORT, () => {
   console.log('   PUT     /api/tasks/:task_id');
   console.log('   DELETE  /api/tasks/:task_id');
   console.log('   PATCH   /api/tasks/:task_id/complete');
+  console.log('   POST    /api/tasks/reschedule/:user_id');
   console.log('');
   console.log('   Preference Endpoints:');
   console.log('   GET     /api/preferences/:user_id');
@@ -117,8 +136,14 @@ app.listen(PORT, () => {
   console.log('');
   console.log('   Archive Endpoints:');
   console.log('   GET     /api/archive/:user_id');
+  console.log('   POST    /api/archive/:archive_id/restore');
+  console.log('   DELETE  /api/archive/:archive_id');
   console.log('');
-  console.log('   POST    /api/tasks/reschedule/:user_id');
+  console.log('   Sync Endpoints:');
+  console.log('   GET     /api/sync/status');
+  console.log('   POST    /api/sync/queue');
+  console.log('   GET     /api/sync/queue/:user_id');
+  console.log('   POST    /api/sync/run/:user_id');
 
   startCleanupJob();
 });
