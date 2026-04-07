@@ -101,7 +101,7 @@ export default function Login() {
 
           <Button 
             label="Log In"
-            onPress={validateUser}
+            onPress={() => onLogin("1")} // TO-DO - CHANGE TO VALIDATEUSER FUNCTION
           />
 
           <BodyText>
