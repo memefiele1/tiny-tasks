@@ -33,6 +33,8 @@ export default function Registration() {
 
   // create new account if the user is a new user
   const onRegister = async () => {
+    if (userData.pswd != userData.confirmPswd) setErrors("Passwords don't match");
+
       try {
         const response = await fetch(`${API_BASE_URL}/auth/register`, 
           {
@@ -54,7 +56,7 @@ export default function Registration() {
           setUserData(initialData);
           router.navigate('/PostRegistration');
         } else {
-          setErrors(data.message || "Error creating account");
+          setErrors(data.message ?? "Error creating account");
         }
       } catch (error) {
         console.log(error);
@@ -63,7 +65,6 @@ export default function Registration() {
   };
 
   return (
-    // TO-DO - SET SCROLLABLE TO TRUE
     <Screen scrollable={true} > 
         <Heading> Create an Account </Heading>
         <Subheading> Join Tiny Tasks Today! </Subheading>

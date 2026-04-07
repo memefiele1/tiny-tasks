@@ -18,21 +18,34 @@ GoogleSignin.configure({
 })
 
 export default function LandingPage() {
+    useEffect(() => {
+        const scriptTag = document.createElement('script');
+        scriptTag.src = 'https://accounts.google.com/gsi/client';
+        scriptTag.async = true;
+        scriptTag.onerror = () => {
+            console.error('Failed to load Google script');
+        };
+
+        document.body.appendChild(scriptTag);
+        }, []);
+        
     const router = useRouter();
     const [error, setError] = useState("");
 
+    // run when page loads to check if user currently signed in with Google
     useEffect(() => { currentSession() }, []);
     
     // route to dashboard if user is signed in
     const currentSession = async () => {
-        const isSignedIn = GoogleSignin.getCurrentUser();
+        const isSignedIn = await GoogleSignin.getCurrentUser();
         if (isSignedIn) router.navigate('./(tabs)');
     }
 
     // allow user to sign in using google credentials
     const handleGoogleSignin = async () => {
         try {
-            await GoogleSignin.hasPlayServices();
+            // play services required to show Google signin
+            await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
             const response = await GoogleSignin.signIn();
             const user = await response.data;
 
@@ -40,6 +53,7 @@ export default function LandingPage() {
                 console.log('Success');
                 setError('');
                 // toBackend(user);
+                // route to tabs page
             } else {
                 setError('Request canceled by user');
             }
@@ -78,7 +92,7 @@ export default function LandingPage() {
                 <Subheading style={{ color: COLORS.white }}> Task management app for students </Subheading>
                 <Subheading style={{ color: COLORS.white }}> Login or create an account to get started! </Subheading>
 
-                {error ? <BodyText > { error } </BodyText> : null}
+                {error ? <BodyText variant='error' > { error } </BodyText> : null}
             </View>
             
             <View>
