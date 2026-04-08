@@ -1,6 +1,7 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
+// create path to create database
 const DB_PATH = path.resolve(__dirname, '../../tinytasks.db');
 
 const db = new sqlite3.Database(DB_PATH, (err) => {
