@@ -2,13 +2,15 @@
 -- Run this in DBeaver to create all tables
 -- Author: Miracle Emefiele
 
-CREATE TABLE IF NOT EXISTS users (
-  user_id        INTEGER PRIMARY KEY AUTOINCREMENT,
-  username       TEXT    UNIQUE NOT NULL,
-  email          TEXT    UNIQUE NOT NULL,
-  password_hash  TEXT    NOT NULL,
-  created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- create table in database
+const createUserTable = 
+  CREATE TABLE IF NOT EXISTS users (
+    user_id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    username       TEXT    UNIQUE NOT NULL,
+    email          TEXT    UNIQUE NOT NULL,
+    password_hash  TEXT    NOT NULL,
+    created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  );
 
 CREATE TABLE IF NOT EXISTS tasks (
   task_id       INTEGER   PRIMARY KEY AUTOINCREMENT,
@@ -77,3 +79,5 @@ CREATE TABLE IF NOT EXISTS timer_logs (
   FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
   FOREIGN KEY (task_id) REFERENCES tasks(task_id) ON DELETE SET NULL
 );
+
+

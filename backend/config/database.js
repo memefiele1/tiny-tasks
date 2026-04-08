@@ -1,5 +1,10 @@
+const fs = require('fs'); // used to import all sql queries
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+
+// connect database to sql schema 
+const dbSql = fs.readFileSync('../database/schema.sql').toString();
+console.log(dbSql);
 
 // create path to create database
 const DB_PATH = path.resolve(__dirname, '../../tinytasks.db');
@@ -18,6 +23,14 @@ const db = new sqlite3.Database(DB_PATH, (err) => {
       }
     });
   }
+});
+
+// run sql queries one at a time
+db.serialize(() => {
+  db.exec(dbSql, function(err) {
+    if (err) console.error('Error creating tables');
+    else console.log('Tables created successfully');
+  });
 });
 
 db.runAsync = function(sql, params = []) {
