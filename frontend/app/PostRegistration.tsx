@@ -3,11 +3,12 @@
  */
 import { postRegistrationData } from "@/data/postRegistrationData";
 import { CustomRadio } from "@/ui/CustomRadio";
+import { COLORS } from '@/ui/CustomStyles';
 import Screen from "@/ui/Screen";
 import { Heading } from "@/ui/Text";
 import { Link, useRouter } from "expo-router";
 import { useRef, useState } from "react";
-import { Text, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function PreferenceForm() {
   const router = useRouter();
@@ -37,38 +38,64 @@ export default function PreferenceForm() {
 
   // render each question to screen
   return (
-    <Screen> 
-      {/* progress indicator */}
-      <TouchableOpacity accessibilityLabel="back" onPress={ indexRef.current == 0 ? undefined : onBack } style={{
-            flex: 1,
-            padding: 10,
-            borderRadius: 14,
-            borderWidth: 1,
-            backgroundColor: "black",
-            alignItems: "center",
-          }}>
-          <Text style={{fontSize: 12, color: 'white'}}> Back </Text>
-      </TouchableOpacity>
+    <Screen style={{ backgroundColor: COLORS.white, justifyContent: "space-between" }}> 
+      {/* Form Navigation */}
+      <View style={ styles.navigation }>
+        <TouchableOpacity 
+          accessibilityLabel="back" 
+          onPress={ indexRef.current == 0 ? undefined : onBack } 
+          style={ styles.button }>
+            <Text style={ styles.text }> Back </Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity accessibilityLabel="next" onPress={ indexRef.current == (formLength - 1) ? undefined : onNext } style={{
-            flex: 1,
-            padding: 10,
-            borderRadius: 14,
-            borderWidth: 1,
-            backgroundColor: "black",
-            alignItems: "center",
-          }}>
-          <Text style={{fontSize: 12, color: 'white'}}> Next </Text>
-      </TouchableOpacity>
+        <TouchableOpacity 
+          accessibilityLabel="next" 
+          onPress={ indexRef.current == (formLength - 1) ? undefined : onNext } 
+          style={ styles.button }>
+            <Text style={ styles.text }> Next </Text>
+        </TouchableOpacity>
+      </View>
+      
 
       {/* title component */}
-      <Heading> {currQuestion.title} </Heading> 
+      <View style={ styles.form }>
+        <Heading> {currQuestion.title} </Heading> 
 
-      {/* answer section */}
-      <CustomRadio options={currQuestion.options} />
+        {/* answer section */}
+        <CustomRadio options={currQuestion.options} />
+      </View>
+      
 
       {/* skip */}
       <Link href="/(tabs)"> Skip </Link>
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  button: {
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "black"
+  },
+  text: {
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
+    color: "white"
+  },
+  navigation: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    maxHeight: 24
+  },
+  form: {
+    flex: 1,
+    justifyContent: "space-between",
+    maxHeight: '50%'
+  }
+});
