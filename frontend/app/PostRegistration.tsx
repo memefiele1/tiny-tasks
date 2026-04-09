@@ -6,11 +6,12 @@ import { CustomRadio } from "@/ui/CustomRadio";
 import { COLORS } from '@/ui/CustomStyles';
 import Screen from "@/ui/Screen";
 import { Heading } from "@/ui/Text";
-import { Link, useRouter } from "expo-router";
+import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function PreferenceForm() {
+  const { id } = useLocalSearchParams();
   const router = useRouter();
   const indexRef = useRef<number>(0); // track current selected option
   const formLength = postRegistrationData.length;
@@ -23,10 +24,10 @@ export default function PreferenceForm() {
 
   // update currQuestion to object at current postRegistrationData index
   const onNext = () => {
-    indexRef.current++;
+    indexRef.current++; // 3
 
-    // route to dashboard when user has answered all questions
-    if (indexRef.current > formLength) router.navigate('./(tabs)');
+    // route to dashboard when user has answered all questions 
+    if (indexRef.current == formLength - 1 ) router.replace(`./(tabs)/${id}`);
 
     setCurrQuestion(postRegistrationData[indexRef.current]);
   };
@@ -50,7 +51,7 @@ export default function PreferenceForm() {
 
         <TouchableOpacity 
           accessibilityLabel="next" 
-          onPress={ indexRef.current == (formLength - 1) ? undefined : onNext } 
+          onPress={ onNext } 
           style={ styles.button }>
             <Text style={ styles.text }> Next </Text>
         </TouchableOpacity>

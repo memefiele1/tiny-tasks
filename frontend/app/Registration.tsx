@@ -53,7 +53,7 @@ export default function Registration() {
           console.log("Account has been successfully created");
           setErrors("");
           setUserData(initialData);
-          router.navigate('/PostRegistration'); // TO-DO - SEND USER DATA TO POST-REGISTRATION
+          router.replace({ pathname: '/PostRegistration', params: { id: data.userId } }); 
         } else {
           setErrors(data.message || "Error creating account");
         }
@@ -70,7 +70,7 @@ export default function Registration() {
       
 
       <Screen>
-        { errors  ? ( <BodyText variant="error">{errors}</BodyText> ) : null }
+        { errors  ? ( <BodyText variant='error'>{errors}</BodyText> ) : null }
         
         {/* render each input field to screen */}
         {registraionData.map((data) => {

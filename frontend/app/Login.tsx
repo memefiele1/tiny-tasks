@@ -11,7 +11,7 @@ import { BodyText, Heading, Subheading } from "@/ui/Text";
 import API_BASE_URL from "@/utils/config";
 import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
-import { KeyboardAvoidingView, TextInput } from "react-native";
+import { KeyboardAvoidingView, Platform, TextInput } from "react-native";
 
 
 export default function Login() {
@@ -55,7 +55,12 @@ export default function Login() {
 
   
   return (
-      <KeyboardAvoidingView style={{ justifyContent: 'space-between'}}>
+      <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+      style={{ flex: 1, padding: 20 }}
+      >
+
         <Screen>
           <Heading> Tiny Tasks </Heading>
           <Subheading> Task management app for students </Subheading>
@@ -109,7 +114,6 @@ export default function Login() {
           </BodyText>
         </Screen>
         
-
       </KeyboardAvoidingView>
   );
 }
