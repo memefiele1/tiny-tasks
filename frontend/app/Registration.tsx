@@ -11,7 +11,7 @@ import { BodyText, Heading, Subheading } from "@/ui/Text";
 import API_BASE_URL from "@/utils/config";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { TextInput, View } from "react-native";
+import { KeyboardAvoidingView, Platform, TextInput, View } from "react-native";
 
 let initialData = {
   fullName: "",
@@ -64,12 +64,17 @@ export default function Registration() {
   };
 
   return (
-    <Screen scrollable={true} > 
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+      style={{ flex: 1, padding: 20 }}
+    >
+      <Screen scrollable={true} > 
         <Heading> Create an Account </Heading>
         <Subheading> Join Tiny Tasks Today! </Subheading>
       
 
-      <Screen>
+      <View>
         { errors  ? ( <BodyText variant='error'>{errors}</BodyText> ) : null }
         
         {/* render each input field to screen */}
@@ -106,7 +111,9 @@ export default function Registration() {
           onPress={onRegister}
         />
         
+        </View>
       </Screen>
-    </Screen>
+      </KeyboardAvoidingView>
+
   );
 }

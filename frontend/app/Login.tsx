@@ -56,9 +56,9 @@ export default function Login() {
   
   return (
       <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
-      style={{ flex: 1, padding: 20 }}
+        behavior={Platform.OS === 'ios' ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+        style={{ flex: 1, padding: 20 }}
       >
 
         <Screen>
