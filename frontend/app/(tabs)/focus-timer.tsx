@@ -35,7 +35,6 @@ export default function FocusTimerScreen() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
 
-
 const parseTaskDateTime = (dueDate?: string, time?: string) => {
   if (!dueDate) return Number.MAX_SAFE_INTEGER;
 
