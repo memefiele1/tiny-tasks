@@ -19,6 +19,7 @@ type FormFieldProps = {
   errorText?: string;
   required?: boolean;
   children: React.ReactNode;
+  labelStyle?: StyleProp<TextStyle>;
 };
 
 export function FormField({
@@ -27,10 +28,11 @@ export function FormField({
   errorText,
   required,
   children,
+  labelStyle,
 }: FormFieldProps) {
   return (
     <View style={styles.field}>
-      <Text style={styles.label}>
+      <Text style={[styles.label, labelStyle]}>
         {label}
         {required ? ' *' : ''}
       </Text>
@@ -45,6 +47,7 @@ type TextAreaProps = {
   value: string;
   onChangeText: (text: string) => void;
   placeholder?: string;
+  placeholderTextColor?: string;
   style?: StyleProp<TextStyle>;
 };
 
@@ -52,6 +55,7 @@ export function TextArea({
   value,
   onChangeText,
   placeholder,
+  placeholderTextColor,
   style,
 }: TextAreaProps) {
   return (
@@ -59,6 +63,7 @@ export function TextArea({
       value={value}
       onChangeText={onChangeText}
       placeholder={placeholder}
+      placeholderTextColor={placeholderTextColor}
       multiline
       style={[styles.textArea, style]}
     />

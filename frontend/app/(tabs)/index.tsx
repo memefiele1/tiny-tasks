@@ -1,5 +1,6 @@
 //Tiffany Santiago Garcia
 // Main screen showing active tasks with daily and half-day views, filtered by date/time and sorted by priority
+// Main screen showing active tasks with daily and half-day views, filtered by date/time and sorted by priority
 
 import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
@@ -100,6 +101,7 @@ export default function HomeScreen() {
 
   const handleEdit = (id: string) => {
     router.push({ pathname: "/modal", params: { editingId: id } });
+    router.push({ pathname: "/modal", params: { editingId: id } });
   };
 
 
@@ -198,6 +200,12 @@ export default function HomeScreen() {
           showsVerticalScrollIndicator={false}
         >
           {displayedTasks.map((task) => (
+        <ScrollView
+          style={{ flex: 1, marginTop: 8 }}
+          contentContainerStyle={{ paddingBottom: 12 }}
+          showsVerticalScrollIndicator={false}
+        >
+          {displayedTasks.map((task) => (
             <TaskCard
               key={task.id}
               task={task}
@@ -208,6 +216,22 @@ export default function HomeScreen() {
             />
           ))}
         </ScrollView>
+
+        <Pressable
+          onPress={() => router.push("/modal")}
+          style={{
+            marginTop: 12,
+            paddingVertical: 14,
+            borderRadius: 14,
+            backgroundColor: "#2F5BD2",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Text style={{ fontWeight: "800", color: "#fff", fontSize: 16 }}>
+            + Add Task
+          </Text>
+        </Pressable>
 
         <Pressable
           onPress={() => router.push("/modal")}

@@ -34,6 +34,7 @@ type Props = {
 };
 
 
+
 const formatYYYYMMDD = (d: Date) => d.toISOString().slice(0, 10);
 const addDays = (days: number) => {
   const d = new Date();
@@ -53,16 +54,11 @@ const priorityOptions = [
   { label: "High", value: "high" as Priority },
 ];
 
-const commonInput = {
-  borderWidth: 1,
-  borderColor: "#ccc",
-  borderRadius: 12,
-  padding: 12,
-  fontSize: 16,
-};
 
 export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
   const scrollRef = useRef<ScrollView | null>(null);
+
+  
 
   
   const [title, setTitle] = useState(initial?.title ?? "");
@@ -100,6 +96,7 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
   }, [dueDate]);
 
 
+
   const canSave = useMemo(() => {
     return (
       title.trim().length > 0 &&
@@ -109,6 +106,7 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
       !dueDateError &&
       !timeError
     );
+  }, [title, dueDate, titleError, dueDateError, timeError,time]);
   }, [title, dueDate, titleError, dueDateError, timeError,time]);
 
   const handleSubmit = () => {
@@ -127,12 +125,14 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
       dueDate: dueDate.trim(),
       time: time.trim(),
       status,
+      status,
     });
 
     setTitle("");
     setPriority("medium");
     setDueDate("");
     setDescription("");
+    setTime("");
     setTime("");
     setShowDetails(false);
   };
@@ -176,26 +176,29 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
         }}
       >
         {/* TASK NAME */}
-        <FormField
-          label="Task name"
-          helperText="Be specific: 'Study for quiz (30 min)' instead of 'Study'"
-          errorText={titleError}
-          required
-        >
-          <TextInput
-            value={title}
-            onChangeText={setTitle}
-            placeholder="e.g., Study for quiz (30 min)"
-            returnKeyType="done"
-            style={[{ color: "#374057" }, commonInput]}
-          />
-        </FormField>
+        <View style={styles.card}>
+          <FormField
+            label="Task name"
+            helperText="Be specific: 'Study for quiz (30 min)' instead of 'Study'"
+            errorText={titleError}
+            required
+            labelStyle={styles.sectionLabel}
+          >
+            <TextInput
+              value={title}
+              onChangeText={setTitle}
+              placeholder="e.g., Study for quiz (30 min)"
+              returnKeyType="done"
+              style={[styles.input, { color: "#374057" }]}
+              placeholderTextColor="#A0AEC0"
+            />
+          </FormField>
+        </View>
 
-        {/* DUE DATE */}
-        <View style={styles.section}>
+        {/* DUE DATE & TIME */}
+        <View style={styles.card}>
           <Text style={styles.sectionLabel}>Due date</Text>
-
-          <View style={{ flexDirection: "row", flexWrap: "wrap", marginBottom: 8 }}>
+          <View style={styles.chipRow}>
             {[
               { label: "Today", value: addDays(0) },
               { label: "Tomorrow", value: addDays(1) },
@@ -204,36 +207,25 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
               <Text
                 key={chip.label}
                 onPress={() => setDueDate(chip.value)}
-                style={{
-                  paddingVertical: 10,
-                  paddingHorizontal: 12,
-                  borderRadius: 999,
-                  borderWidth: 1,
-                  marginRight: 10,
-                  marginBottom: 10,
-                  fontWeight: "700",
-                }}
+                style={styles.chip}
               >
                 {chip.label}
               </Text>
             ))}
           </View>
-
           <TextInput
             value={dueDate}
             onChangeText={setDueDate}
             placeholder="YYYY-MM-DD"
             autoCapitalize="none"
             keyboardType="numbers-and-punctuation"
-            style={[commonInput]}
+            style={styles.input}
+            placeholderTextColor="#A0AEC0"
           />
           {dueDateError ? (
-            <Text style={{ fontSize: 12, color: "crimson" }}>
-              {dueDateError}
-            </Text>
+            <Text style={styles.errorText}>{dueDateError}</Text>
           ) : null}
-
-          <Text style={{ fontSize: 12, opacity: 0.7 }}>
+          <Text style={styles.helperText}>
             Tip: Use the quick buttons to avoid typing.
           </Text>
         </View>
@@ -320,26 +312,25 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
         </View>
 
         {/* OPTIONAL DETAILS */}
-        <Text
-          onPress={toggleDetails}
-          style={{
-            fontWeight: "800",
-            paddingVertical: 6,
-            marginBottom: 10,
-          }}
-        >
-          {showDetails ? "Hide details" : "Add details (optional)"}
-        </Text>
-
-        {showDetails ? (
-          <FormField label="Description (Optional)">
-            <TextArea
-              value={description}
-              onChangeText={setDescription}
-              placeholder="Notes, steps, or reminders…"
-            />
-          </FormField>
-        ) : null}
+        <View style={styles.card}>
+          <Text
+            onPress={toggleDetails}
+            style={styles.toggleDetails}
+          >
+            {showDetails ? "Hide details" : "Add details (optional)"}
+          </Text>
+          {showDetails ? (
+            <FormField label="Description (Optional)" labelStyle={styles.sectionLabel}>
+              <TextArea
+                value={description}
+                onChangeText={setDescription}
+                placeholder="Notes, steps, or reminders…"
+                style={styles.textArea}
+                placeholderTextColor="#A0AEC0"
+              />
+            </FormField>
+          ) : null}
+        </View>
 
         {/* ACTIONS */}
         <View style={styles.actionsRow}>
@@ -365,25 +356,104 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
 }
 
 const styles = StyleSheet.create({
-  section: {
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "800",
+    color: "#111827",
     marginBottom: 20,
+    marginTop: 4,
+  },
+  card: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#D9DCE3",
+    padding: 18,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   sectionLabel: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "700",
-    marginBottom: 6,
+    color: "#6B7280",
+    marginBottom: 8,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#D9DCE3",
+    borderRadius: 12,
+    padding: 12,
+    fontSize: 16,
+    backgroundColor: "#F7F8FA",
+    marginBottom: 8,
+  },
+  chipRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginBottom: 8,
+    gap: 8,
+  },
+  chip: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#D9DCE3",
+    marginRight: 10,
+    marginBottom: 10,
+    fontWeight: "700",
+    color: "#2F5BD2",
+    backgroundColor: "#F7F8FA",
+    fontSize: 14,
+    overflow: "hidden",
+  },
+  errorText: {
+    fontSize: 12,
+    color: "crimson",
+    marginBottom: 2,
   },
   helperText: {
     fontSize: 12,
     color: "#555",
-    marginBottom: 10,
+    marginBottom: 6,
+    marginTop: 2,
   },
   row: {
     flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  rowWrap: {
+    flexDirection: "row",
+    marginBottom: 20,
+  },
+  toggleDetails: {
+    fontWeight: "800",
+    paddingVertical: 6,
+    marginBottom: 10,
+    color: "#2F5BD2",
+    fontSize: 15,
+  },
+  textArea: {
+    borderWidth: 1,
+    borderColor: "#D9DCE3",
+    borderRadius: 12,
+    padding: 12,
+    fontSize: 16,
+    backgroundColor: "#F7F8FA",
+    minHeight: 80,
+    textAlignVertical: "top",
   },
   actionsRow: {
     flexDirection: "row",
     gap: 12,
     marginTop: 4,
+    marginBottom: 40,
   },
 });

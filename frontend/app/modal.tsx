@@ -58,13 +58,9 @@ export default function ModalScreen() {
     <>
       <Stack.Screen
         options={{
-          title: editingId ? 'Edit Task' : 'Add Task',
-          headerLeft: () => (
-            <Pressable onPress={() => router.dismiss()} hitSlop={8}>
-              <Text style={{ color: '#007AFF', fontSize: 16 }}>Cancel</Text>
-            </Pressable>
-          ),
-        }}
+        title: "Add Task",
+        
+      }}
       />
       <View style={styles.container}>
         <TaskForm

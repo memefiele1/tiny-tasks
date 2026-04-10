@@ -21,6 +21,36 @@ export default function TabLayout() {
           ),
         }}
       />
+
+      <Tabs.Screen
+        name="focus-timer"
+        options={{
+          title: 'Focus Timer',
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="timer" size={28} color={color} />
+          ),
+        }}
+      />  
+
+        <Tabs.Screen
+        name="settings"
+        options={{
+          title: 'Settings',
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="settings" size={28} color={color} />
+          ),
+        }}
+      />  
+
+
+
+
+
+
+
+
+
     </Tabs>
+    
   );
 }
