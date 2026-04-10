@@ -1,157 +1,105 @@
-import React from "react";
+//Tiffany Santiago Garcia
+// helper components that wrap form inputs with labels , help text and error messages for consistent form field styling
+
+import React from 'react';
 import {
-  Pressable,
-  StyleSheet,
+  View,
   Text,
   TextInput,
-  View,
+  Pressable,
+  StyleSheet,
+  StyleProp,
   ViewStyle,
-} from "react-native";
+  TextStyle,
+} from 'react-native';
 
-/**
- * Brand colors - Georgia State
- */
-const COLORS = {
-  primaryBlue: "#0039A6",
-  white: "#FFFFFF",
-  redAccent: "#CC0000",
-  blueSteel: "#374057",
-  vibrantBlue: "#00AEEF",
-};
-
-/** SPACING SCALE across all form components */
-const SPACING = {
-  xs: 4,
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 20,
-} as const;
-
-/**FormField - wrapper for form inputs */
-interface FormFieldProps {
+type FormFieldProps = {
   label: string;
   helperText?: string;
   errorText?: string;
   required?: boolean;
   children: React.ReactNode;
-  style?: ViewStyle;
-}
+};
 
 export function FormField({
   label,
   helperText,
   errorText,
-  required = false,
+  required,
   children,
-  style,
 }: FormFieldProps) {
-  const hasError = !!errorText;
-
   return (
-    <View style={[styles.fieldContainer, style]}>
-      {/* Label - clear and prominent */}
+    <View style={styles.field}>
       <Text style={styles.label}>
         {label}
-        {required && <Text style={styles.required}> *</Text>}
+        {required ? ' *' : ''}
       </Text>
-
-      {/* Helper text - guidance without overwhelming */}
-      {helperText && !hasError && (
-        <Text style={styles.helperText}>{helperText}</Text>
-      )}
-
-      {/* Input children */}
-      <View
-        style={[
-          styles.inputWrapper,
-          hasError && styles.inputWrapperError,
-        ]}
-      >
-        {children}
-      </View>
-
-      {/* Error message - clear, red, helpful */}
-      {errorText && <Text style={styles.errorText}>{errorText}</Text>}
+      {children}
+      {helperText ? <Text style={styles.helper}>{helperText}</Text> : null}
+      {errorText ? <Text style={styles.error}>{errorText}</Text> : null}
     </View>
   );
 }
 
-/** TextArea - Multi-line text input for descriptions */
-interface TextAreaProps {
-  placeholder?: string;
+type TextAreaProps = {
   value: string;
   onChangeText: (text: string) => void;
-  maxLength?: number;
-  editable?: boolean;
-}
+  placeholder?: string;
+  style?: StyleProp<TextStyle>;
+};
 
 export function TextArea({
-  placeholder = "Enter description...",
   value,
   onChangeText,
-  maxLength,
-  editable = true,
+  placeholder,
+  style,
 }: TextAreaProps) {
   return (
     <TextInput
-      style={styles.textarea}
-      placeholder={placeholder}
-      placeholderTextColor="#999"
       value={value}
       onChangeText={onChangeText}
-      maxLength={maxLength}
+      placeholder={placeholder}
       multiline
-      numberOfLines={5}
-      editable={editable}
-      textAlignVertical="top"
+      style={[styles.textArea, style]}
     />
   );
 }
 
-/** ChipGroup - Priority selector (low/medium/high)*/
-type Priority = "low" | "medium" | "high";
+type ChipGroupProps<T extends string> = {
+  value: T;
+  onChange: (val: T) => void;
+  options: { label: string; value: T }[];
+  equalWidth?: boolean; // for status row
+  style?: StyleProp<ViewStyle>;      // container override
+  buttonStyle?: StyleProp<ViewStyle>; // individual button override
+};
 
-interface ChipGroupProps {
-  value: Priority;
-  onChange: (priority: Priority) => void;
-  disabled?: boolean;
-}
-
-export function ChipGroup({
+export function ChipGroup<T extends string>({
   value,
   onChange,
-  disabled = false,
-}: ChipGroupProps) {
-  const options: Array<{ value: Priority; label: string; emoji: string }> = [
-    { value: "low", label: "Low", emoji: "🟢" },
-    { value: "medium", label: "Medium", emoji: "🟡" },
-    { value: "high", label: "High", emoji: "🔴" },
-  ];
-
+  options,
+  equalWidth = false,
+  style,
+  buttonStyle,
+}: ChipGroupProps<T>) {
   return (
-    <View style={styles.chipGroupContainer}>
-      {options.map((option) => {
-        const isSelected = value === option.value;
-
+    <View style={[styles.chipContainer, style]}>
+      {options.map((opt, idx) => {
+        const selected = opt.value === value;
         return (
           <Pressable
-            key={option.value}
-            onPress={() => !disabled && onChange(option.value)}
-            disabled={disabled}
-            style={[
+            key={opt.value}
+            onPress={() => onChange(opt.value)}
+            style={({ pressed }) => [
               styles.chip,
-              isSelected && styles.chipSelected,
-              disabled && styles.chipDisabled,
+              equalWidth && { flex: 1, marginRight: idx === options.length - 1 ? 0 : 10 },
+              selected && styles.chipSelected,
+              pressed && styles.chipPressed,
+              buttonStyle,
             ]}
           >
-            <Text
-              style={[
-                styles.chipText,
-                isSelected && styles.chipTextSelected,
-              ]}
-            >
-              {option.emoji} {option.label}
+            <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
+              {opt.label}
             </Text>
           </Pressable>
         );
@@ -161,88 +109,40 @@ export function ChipGroup({
 }
 
 const styles = StyleSheet.create({
-  // form field
-  fieldContainer: {
-    marginBottom: SPACING.lg,
-    gap: SPACING.sm,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: COLORS.blueSteel,
-    marginBottom: SPACING.xs,
-  },
-  required: {
-    color: COLORS.redAccent,
-    fontWeight: "900",
-  },
-  helperText: {
-    fontSize: 13,
-    color: "#666",
-    opacity: 0.7,
-    marginBottom: SPACING.xs,
-  },
-  inputWrapper: {
+  field: { marginBottom: 20 },
+  label: { fontSize: 14, fontWeight: '700', marginBottom: 4 },
+  helper: { fontSize: 12, color: '#555' },
+  error: { fontSize: 12, color: 'crimson' },
+  textArea: {
     borderWidth: 1,
-    borderColor: "#CCC",
-    borderRadius: 8,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
-    backgroundColor: COLORS.white,
-  },
-  inputWrapperError: {
-    borderColor: COLORS.redAccent,
-    borderWidth: 2,
-  },
-  errorText: {
-    fontSize: 13,
-    color: COLORS.redAccent,
-    fontWeight: "500",
-    marginTop: SPACING.xs,
-  },
-
-  // textarea
-  textarea: {
+    borderRadius: 12,
+    padding: 12,
     fontSize: 16,
-    color: COLORS.blueSteel,
-    paddingVertical: SPACING.md,
-    paddingHorizontal: 0,
-    minHeight: 100, 
-    lineHeight: 22,
+    minHeight: 80,
+    textAlignVertical: 'top',
   },
-
-  // status chips 
-  chipGroupContainer: {
-    flexDirection: "row",
-    gap: SPACING.md,
-    justifyContent: "space-between",
-  },
+  chipContainer: { flexDirection: 'row' },
   chip: {
-    flex: 1,
-    paddingVertical: SPACING.md,
-    paddingHorizontal: SPACING.sm,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: "#CCC",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: COLORS.white,
-    minHeight: 48, // ADHD: Large tap target
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderRadius: 12,    // same radius as status buttons
+    borderWidth: 1,
+    alignItems: 'center',
+    marginRight: 8,
   },
   chipSelected: {
-    backgroundColor: COLORS.primaryBlue,
-    borderColor: COLORS.primaryBlue,
+    backgroundColor: '#007AFF',
+    borderColor: '#007AFF',
+    opacity: 1,
   },
-  chipDisabled: {
-    opacity: 0.5,
+  chipPressed: {
+    opacity: 0.7,
   },
   chipText: {
     fontSize: 14,
-    fontWeight: "600",
-    color: COLORS.blueSteel,
-    textAlign: "center",
+    fontWeight: '600',
   },
   chipTextSelected: {
-    color: COLORS.white,
+    color: '#fff',
   },
 });
