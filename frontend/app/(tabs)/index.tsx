@@ -67,7 +67,7 @@ const getHalfDayBucket = (time?: string) => {
 export default function HomeScreen() {
   // user id required for API calls
   // const { id } = useLocalSearchParams();
-  const id = '3'; // TESTING ONLY, UNCOMMENT ABOVE
+  const id = '1'; // TESTING ONLY, UNCOMMENT ABOVE
   const router = useRouter();
   const { tasks, updateTask } = useTasks();
 
