@@ -57,7 +57,7 @@ const priorityOptions = [
 
 export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
   // const { id } = useLocalSearchParams();
-  const id = '9'; // FOR TESTING ONLY, DELETE LATER
+  const id = 1; // FOR TESTING ONLY, DELETE LATER
   const scrollRef = useRef<ScrollView | null>(null);
 
   
@@ -107,7 +107,7 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
     );
   }, [title, dueDate, titleError, dueDateError, timeError,time]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!canSave) {
       Alert.alert(
         "Almost there",
@@ -116,32 +116,17 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
       return;
     }
 
-    // onSubmit({
-    //   title: title.trim(),
-    //   description: description.trim(),
-    //   priority,
-    //   dueDate: dueDate.trim(),
-    //   time: time.trim(),
-    //   status,
-    // });
-    createTask();
-
-    setTitle("");
-    setPriority("medium");
-    setDueDate("");
-    setDescription("");
-    setTime("");
-    setShowDetails(false);
+    await createTask();
   };
 
-  // save task in database for user
+  // API call to save task in database for user
   const createTask = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/tasks`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          // user_id: id,
+          user_id: id,
           title: title.trim(),
           description: description.trim(),
           priority: priority,
@@ -154,12 +139,25 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
       const data = await response.json;
       console.log(data)
 
-      if (response.ok) console.log('New task created');
+      if (response.ok) {
+        console.log('New task created');
+        clear();
+      }
       else console.log('Error creating task')
 
     } catch (error) {
       console.log(error);
     }
+  }
+
+  // clear form after user has submitted data
+  const clear = () => {
+    setTitle("");
+    setPriority("medium");
+    setDueDate("");
+    setDescription("");
+    setTime("");
+    setShowDetails(false);
   }
 
   const toggleDetails = () => {
