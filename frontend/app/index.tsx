@@ -2,6 +2,7 @@
 Author - Kayla Thornton
 Purpose - Provide user with login options so that they may get access to the app
  */
+
 import Button from '@/ui/Button';
 import { COLORS, SPACING } from '@/ui/CustomStyles';
 import Screen from '@/ui/Screen';
@@ -26,7 +27,8 @@ export default function LandingPage() {
     // // route to dashboard if user is signed in
     // const currentSession = async () => {
     //     const isSignedIn = GoogleSignin.getCurrentUser();
-    //     if (isSignedIn) router.navigate('./(tabs)');
+    //    // get user id
+    //     if (isSignedIn) router.replace('../(tabs)/${id}');
     // }
 
     // allow user to sign in using google credentials
@@ -63,12 +65,28 @@ export default function LandingPage() {
 
     // send google signin response to backend
     const toBackend = async (user: object) => {
-        const response = await fetch(`${API_BASE_URL}/auth/googleAuth`, 
-        {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ user })
-        });
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/googleAuth`, 
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ user })
+            });
+
+            // get user
+            const data = await response;
+
+            // if response successful, route user to landing page
+            if (response.ok) {
+                router.replace(`../(tabs)/${data}`);
+            } else {
+                // setError(data.message);
+            }
+
+        } catch (error) {
+            console.log('Network error');
+        }
+        
     }
 
     return(
@@ -94,7 +112,7 @@ export default function LandingPage() {
                     style={{ margin: SPACING.sm }} />
 
                 <BodyText style={{ color: COLORS.white, textAlign: 'center' }}> 
-                    Don't have an account? <Link href={"/Registration"} style={{ color: COLORS.vibrantBlue}}> Register here </Link>
+                    Don't have an account? <Link href={"./Registration"} style={{ color: COLORS.vibrantBlue}}> Register here </Link>
                 </BodyText> 
             </View>
             

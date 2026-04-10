@@ -24,7 +24,7 @@ export default function PreferenceForm() {
 
   // update currQuestion to object at current postRegistrationData index
   const onNext = () => {
-    indexRef.current++; // 3
+    indexRef.current++; 
 
     // route to dashboard when user has answered all questions 
     if (indexRef.current == formLength - 1 ) router.replace(`./(tabs)/${id}`);

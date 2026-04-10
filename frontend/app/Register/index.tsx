@@ -53,7 +53,7 @@ export default function Registration() {
           console.log("Account has been successfully created");
           setErrors("");
           setUserData(initialData);
-          router.replace({ pathname: '/PostRegistration', params: { id: data.userId } }); 
+          router.replace({ pathname: './PostRegistration', params: { id: data.userId } }); 
         } else {
           setErrors(data.message || "Error creating account");
         }

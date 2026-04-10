@@ -1,6 +1,6 @@
 //Tiffany Santiago Garcia
 // Main screen showing active tasks with daily and half-day views, filtered by date/time and sorted by priority
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -64,7 +64,7 @@ const getHalfDayBucket = (time?: string) => {
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams();
+  // const { id } = useLocalSearchParams();
   const { tasks, updateTask } = useTasks();
 
   const [viewMode, setViewMode] = useState<ViewMode>("daily");
@@ -101,7 +101,7 @@ export default function HomeScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: "#F7F8FA" }}>
       <View style={{ flex: 1, padding: 20 }}>
         <Text style={{ fontSize: 24, fontWeight: "800", marginBottom: 12 }}>
-          My Tasks from user { id }
+          My Tasks from user 
         </Text>
 
         <View style={{ flexDirection: "row", gap: 12, marginBottom: 12 }}>

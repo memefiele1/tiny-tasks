@@ -32,6 +32,7 @@ export default function Login() {
         body: JSON.stringify({ email: username, password: password })
       });
       const data = await response.json();
+      console.log(data);
       // TO-DO - GET USER ID FROM RESPONSE
       const id = data.user.user_id;
       
@@ -50,7 +51,7 @@ export default function Login() {
     setUsername("");
     setPassword("");
     setErrors("");
-    router.navigate(`./(tabs)/${id}`); // use id as parameter to get user
+    router.replace(`../(tabs)/${id}`); // use id as parameter to get user
   };
 
   
@@ -101,16 +102,16 @@ export default function Login() {
           />
         
           <BodyText>
-            <Link href="/ForgotPassword" style={{ color: COLORS.vibrantBlue }}> Forgot Password? </Link>
+            <Link href={"./ForgotPassword"} style={{ color: COLORS.vibrantBlue }}> Forgot Password? </Link>
           </BodyText>
 
           <Button 
             label="Log In"
-            onPress={() => onLogin("1")} // TO-DO - CHANGE TO VALIDATEUSER FUNCTION
+            onPress={() => validateUser()} 
           />
 
           <BodyText>
-            Don&apos;t have an account? <Link href={"/Registration"} style={{ color: COLORS.vibrantBlue }}> Register here </Link>
+            Don&apos;t have an account? <Link href={"../Registration"} style={{ color: COLORS.vibrantBlue }}> Register here </Link>
           </BodyText>
         </Screen>
         
