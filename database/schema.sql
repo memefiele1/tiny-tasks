@@ -3,14 +3,13 @@
 -- Author: Miracle Emefiele
 
 -- create table in database
-const createUserTable = 
-  CREATE TABLE IF NOT EXISTS users (
-    user_id        INTEGER PRIMARY KEY AUTOINCREMENT,
-    username       TEXT    UNIQUE NOT NULL,
-    email          TEXT    UNIQUE NOT NULL,
-    password_hash  TEXT    NOT NULL,
-    created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  );
+CREATE TABLE IF NOT EXISTS users (
+  user_id        INTEGER PRIMARY KEY AUTOINCREMENT,
+  username       TEXT    UNIQUE NOT NULL,
+  email          TEXT    UNIQUE NOT NULL,
+  password_hash  TEXT    NOT NULL,
+  created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 CREATE TABLE IF NOT EXISTS tasks (
   task_id       INTEGER   PRIMARY KEY AUTOINCREMENT,
