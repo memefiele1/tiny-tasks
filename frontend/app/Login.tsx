@@ -111,7 +111,7 @@ export default function Login() {
           />
 
           <BodyText>
-            Don&apos;t have an account? <Link href={"../Registration"} style={{ color: COLORS.vibrantBlue }}> Register here </Link>
+            Don&apos;t have an account? <Link href={"./Register"} style={{ color: COLORS.vibrantBlue }}> Register here </Link>
           </BodyText>
         </Screen>
         

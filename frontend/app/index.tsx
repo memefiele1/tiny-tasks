@@ -112,7 +112,7 @@ export default function LandingPage() {
                     style={{ margin: SPACING.sm }} />
 
                 <BodyText style={{ color: COLORS.white, textAlign: 'center' }}> 
-                    Don't have an account? <Link href={"./Registration"} style={{ color: COLORS.vibrantBlue}}> Register here </Link>
+                    Don't have an account? <Link href={"./Register"} style={{ color: COLORS.vibrantBlue}}> Register here </Link>
                 </BodyText> 
             </View>
             
