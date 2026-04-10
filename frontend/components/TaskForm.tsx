@@ -1,16 +1,17 @@
 //Tiffany Santiago Garcia
 // Form component for creating and editing tasks, with validation and quick date options
 
+import API_BASE_URL from "@/utils/config";
 import React, { useMemo, useRef, useState } from "react";
 import {
-  View,
-  Text,
-  TextInput,
   Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 import Button from "../ui/Button";
 import { FormField, TextArea } from "../ui/TaskFormParts";
@@ -34,7 +35,6 @@ type Props = {
 };
 
 
-
 const formatYYYYMMDD = (d: Date) => d.toISOString().slice(0, 10);
 const addDays = (days: number) => {
   const d = new Date();
@@ -56,9 +56,9 @@ const priorityOptions = [
 
 
 export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
+  // const { id } = useLocalSearchParams();
+  const id = '9'; // FOR TESTING ONLY, DELETE LATER
   const scrollRef = useRef<ScrollView | null>(null);
-
-  
 
   
   const [title, setTitle] = useState(initial?.title ?? "");
@@ -96,7 +96,6 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
   }, [dueDate]);
 
 
-
   const canSave = useMemo(() => {
     return (
       title.trim().length > 0 &&
@@ -106,7 +105,6 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
       !dueDateError &&
       !timeError
     );
-  }, [title, dueDate, titleError, dueDateError, timeError,time]);
   }, [title, dueDate, titleError, dueDateError, timeError,time]);
 
   const handleSubmit = () => {
@@ -118,24 +116,51 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
       return;
     }
 
-    onSubmit({
-      title: title.trim(),
-      description: description.trim(),
-      priority,
-      dueDate: dueDate.trim(),
-      time: time.trim(),
-      status,
-      status,
-    });
+    // onSubmit({
+    //   title: title.trim(),
+    //   description: description.trim(),
+    //   priority,
+    //   dueDate: dueDate.trim(),
+    //   time: time.trim(),
+    //   status,
+    // });
+    createTask();
 
     setTitle("");
     setPriority("medium");
     setDueDate("");
     setDescription("");
     setTime("");
-    setTime("");
     setShowDetails(false);
   };
+
+  // save task in database for user
+  const createTask = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/tasks`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          // user_id: id,
+          title: title.trim(),
+          description: description.trim(),
+          priority: priority,
+          due_date: dueDate.trim(),
+          time_view: time.trim(),
+          status: status,
+        }),
+
+      })
+      const data = await response.json;
+      console.log(data)
+
+      if (response.ok) console.log('New task created');
+      else console.log('Error creating task')
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   const toggleDetails = () => {
     setShowDetails((prev) => {
@@ -228,86 +253,71 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
           <Text style={styles.helperText}>
             Tip: Use the quick buttons to avoid typing.
           </Text>
-        </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Time</Text>
-
-          <View style={{ flexDirection: "row", flexWrap: "wrap", marginBottom: 8 }}>
+          <Text style={[styles.sectionLabel, { marginTop: 18 }]}>Time</Text>
+          <View style={styles.chipRow}>
             {["9:00 AM", "12:00 PM", "2:00 PM", "6:00 PM"].map((slot) => (
               <Text
                 key={slot}
                 onPress={() => setTime(slot)}
-                style={{
-                  paddingVertical: 10,
-                  paddingHorizontal: 12,
-                  borderRadius: 999,
-                  borderWidth: 1,
-                  marginRight: 10,
-                  marginBottom: 10,
-                  fontWeight: "700",
-                }}
+                style={styles.chip}
               >
                 {slot}
               </Text>
             ))}
           </View>
-
           <TextInput
             value={time}
             onChangeText={setTime}
             placeholder="e.g., 2:00 PM"
             autoCapitalize="characters"
-            style={[commonInput]}
+            style={styles.input}
+            placeholderTextColor="#A0AEC0"
           />
-
           {timeError ? (
-            <Text style={{ fontSize: 12, color: "crimson" }}>
-              {timeError}
-            </Text>
+            <Text style={styles.errorText}>{timeError}</Text>
           ) : null}
-        </View> 
-
-
-
-        {/* STATUS */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Status</Text>
-          <View style={styles.row}>
-            {statusOptions.map((opt, idx) => (
-              <Button
-                key={opt.value}
-                label={opt.label}
-                variant={status === opt.value ? "primary" : "outline"}
-                onPress={() => setStatus(opt.value)}
-                style={{
-                  flex: 1,
-                  marginRight: idx === statusOptions.length - 1 ? 0 : 10,
-                }}
-              />
-            ))}
-          </View>
         </View>
 
-        {/* PRIORITY */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Priority</Text>
-          <Text style={styles.helperText}>
-            Low = can wait, Medium = normal, High = urgent
-          </Text>
-          <View style={styles.row}>
-            {priorityOptions.map((opt, idx) => (
-              <Button
-                key={opt.value}
-                label={opt.label}
-                variant={priority === opt.value ? "primary" : "outline"}
-                onPress={() => setPriority(opt.value)}
-                style={{
-                  flex: 1,
-                  marginRight: idx === priorityOptions.length - 1 ? 0 : 10,
-                }}
-              />
-            ))}
+        {/* STATUS & PRIORITY */}
+        <View style={styles.rowWrap}>
+          <View style={[styles.card, { flex: 1, marginRight: 10 }]}>
+            <Text style={styles.sectionLabel}>Status</Text>
+            
+            <View style={styles.row}>
+              {statusOptions.map((opt, idx) => (
+                <Button
+                  key={opt.value}
+                  label={opt.label}
+                  variant={status === opt.value ? "primary" : "outline"}
+                  onPress={() => setStatus(opt.value)}
+                  style={{
+                    flex: 1,
+                    marginRight: idx === statusOptions.length - 1 ? 0 : 8,
+                  }}
+                />
+              ))}
+            </View>
+          </View>
+          <View style={[styles.card, { flex: 1 }]}>
+            <Text style={styles.sectionLabel}>Priority</Text>
+            <Text style={styles.helperText}>
+              Low = can wait, Medium = normal, High = urgent
+            </Text>
+            <View style={styles.row}>
+              {priorityOptions.map((opt, idx) => (
+                <Button
+                  key={opt.value}
+                  label={opt.label}
+                  variant={priority === opt.value ? "primary" : "outline"}
+                  onPress={() => setPriority(opt.value)}
+                  style={{
+                    flex: 1,
+                    marginRight: idx === priorityOptions.length - 1 ? 0 : 8,
+                  }}
+                />
+              ))}
+            </View>
           </View>
         </View>
 

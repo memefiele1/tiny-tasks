@@ -1,36 +1,32 @@
 //Tiffany Santiago Garcia
 // Archived tasks screen with filter and search functionality, allowing users to view and restore completed or deleted tasks
 
-import API_BASE_URL from "@/utils/config";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
+  View,
+  Text,
   ScrollView,
   StyleSheet,
-  Text,
-  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import TaskCard from "../components/TaskCard";
 import { useTasks } from "../context/TasksContext";
+import TaskCard from "../components/TaskCard";
 import {
-  ArchiveSearchInput,
-  ArchiveSection,
-  EmptyState,
   FilterButton,
+  EmptyState,
+  ArchiveSection,
   RestoreButton,
+  ArchiveSearchInput,
 } from "../ui/ArchiveComponents";
 
 type FilterType = "all" | "completed" | "deleted";
 
 /* archived task screen */
 export default function ArchivedScreen() {
-  // const { id } = useLocalSearchParams();
-  const id = '3'; // TESTING ONLY, DELETE AFTERWARDS
   const { tasks, restoreTask, updateTask } = useTasks();
   const [filter, setFilter] = useState<FilterType>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [error, setError] = useState("");
-  const [getTasks, setGetTasks] = useState([])
+
   
   // get all archived tasks (completed + deleted)
   const archivedTasks = useMemo(() => {
@@ -50,19 +46,6 @@ export default function ArchivedScreen() {
     }
     return archivedTasks;
   }, [archivedTasks, filter]);
-
-  // TO-DO - GET ALL ARCHIVED TASKS
-  const getArchivedTasks = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/archive/${id}`);
-      console.log(response);
-      // setGetTasks(response.archived_tasks);
-    } catch (error) {
-      setError('There was an error getting your tasks');
-    }
-  }
-
-  useEffect(() => { getArchivedTasks(); }, []);
 
   // apply search filter
   const finalTasks = useMemo(() => {
@@ -124,9 +107,6 @@ export default function ArchivedScreen() {
             </View>
           </View>
 
-          {/* Display error message */}
-          { error ? <Text> {error} </Text> : null }
-          
           {/* task list*/}
           {finalTasks.length === 0 ? (
             <EmptyState searchQuery={searchQuery} />

@@ -1,12 +1,11 @@
 //Tiffany Santiago Garcia
 // Modal screen for adding and editing tasks, with form and delete option when editing
 
+import React, { useState } from 'react';
+import { StyleSheet, Pressable, Text, View } from 'react-native';
+import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import TaskForm, { TaskDraft } from '@/components/TaskForm';
 import { useTasks } from '@/context/TasksContext';
-import API_BASE_URL from '@/utils/config';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 
 export default function ModalScreen() {
@@ -26,33 +25,12 @@ export default function ModalScreen() {
     router.dismiss();
   };
 
-  // const handleDelete = () => {
-  //   if (!editingId) return;
-  //   setIsDeleting(true);
-  //   deleteTask(editingId);
-  //   router.dismiss();
-  // };
-
-  // api call to delete task
-  const handleDelete = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/tasks/delete`, {
-        method: "delete",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ "task_id": editingId })
-      });
-      console.log(response);
-
-      if (response.ok) {
-        console.log("Successfully deleted task");
-      } else {
-        console.log("There was an error deleting your task");
-      }
-
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  const handleDelete = () => {
+    if (!editingId) return;
+    setIsDeleting(true);
+    deleteTask(editingId);
+    router.dismiss();
+  };
 
   return (
     <>

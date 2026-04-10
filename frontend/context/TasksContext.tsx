@@ -30,36 +30,6 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
     ]);
   };
 
-  // post call to add new task to database
-    // const addTask = async () => {
-    //   try{
-    //     const response = await fetch(`${API_BASE_URL}/api/tasks/create`, {
-    //       headers: { "Content-Type": "applications/json"},
-    //       body: JSON.stringify({
-    //         // "user_id": id,
-    //         "title": draft.title,
-    //         "description": draft.description,
-    //         "due_date": draft.dueDate,
-    //         "priority": draft.priority,
-    //         "time_view": draft.time
-    //       })
-    //     });
-  
-    //     const data = response.json();
-    //     console.log(data);
-  
-    //     // what to do if request successful
-    //     if (response.ok) {
-    //       // what to do when task created
-    //     } else {
-    //       // setError("Error Adding Task");
-    //     }
-        
-    //   } catch (error) {
-    //     // setError("Network Error");
-    //   }
-    // }
-
   const updateTask = (id: string, draft: TaskDraft) => {
     setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...draft, id } : t)));
   };

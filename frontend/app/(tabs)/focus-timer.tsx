@@ -1,13 +1,13 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-  FlatList,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    FlatList,
+    Modal,
+    Pressable,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTasks } from "../../context/TasksContext";
@@ -20,11 +20,6 @@ const priorityColors = {
   low: "#6bcB77",
 } as const;
 
-const priorityOrder = {
-    high: 3,
-    medium: 2,
-    low: 1,
-  } as const;
 export default function FocusTimerScreen() {
 
   const { tasks, updateTask } = useTasks();
@@ -39,7 +34,6 @@ export default function FocusTimerScreen() {
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  
 
 const parseTaskDateTime = (dueDate?: string, time?: string) => {
   if (!dueDate) return Number.MAX_SAFE_INTEGER;
