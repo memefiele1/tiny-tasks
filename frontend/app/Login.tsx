@@ -42,7 +42,7 @@ export default function Login() {
       
     } catch (error) {
       console.log(error);
-      setErrors("Network error, please try again");
+      setErrors("User not found");
     }
   };
   
