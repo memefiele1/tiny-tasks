@@ -25,7 +25,7 @@ type FilterType = "all" | "completed" | "deleted";
 /* archived task screen */
 export default function ArchivedScreen() {
   // const { id } = useLocalSearchParams();
-  const id = '3';
+  const id = '3'; // TESTING ONLY, DELETE AFTERWARDS
   const { tasks, restoreTask, updateTask } = useTasks();
   const [filter, setFilter] = useState<FilterType>("all");
   const [searchQuery, setSearchQuery] = useState("");

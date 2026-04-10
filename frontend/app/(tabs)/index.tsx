@@ -1,10 +1,10 @@
 //Tiffany Santiago Garcia
 // Main screen showing active tasks with daily and half-day views, filtered by date/time and sorted by priority
 
-import React, { useMemo, useState } from "react";
-import { View, Text, Pressable, ScrollView } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import React, { useMemo, useState } from "react";
+import { Pressable, ScrollView, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import TaskCard from "../../components/TaskCard";
 import { useTasks } from "../../context/TasksContext";
 
@@ -64,11 +64,16 @@ const getHalfDayBucket = (time?: string) => {
 };
 
 export default function HomeScreen() {
+  // user id required for API calls
+  // const { id } = useLocalSearchParams();
+  const id = '3'; // TESTING ONLY, UNCOMMENT ABOVE
   const router = useRouter();
   const { tasks, updateTask } = useTasks();
 
   const [viewMode, setViewMode] = useState<ViewMode>("daily");
   const [halfDayMode, setHalfDayMode] = useState<HalfDayMode>("morning");
+
+  const [error, setError] = useState("");
 
   const displayedTasks = useMemo(() => {
     let filteredTasks = tasks.filter(
@@ -96,6 +101,7 @@ export default function HomeScreen() {
   const handleEdit = (id: string) => {
     router.push({ pathname: "/modal", params: { editingId: id } });
   };
+
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#F7F8FA" }}>
