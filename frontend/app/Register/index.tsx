@@ -33,34 +33,38 @@ export default function Registration() {
 
   // create new account if the user is a new user
   const onRegister = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/auth/register`, 
-          {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            username: userData.username,
-            email: userData.email,
-            password: userData.pswd
-          })
-        });
+    if ( userData.pswd != userData.confirmPswd ) {
+      setErrors("Passwords don't match");
+      return;
+    } 
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/register`, 
+        {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: userData.username,
+          email: userData.email,
+          password: userData.pswd
+        })
+      });
 
-        const data = await response.json();
-        console.log(data);
-        // TO-DO - GET USER ID FROM RESPONSE
-        
-        if (response.ok) {
-          console.log("Account has been successfully created");
-          setErrors("");
-          setUserData(initialData);
-          router.replace({ pathname: './PostRegistration', params: { id: data.userId } }); 
-        } else {
-          setErrors(data.message || "Error creating account");
-        }
-      } catch (error) {
-        console.log(error);
-        setErrors("Network error, please try again");
+      const data = await response.json();
+      console.log(data);
+      // TO-DO - GET USER ID FROM RESPONSE
+      
+      if (response.ok) {
+        console.log("Account has been successfully created");
+        setErrors("");
+        setUserData(initialData);
+        router.replace("/Register/PostRegistration"); 
+      } else {
+        setErrors(data.message || "Error creating account");
       }
+    } catch (error) {
+      console.log(error);
+      setErrors("Network error, please try again");
+    }
   };
 
   return (

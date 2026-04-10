@@ -34,10 +34,10 @@ export default function Login() {
       const data = await response.json();
       console.log(data);
       // TO-DO - GET USER ID FROM RESPONSE
-      const id = data.user.user_id;
+      // const id = data.user.user_id;
       
       // route to login page if login successful
-      if (response.ok) onLogin(id);
+      if (response.ok) onLogin();
       else setErrors(data.message);
       
     } catch (error) {
@@ -47,11 +47,11 @@ export default function Login() {
   };
   
   // clear form and route to dashboard on successful login 
-  const onLogin = ( id: string ) => {
+  const onLogin = (  ) => {
     setUsername("");
     setPassword("");
     setErrors("");
-    router.replace(`../(tabs)/${id}`); // use id as parameter to get user
+    router.replace(`../(tabs)`); // use id as parameter to get user
   };
 
   
