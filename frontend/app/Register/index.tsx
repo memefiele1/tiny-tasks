@@ -11,7 +11,7 @@ import { BodyText, Heading, Subheading } from "@/ui/Text";
 import API_BASE_URL from "@/utils/config";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import { TextInput, View } from "react-native";
+import { KeyboardAvoidingView, Platform, TextInput, View } from "react-native";
 
 let initialData = {
   fullName: "",
@@ -33,45 +33,53 @@ export default function Registration() {
 
   // create new account if the user is a new user
   const onRegister = async () => {
-    if (userData.pswd != userData.confirmPswd) setErrors("Passwords don't match");
+    if ( userData.pswd != userData.confirmPswd ) {
+      setErrors("Passwords don't match");
+      return;
+    } 
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/register`, 
+        {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: userData.username,
+          email: userData.email,
+          password: userData.pswd
+        })
+      });
 
-      try {
-        const response = await fetch(`${API_BASE_URL}/auth/register`, 
-          {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            username: userData.username,
-            email: userData.email,
-            password: userData.pswd
-          })
-        });
-
-        const data = await response.json();
-        console.log(data);
-        
-        if (response.ok) {
-          console.log("Account has been successfully created");
-          setErrors("");
-          setUserData(initialData);
-          router.navigate('/PostRegistration');
-        } else {
-          setErrors(data.message ?? "Error creating account");
-        }
-      } catch (error) {
-        console.log(error);
-        setErrors("Network error, please try again");
+      const data = await response.json();
+      console.log(data);
+      // TO-DO - GET USER ID FROM RESPONSE
+      
+      if (response.ok) {
+        console.log("Account has been successfully created");
+        setErrors("");
+        setUserData(initialData);
+        router.replace("/Register/PostRegistration"); 
+      } else {
+        setErrors(data.message || "Error creating account");
       }
+    } catch (error) {
+      console.log(error);
+      setErrors("Network error, please try again");
+    }
   };
 
   return (
-    <Screen scrollable={true} > 
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+      style={{ flex: 1, padding: 20 }}
+    >
+      <Screen scrollable={true} > 
         <Heading> Create an Account </Heading>
         <Subheading> Join Tiny Tasks Today! </Subheading>
       
 
-      <Screen>
-        { errors  ? ( <BodyText variant="error">{errors}</BodyText> ) : null }
+      <View>
+        { errors  ? ( <BodyText variant='error'>{errors}</BodyText> ) : null }
         
         {/* render each input field to screen */}
         {registraionData.map((data) => {
@@ -107,7 +115,9 @@ export default function Registration() {
           onPress={onRegister}
         />
         
+        </View>
       </Screen>
-    </Screen>
+      </KeyboardAvoidingView>
+
   );
 }

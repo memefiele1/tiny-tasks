@@ -1,11 +1,11 @@
 //Tiffany Santiago Garcia
 // Main screen showing active tasks with daily and half-day views, filtered by date/time and sorted by priority
-
+import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
-import { View, Text, Pressable, ScrollView } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import TaskForm, { TaskDraft } from "../../components/TaskForm";
 import TaskCard from "../../components/TaskCard";
+import { useTasks } from "../../context/TasksContext";
 
 type ViewMode = "daily" | "half-day";
 type HalfDayMode = "morning" | "afternoon";
@@ -63,8 +63,9 @@ const getHalfDayBucket = (time?: string) => {
 };
 
 export default function HomeScreen() {
-  const [tasks, setTasks] = useState<TaskDraft[]>([]);
-  const [showForm, setShowForm] = useState(false);
+  const router = useRouter();
+  // const { id } = useLocalSearchParams();
+  const { tasks, updateTask } = useTasks();
 
   const [viewMode, setViewMode] = useState<ViewMode>("daily");
   const [halfDayMode, setHalfDayMode] = useState<HalfDayMode>("morning");
@@ -93,14 +94,14 @@ export default function HomeScreen() {
   }, [tasks, viewMode, halfDayMode]);
 
   const handleEdit = (id: string) => {
-    router.push({ pathname: "/modal", params: { editingId: id } });
+    // router.push({ pathname: "/modal", params: { editingId: id } });
   };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#F7F8FA" }}>
       <View style={{ flex: 1, padding: 20 }}>
         <Text style={{ fontSize: 24, fontWeight: "800", marginBottom: 12 }}>
-          My Tasks
+          My Tasks from user 
         </Text>
 
         <View style={{ flexDirection: "row", gap: 12, marginBottom: 12 }}>
@@ -203,7 +204,7 @@ export default function HomeScreen() {
         </ScrollView>
 
         <Pressable
-          onPress={() => router.push("/modal")}
+          onPress={() => router.push("./modal")}
           style={{
             marginTop: 12,
             paddingVertical: 14,

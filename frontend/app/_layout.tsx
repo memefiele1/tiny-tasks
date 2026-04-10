@@ -5,8 +5,8 @@ const Layout = () => {
         <Stack>
             <Stack.Screen name="index" options={{ headerShown: false}}/>
             <Stack.Screen name="Login" options={{ headerShown: false}}/>
-            <Stack.Screen name="Registration" options={{ headerTitle: ''}}/>
-            <Stack.Screen name="ForgotPassword" options={{ headerTitle: ''}}/>
+            <Stack.Screen name="Register" options={{ headerShown: false}}/>
+            <Stack.Screen name="ForgotPassword" options={{ headerShown: false }}/>
         </Stack>
     )
 }

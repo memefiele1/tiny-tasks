@@ -36,11 +36,9 @@ export const CustomRadio = ({ options }: Props) => {
           // updates UI to reflect currently selected value
           return (
             <View key={index} style={styles.container}>
-              <Button label={option} onPress={() => setSelectedOption(option)} style={ isActive ? styles.active : styles.inactive}/>
-              {/* <TouchableOpacity accessibilityLabel={option} onPress={() => setSelectedOption(option)} 
-              style={ styles.optionContainer }>
-                <Text style={ isActive ? styles.active : styles.inactive  }>{option}</Text>
-              </TouchableOpacity> */}
+              <Button label={option} 
+              variant={ isActive ? "primary" : "secondary" }
+              onPress={() => setSelectedOption(option)} />
             </View>
           );
         })}
@@ -51,14 +49,6 @@ export const CustomRadio = ({ options }: Props) => {
 const styles = StyleSheet.create({
   container:{
     padding: SPACING.xs,
-    margin: SPACING.xs
+    margin: SPACING.xs,
   },
-  active: {
-    color: COLORS.white,
-    backgroundColor: COLORS.vibrantBlue
-  },
-  inactive: {
-    color: COLORS.primaryBlue,
-    backgroundColor: COLORS.white
-  }
 })

@@ -3,14 +3,14 @@
 
 import React, { useMemo, useRef, useState } from "react";
 import {
-  View,
-  Text,
-  TextInput,
   Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 import Button from "../ui/Button";
 import { FormField, TextArea } from "../ui/TaskFormParts";
@@ -286,7 +286,7 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
               <Button
                 key={opt.value}
                 label={opt.label}
-                variant={status === opt.value ? "primary" : "outline"}
+                // variant={status === opt.value ? "primary" : "outline"}
                 onPress={() => setStatus(opt.value)}
                 style={{
                   flex: 1,
@@ -308,7 +308,7 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
               <Button
                 key={opt.value}
                 label={opt.label}
-                variant={priority === opt.value ? "primary" : "outline"}
+                // variant={priority === opt.value ? "primary" : "outline"}
                 onPress={() => setPriority(opt.value)}
                 style={{
                   flex: 1,
@@ -346,7 +346,7 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
           {onCancel ? (
             <Button
               label="Cancel"
-              variant="outline"
+              // variant="outline"
               onPress={onCancel}
               style={{ flex: 1, marginRight: 12 }}
             />

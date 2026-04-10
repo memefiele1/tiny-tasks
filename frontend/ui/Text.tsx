@@ -35,20 +35,20 @@ export function BodyText({children, variant, style }: TextProps) {
     switch (variant){
         case 'caption':
             type = {
-                fontSize: 14,
+                fontSize: 18,
                 color: COLORS.blueSteel
             }
             break;
         case 'error':
             type = {
-                fontSize: 14,
+                fontSize: 18,
                 color: COLORS.redAccent
             }
             break;
     }
 
     return(
-        <Text style={[type, styles.bodyText, style]}>{children}</Text>
+        <Text style={[styles.bodyText, type, style]}>{children}</Text>
     )
 }
 

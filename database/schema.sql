@@ -2,6 +2,7 @@
 -- Run this in DBeaver to create all tables
 -- Author: Miracle Emefiele
 
+-- create table in database
 CREATE TABLE IF NOT EXISTS users (
   user_id        INTEGER PRIMARY KEY AUTOINCREMENT,
   username       TEXT    UNIQUE NOT NULL,
@@ -77,3 +78,5 @@ CREATE TABLE IF NOT EXISTS timer_logs (
   FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
   FOREIGN KEY (task_id) REFERENCES tasks(task_id) ON DELETE SET NULL
 );
+
+

@@ -11,7 +11,7 @@ import { BodyText, Heading, Subheading } from "@/ui/Text";
 import API_BASE_URL from "@/utils/config";
 import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
-import { KeyboardAvoidingView, TextInput } from "react-native";
+import { KeyboardAvoidingView, Platform, TextInput } from "react-native";
 
 
 export default function Login() {
@@ -32,28 +32,36 @@ export default function Login() {
         body: JSON.stringify({ email: username, password: password })
       });
       const data = await response.json();
-
+      console.log(data);
+      // TO-DO - GET USER ID FROM RESPONSE
+      // const id = data.user.user_id;
+      
       // route to login page if login successful
       if (response.ok) onLogin();
       else setErrors(data.message);
       
     } catch (error) {
       console.log(error);
-      setErrors("Network error, please try again");
+      setErrors("User not found");
     }
   };
   
   // clear form and route to dashboard on successful login 
-  const onLogin = () => {
+  const onLogin = (  ) => {
     setUsername("");
     setPassword("");
     setErrors("");
-    router.navigate('./(tabs)');
+    router.replace(`../(tabs)`); // use id as parameter to get user
   };
 
   
   return (
-      <KeyboardAvoidingView style={{ justifyContent: 'space-between'}}>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+        style={{ flex: 1, padding: 20 }}
+      >
+
         <Screen>
           <Heading> Tiny Tasks </Heading>
           <Subheading> Task management app for students </Subheading>
@@ -94,20 +102,19 @@ export default function Login() {
           />
         
           <BodyText>
-            <Link href="/ForgotPassword" style={{ color: COLORS.vibrantBlue }}> Forgot Password? </Link>
+            <Link href={"./ForgotPassword"} style={{ color: COLORS.vibrantBlue }}> Forgot Password? </Link>
           </BodyText>
 
           <Button 
             label="Log In"
-            onPress={validateUser}
+            onPress={() => validateUser()} 
           />
 
           <BodyText>
-            Don&apos;t have an account? <Link href={"/Registration"} style={{ color: COLORS.vibrantBlue }}> Register here </Link>
+            Don&apos;t have an account? <Link href={"./Register"} style={{ color: COLORS.vibrantBlue }}> Register here </Link>
           </BodyText>
         </Screen>
         
-
       </KeyboardAvoidingView>
   );
 }
