@@ -1,12 +1,16 @@
 //Tiffany Santiago Garcia
 // Main screen showing active tasks with daily and half-day views, filtered by date/time and sorted by priority
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { View, Text, Pressable, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import TaskCard from "../../components/TaskCard";
 import { useTasks } from "../../context/TasksContext";
+import { fetchMorningTasks, fetchAfternoonTasks } from "../../utils/tasksApi";
+
+
+
 
 type ViewMode = "all" | "daily";
 type HalfDayMode = "morning" | "afternoon";
@@ -100,11 +104,65 @@ export default function HomeScreen() {
   const router = useRouter();
   const { tasks, updateTask } = useTasks();
 
+    // --- Morning & Afternoon Tasks API State ---
+  const [morningTasks, setMorningTasks] = useState<any[]>([]);
+  const [morningLoading, setMorningLoading] = useState(false);
+  const [morningError, setMorningError] = useState<string | null>(null);
+  const [afternoonTasks, setAfternoonTasks] = useState<any[]>([]);
+  const [afternoonLoading, setAfternoonLoading] = useState(false);
+  const [afternoonError, setAfternoonError] = useState<string | null>(null);
+
+  // Hardcoded user id for testing
+const userId = "1";
+
+const handleFetchMorningTasks = async () => {
+  setMorningLoading(true);
+  setMorningError(null);
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const tasks = await fetchMorningTasks(userId, today);
+    setMorningTasks(tasks);
+  } catch (err: any) {
+    setMorningError(err.message);
+    setMorningTasks([]);
+  } finally {
+    setMorningLoading(false);
+  }
+};
+
+const handleFetchAfternoonTasks = async () => {
+  setAfternoonLoading(true);
+  setAfternoonError(null);
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const tasks = await fetchAfternoonTasks(userId, today);
+    setAfternoonTasks(tasks);
+  } catch (err: any) {
+    setAfternoonError(err.message);
+    setAfternoonTasks([]);
+  } finally {
+    setAfternoonLoading(false);
+  }
+};
+
   const currentHour = new Date().getHours();
   const defaultHalfDay: HalfDayMode = currentHour < 12 ? "morning" : "afternoon";
 
   const [viewMode, setViewMode] = useState<ViewMode>("all");
   const [halfDayMode, setHalfDayMode] = useState<HalfDayMode>(defaultHalfDay);
+
+  useEffect(() => {
+    if (viewMode === "daily" && halfDayMode === "morning") {
+      handleFetchMorningTasks();
+    } else if (viewMode === "daily" && halfDayMode === "afternoon") {
+      handleFetchAfternoonTasks();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewMode, halfDayMode]);
+
+
+
+ 
 
   const activeTasks = useMemo(() => {
     return tasks.filter(
@@ -222,30 +280,86 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {displayedTasks.length === 0 ? (
-          <Text style={{ opacity: 0.7, marginTop: 12, marginBottom: 12 }}>
-            {viewMode === "all"
-              ? 'No active tasks yet. Tap "+ Add Task" to create one.'
-              : `No ${halfDayMode} tasks due today.`}
-          </Text>
-        ) : null}
-
-        <ScrollView
-          style={{ flex: 1, marginTop: 8 }}
-          contentContainerStyle={{ paddingBottom: 12 }}
-          showsVerticalScrollIndicator={false}
-        >
-          {displayedTasks.map((task) => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              onEdit={() => handleEdit(task.id)}
-              onComplete={() =>
-                updateTask(task.id, { ...task, status: "completed" })
-              }
-            />
-          ))}
-        </ScrollView>
+        {viewMode === "daily" && halfDayMode === "morning" ? (
+          morningLoading ? (
+            <Text style={{ marginTop: 12 }}>Loading morning tasks...</Text>
+          ) : morningError ? (
+            <Text style={{ color: "crimson", marginTop: 12 }}>{morningError}</Text>
+          ) : morningTasks.length === 0 ? (
+            <Text style={{ opacity: 0.7, marginTop: 12, marginBottom: 12 }}>
+              No morning tasks due today.
+            </Text>
+          ) : (
+            <ScrollView
+              style={{ flex: 1, marginTop: 8 }}
+              contentContainerStyle={{ paddingBottom: 12 }}
+              showsVerticalScrollIndicator={false}
+            >
+              {morningTasks.map((task) => (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  onEdit={() => handleEdit(task.id)}
+                  onComplete={() =>
+                    updateTask(task.id, { ...task, status: "completed" })
+                  }
+                />
+              ))}
+            </ScrollView>
+          )
+        ) : viewMode === "daily" && halfDayMode === "afternoon" ? (
+          afternoonLoading ? (
+            <Text style={{ marginTop: 12 }}>Loading afternoon tasks...</Text>
+          ) : afternoonError ? (
+            <Text style={{ color: "crimson", marginTop: 12 }}>{afternoonError}</Text>
+          ) : afternoonTasks.length === 0 ? (
+            <Text style={{ opacity: 0.7, marginTop: 12, marginBottom: 12 }}>
+              No afternoon tasks due today.
+            </Text>
+          ) : (
+            <ScrollView
+              style={{ flex: 1, marginTop: 8 }}
+              contentContainerStyle={{ paddingBottom: 12 }}
+              showsVerticalScrollIndicator={false}
+            >
+              {afternoonTasks.map((task) => (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  onEdit={() => handleEdit(task.id)}
+                  onComplete={() =>
+                    updateTask(task.id, { ...task, status: "completed" })
+                  }
+                />
+              ))}
+            </ScrollView>
+          )
+        ) : (
+          displayedTasks.length === 0 ? (
+            <Text style={{ opacity: 0.7, marginTop: 12, marginBottom: 12 }}>
+              {viewMode === "all"
+                ? 'No active tasks yet. Tap "+ Add Task" to create one.'
+                : `No ${halfDayMode} tasks due today.`}
+            </Text>
+          ) : (
+            <ScrollView
+              style={{ flex: 1, marginTop: 8 }}
+              contentContainerStyle={{ paddingBottom: 12 }}
+              showsVerticalScrollIndicator={false}
+            >
+              {displayedTasks.map((task) => (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  onEdit={() => handleEdit(task.id)}
+                  onComplete={() =>
+                    updateTask(task.id, { ...task, status: "completed" })
+                  }
+                />
+              ))}
+            </ScrollView>
+          )
+        )}
 
         <Pressable
           onPress={() => router.push("/modal")}
