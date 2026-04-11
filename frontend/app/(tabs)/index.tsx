@@ -2,14 +2,14 @@
 // Main screen showing active tasks with daily and half-day views, filtered by date/time and sorted by priority
 
 import API_BASE_URL from "@/utils/config";
-import { useRouter } from "expo-router";
-import React, { useEffect, useMemo, useState } from "react";
-import { Pressable, Text, View, ScrollView } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useTasks } from "../../context/TasksContext";
-import { fetchMorningTasks, fetchAfternoonTasks,fetchTaskEstimate } from "../../utils/tasksApi";
-import TaskCard from "../../components/TaskCard";
 import { useFocusEffect } from "@react-navigation/native";
+import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { Pressable, ScrollView, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import TaskCard from "../../components/TaskCard";
+import { useTasks } from "../../context/TasksContext";
+import { fetchAfternoonTasks, fetchMorningTasks, fetchTaskEstimate } from "../../utils/tasksApi";
 
 
 type ViewMode = "all" | "daily";
@@ -206,37 +206,6 @@ const handleCompleteTask = async (taskId: string) => {
   }
 };
 
-  const activeTasks = useMemo(() => {
-    return tasks.filter(
-      (t) => t.status !== "completed" && t.status !== "deleted"
-    );
-  }, [tasks]);
-
-  // const displayedTasks = useMemo(async () => {
-  //   let filteredTasks = [...activeTasks];
-
-  //   // get all tasks
-  //   if (viewMode === "all") await getAllTasks();
-
-  //   if (viewMode === "daily") {
-  //     filteredTasks = filteredTasks.filter((task) => isToday(task.dueDate));
-  //     filteredTasks = filteredTasks.filter((task) => {
-  //       const bucket = getHalfDayBucket(task.time);
-  //       return bucket === halfDayMode;
-  //     });
-  //   }
-
-  //   return filteredTasks.sort((a, b) => {
-  //     const aDateTime = parseTaskDateTime(a.dueDate, a.time);
-  //     const bDateTime = parseTaskDateTime(b.dueDate, b.time);
-
-  //     if (aDateTime !== bDateTime) {
-  //       return aDateTime - bDateTime;
-  //     }
-
-  //     return priorityOrder[b.priority] - priorityOrder[a.priority];
-  //   });
-  // }, [activeTasks, viewMode, halfDayMode]);
 
 const handleEdit = (task: any) => {
   router.push({
@@ -352,13 +321,12 @@ const handleEdit = (task: any) => {
     <SafeAreaView style={{ flex: 1, backgroundColor: "#F7F8FA" }}>
       <View style={{ flex: 1, padding: 20 }}>
         <Text style={{ fontSize: 24, fontWeight: "800", marginBottom: 12 }}>
-          My Tasks for user { id }
+          My Tasks for user
         </Text>
 
         <View style={{ flexDirection: "row", gap: 12, marginBottom: 12 }}>
           <Pressable
           onPress={() => setViewMode("all")}
-            // onPress={() => getAllTasks()}
             style={{
               flex: 1,
               paddingVertical: 12,
@@ -376,7 +344,6 @@ const handleEdit = (task: any) => {
 
           <Pressable
             onPress={() => setViewMode("daily")}
-            // onPress={() => getTodayTask()}
             style={{
               flex: 1,
               paddingVertical: 12,
@@ -458,8 +425,10 @@ const handleEdit = (task: any) => {
                   ...task,
                   estimateLabel: estimateMap[String(task.task_id ?? task.id)] ?? "—",
                 }}
+                isArchived={false}
                 onEdit={() => handleEdit(task)}
                 onComplete={() => handleCompleteTask(String(task.task_id ?? task.id))}
+                onRestore={() => { }}
               />
               ))}
             </ScrollView>
@@ -486,8 +455,10 @@ const handleEdit = (task: any) => {
                     ...task,
                     estimateLabel: estimateMap[String(task.task_id ?? task.id)] ?? "—",
                   }}
+                  isArchived={false}
                   onEdit={() => handleEdit(task)}
                   onComplete={() => handleCompleteTask(String(task.task_id ?? task.id))}
+                  onRestore={() => { }}
                 />
               ))}
             </ScrollView>
@@ -512,8 +483,10 @@ const handleEdit = (task: any) => {
                   ...task,
                   estimateLabel: estimateMap[String(task.task_id ?? task.id)] ?? "—",
                 }}
+                isArchived={false}
                 onEdit={() => handleEdit(task)}
                 onComplete={() => handleCompleteTask(String(task.task_id ?? task.id))}
+                onRestore={() => { }}
               />
             ))}
             </ScrollView> 

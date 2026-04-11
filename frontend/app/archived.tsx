@@ -3,24 +3,25 @@
 import API_BASE_URL from "@/utils/config";
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  View,
-  Text,
   ScrollView,
   StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import TaskCard from "../components/TaskCard";
 import {
-  FilterButton,
-  EmptyState,
-  ArchiveSection,
   ArchiveSearchInput,
+  ArchiveSection,
+  EmptyState,
+  FilterButton
 } from "../ui/ArchiveComponents";
 
 type FilterType = "all" | "completed" | "deleted";
 
 export default function ArchivedScreen() {
   const userId = 1; // FOR TESTING
+  let archiveId = 0; // save the task id so that a new restore request can be made
   const [filter, setFilter] = useState<FilterType>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [archivedTasks, setArchivedTasks] = useState<any[]>([]);
@@ -37,6 +38,7 @@ export default function ArchivedScreen() {
 
       console.log("ARCHIVE status:", response.status);
       console.log("ARCHIVE data:", data);
+      console.log(data.archived_tasks);
 
       if (response.ok && data.success) {
         setArchivedTasks(data.archived_tasks);
@@ -55,8 +57,29 @@ export default function ArchivedScreen() {
 
   useEffect(() => {
     fetchArchivedTasks();
-  }, []);
+  }, [ ]);
 
+  // restore specified task
+  // const restoreTask = async ( archiveId: number ) => {
+  //   try {
+  //     const response = await fetch(`${API_BASE_URL}/api/archive/${userId}/restore`);
+  //     const data = await response.json();
+
+  //     console.log(data);
+  //     console.log(`TASK ${archiveId} RESTORED `);
+
+  //     if (response.ok) console.log(data.message); // refresh page
+  //     else console.log("Error restoring task");
+
+  //   } catch (error) {
+  //     console.log("Error restoring task");
+  //     setError("Error restoring task");
+  //   }
+  // }
+
+  // useEffect(() => { restoreTask(archiveId) }, [ archiveId ])
+
+  // filter returned list of tasks by archive status (completed, deleted, ...)
   const filteredByStatus = useMemo(() => {
     if (filter === "all") return archivedTasks;
     return archivedTasks.filter((t) => t.archive_status === filter);
@@ -79,17 +102,18 @@ export default function ArchivedScreen() {
         contentContainerStyle={{ flexGrow: 1 }}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.container}>
+        <View style={styles.container}> 
           <Text style={styles.heading}>Archived Tasks</Text>
           <Text style={styles.subheading}>
             Completed or deleted tasks are kept here for reference
           </Text>
-
+        
           <ArchiveSearchInput value={searchQuery} onChangeText={setSearchQuery} />
 
-          <View style={styles.filterContainer}>
+
+          <View style={styles.filterContainer}> 
             <Text style={styles.filterLabel}>Filter by:</Text>
-            <View style={styles.filterButtonRow}>
+            <View style={styles.filterButtonRow}> 
               <FilterButton
                 label="All"
                 type="all"
@@ -121,7 +145,7 @@ export default function ArchivedScreen() {
           ) : finalTasks.length === 0 ? (
             <EmptyState searchQuery={searchQuery} />
           ) : (
-            <View style={styles.taskListContainer}>
+            <View style={styles.taskListContainer}> 
               {filter !== "deleted" &&
                 finalTasks.some((t) => t.archive_status === "completed") && (
                   <ArchiveSection title="✅ Completed">
@@ -131,8 +155,10 @@ export default function ArchivedScreen() {
                         <View key={task.task_id} style={styles.taskWithAction}>
                           <TaskCard
                             task={task}
+                            isArchived={true}
                             onEdit={() => {}}
                             onComplete={() => {}}
+                            onRestore={() => { }}
                           />
                         </View>
                       ))}
@@ -147,9 +173,11 @@ export default function ArchivedScreen() {
                       .map((task) => (
                         <View key={task.task_id} style={styles.taskWithAction}>
                           <TaskCard
+                            isArchived={false}
                             task={task}
                             onEdit={() => {}}
                             onComplete={() => {}}
+                            onRestore={() => {}}
                           />
                         </View>
                       ))}
@@ -157,6 +185,23 @@ export default function ArchivedScreen() {
                 )}
             </View>
           )}
+
+          {/* <View>
+            { archivedTasks && archivedTasks.map((task) => 
+              <View key={task.task_id} style={styles.taskWithAction}>
+                <TaskCard
+                  task={task}
+                  isArchived={true}
+                  onEdit={() => { }}
+                  onComplete={() => {}}
+                  onRestore={() => { 
+                    archiveId = task.archive_id;
+                    restoreTask(task.archive_id) 
+                  }}
+                />
+              </View>
+            )}
+          </View> */}
 
           <Text style={styles.helperText}>
             💡 Restore tasks can be added after the restore API is implemented

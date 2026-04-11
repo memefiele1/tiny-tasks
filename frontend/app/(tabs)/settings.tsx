@@ -2,10 +2,10 @@
 //Tiffany Santiago Garcia
 // Settings screen with link to archived tasks and other potential future settings options
 
-import React from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Link } from "expo-router";
+import React from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SettingsScreen() {
   return (
@@ -16,7 +16,7 @@ export default function SettingsScreen() {
         <View style={styles.section}>
   <Text style={styles.sectionLabel}>Account</Text>
 
-  <Link href="/Archived" asChild>
+  <Link href="../archived" asChild>
     <Pressable style={styles.cardButton}>
       <View style={styles.cardContent}>
         <Text style={styles.cardTitle}>View Archived Tasks</Text>

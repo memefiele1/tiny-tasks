@@ -1,16 +1,17 @@
 
 import API_BASE_URL from "@/utils/config";
+import { useFocusEffect } from "@react-navigation/native";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   FlatList,
   Modal,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { fetchTaskEstimate } from "../../utils/tasksApi";
 
@@ -399,6 +400,7 @@ export default function FocusTimerScreen() {
 
   return (
     <SafeAreaView style={styles.bg}>
+      <ScrollView>
       <View style={styles.screen}>
         <Text style={styles.headerTitle}>Focus Timer</Text>
 
@@ -617,6 +619,7 @@ export default function FocusTimerScreen() {
           </View>
         </Modal>
       </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

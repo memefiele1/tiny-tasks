@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Pressable } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import type { Task } from "../context/TasksContext";
 
 type Props = {
@@ -9,11 +9,14 @@ type Props = {
     task_id?: number | string;
     estimateLabel?: string; // 👈 add this later when you wire API
   };
+  isArchived : boolean; // change card details if archived
   onEdit: () => void;
   onComplete: () => void;
+  onRestore: () => void; // function changes if task is archived
+  // onDelete: () => void; // IMPLEMENT LATER
 };
 
-export default function TaskCard({ task, onEdit, onComplete }: Props) {
+export default function TaskCard({ task, isArchived, onEdit, onComplete, onRestore }: Props) {
   const [expanded, setExpanded] = useState(false);
 
   const statusValue = task.status ?? "not_started";
@@ -96,7 +99,8 @@ export default function TaskCard({ task, onEdit, onComplete }: Props) {
         <Pressable
           onPress={(e) => {
             e.stopPropagation();
-            onEdit();
+            if (isArchived) onRestore(); // if archived, have option to restore task
+            else onEdit(); 
           }}
           style={{
             flex: 1,
@@ -107,7 +111,8 @@ export default function TaskCard({ task, onEdit, onComplete }: Props) {
             alignItems: "center",
           }}
         >
-          <Text style={{ fontWeight: "800" }}>Edit</Text>
+          { isArchived ? <Text style={{ fontWeight: "800" }}>Restore</Text> : <Text style={{ fontWeight: "800" }}>Edit</Text> }
+          
         </Pressable>
 
         <Pressable
