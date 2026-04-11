@@ -19,9 +19,10 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState("");
-  // const [token, setToken] = useState(null);
+  const [token, setToken] = useState(null);
 
   // grant access to app if user already signed-in
+  if (token) router.replace('/(tabs)');
  
   // make request to backend endpoint to validate user credentials
   const validateUser = async () => {
@@ -29,16 +30,17 @@ export default function Login() {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: username, password: password })
+        body: JSON.stringify({ email: username.toLowerCase().trim(), password: password })
       });
       const data = await response.json();
-      console.log(data);
-      // TO-DO - GET USER ID FROM RESPONSE
-      // const id = data.user.user_id;
-      
+      const id = data.user.user_id;
+      console.log(`SUCCESSFUL LOGIN: ${data}`);
+
       // route to login page if login successful
-      if (response.ok) onLogin();
-      else setErrors(data.message);
+      if (response.ok) { 
+        setToken(data.token)
+        onLogin(id);
+      } else setErrors(data.message);
       
     } catch (error) {
       console.log(error);
@@ -47,11 +49,11 @@ export default function Login() {
   };
   
   // clear form and route to dashboard on successful login 
-  const onLogin = (  ) => {
+  const onLogin = ( id: number ) => {
     setUsername("");
     setPassword("");
     setErrors("");
-    router.replace(`../(tabs)`); // use id as parameter to get user
+    router.replace("/(tabs)"); // use id as parameter to get user
   };
 
   

@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
+    Pressable,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
-import { useTasks } from "../../context/TasksContext";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useTasks } from "../../context/TasksContext";
 
 const FOCUS_DURATION = 25 * 60;
 

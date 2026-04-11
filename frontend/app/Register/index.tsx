@@ -43,15 +43,16 @@ export default function Registration() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username: userData.username,
-          email: userData.email,
-          password: userData.pswd
+          username: userData.username.toLowerCase().trim(),
+          email: userData.email.toLowerCase().trim(),
+          password: userData.pswd.trim()
         })
       });
 
       const data = await response.json();
       console.log(data);
       // TO-DO - GET USER ID FROM RESPONSE
+      const user = data.id;
       
       if (response.ok) {
         console.log("Account has been successfully created");
