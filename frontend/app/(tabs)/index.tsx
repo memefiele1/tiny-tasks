@@ -1,15 +1,15 @@
 //Tiffany Santiago Garcia
 // Main screen showing active tasks with daily and half-day views, filtered by date/time and sorted by priority
 
-import React, { useMemo, useState, useEffect } from "react";
-import { View, Text, Pressable, ScrollView } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import API_BASE_URL from "@/utils/config";
 import { useRouter } from "expo-router";
-import TaskCard from "../../components/TaskCard";
+import React, { useEffect, useMemo, useState } from "react";
+import { Pressable, Text, View, ScrollView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useTasks } from "../../context/TasksContext";
-import { fetchMorningTasks, fetchAfternoonTasks } from "../../utils/tasksApi";
-
-
+import { fetchMorningTasks, fetchAfternoonTasks,fetchTaskEstimate } from "../../utils/tasksApi";
+import TaskCard from "../../components/TaskCard";
+import { useFocusEffect } from "@react-navigation/native";
 
 
 type ViewMode = "all" | "daily";
@@ -72,6 +72,8 @@ const parseLocalDate = (dateStr?: string) => {
   return new Date(year, month, day);
 };
 
+
+
 const getHalfDayBucket = (time?: string): HalfDayMode | null => {
   if (!time) return null;
 
@@ -101,6 +103,8 @@ const isToday = (dueDate?: string) => {
 };
 
 export default function HomeScreen() {
+  // const { user } = useLocalSearchParams();
+  const id = 1; // FOR TESTING, DELETE WHEN DONE
   const router = useRouter();
   const { tasks, updateTask } = useTasks();
 
@@ -112,6 +116,7 @@ export default function HomeScreen() {
   const [afternoonLoading, setAfternoonLoading] = useState(false);
   const [afternoonError, setAfternoonError] = useState<string | null>(null);
 
+  const [estimateMap, setEstimateMap] = useState<Record<string, string>>({});
   // Hardcoded user id for testing
 const userId = "1";
 
@@ -150,6 +155,8 @@ const handleFetchAfternoonTasks = async () => {
 
   const [viewMode, setViewMode] = useState<ViewMode>("all");
   const [halfDayMode, setHalfDayMode] = useState<HalfDayMode>(defaultHalfDay);
+  const [displayedTasks, setDisplayedTasks] = useState<any[]>([]);
+  const [ error, setError ] = useState("");
 
   useEffect(() => {
     if (viewMode === "daily" && halfDayMode === "morning") {
@@ -161,8 +168,43 @@ const handleFetchAfternoonTasks = async () => {
   }, [viewMode, halfDayMode]);
 
 
-
+const refreshTasks = async () => {
+  if (viewMode === "all") {
+    await getAllTasks();
+  } else if (viewMode === "daily" && halfDayMode === "morning") {
+    await handleFetchMorningTasks();
+  } else if (viewMode === "daily" && halfDayMode === "afternoon") {
+    await handleFetchAfternoonTasks();
+  }
+};
  
+const handleCompleteTask = async (taskId: string) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/tasks/${taskId}/complete`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const data = await response.json();
+    console.log("COMPLETE TASK:", data);
+
+    if (!response.ok) {
+      console.log("Error completing task");
+      return;
+    }
+
+    // refresh current view so the completed task disappears right away
+    if (viewMode === "all") {
+      await getAllTasks();
+    } else if (viewMode === "daily" && halfDayMode === "morning") {
+      await handleFetchMorningTasks();
+    } else if (viewMode === "daily" && halfDayMode === "afternoon") {
+      await handleFetchAfternoonTasks();
+    }
+  } catch (error) {
+    console.log("Error completing task:", error);
+  }
+};
 
   const activeTasks = useMemo(() => {
     return tasks.filter(
@@ -170,43 +212,153 @@ const handleFetchAfternoonTasks = async () => {
     );
   }, [tasks]);
 
-  const displayedTasks = useMemo(() => {
-    let filteredTasks = [...activeTasks];
+  // const displayedTasks = useMemo(async () => {
+  //   let filteredTasks = [...activeTasks];
 
-    if (viewMode === "daily") {
-      filteredTasks = filteredTasks.filter((task) => isToday(task.dueDate));
-      filteredTasks = filteredTasks.filter((task) => {
-        const bucket = getHalfDayBucket(task.time);
-        return bucket === halfDayMode;
-      });
+  //   // get all tasks
+  //   if (viewMode === "all") await getAllTasks();
+
+  //   if (viewMode === "daily") {
+  //     filteredTasks = filteredTasks.filter((task) => isToday(task.dueDate));
+  //     filteredTasks = filteredTasks.filter((task) => {
+  //       const bucket = getHalfDayBucket(task.time);
+  //       return bucket === halfDayMode;
+  //     });
+  //   }
+
+  //   return filteredTasks.sort((a, b) => {
+  //     const aDateTime = parseTaskDateTime(a.dueDate, a.time);
+  //     const bDateTime = parseTaskDateTime(b.dueDate, b.time);
+
+  //     if (aDateTime !== bDateTime) {
+  //       return aDateTime - bDateTime;
+  //     }
+
+  //     return priorityOrder[b.priority] - priorityOrder[a.priority];
+  //   });
+  // }, [activeTasks, viewMode, halfDayMode]);
+
+const handleEdit = (task: any) => {
+  router.push({
+    pathname: "/modal",
+    params: {
+      editingId: String(task.task_id ?? task.id),
+      title: task.title ?? "",
+      description: task.description ?? "",
+      priority: task.priority ?? "medium",
+      dueDate: String(task.dueDate ?? task.due_date ?? "").split(" ")[0],
+      time: task.time ?? task.time_view ?? "",
+      status: task.status ?? "not_started",
+    },
+  });
+};
+  // get all of today's tasks
+  const getAllTasks = async () => {
+  try {
+    setError("");
+
+    const response = await fetch(`${API_BASE_URL}/api/tasks/user/${id}`);
+    const data = await response.json();
+
+    console.log("GET ALL status:", response.status);
+    console.log("GET ALL data:", data);
+
+    if (response.ok && data.success) {
+      setDisplayedTasks(data.tasks);
+    } else {
+      setError(data.error || "Error getting all tasks");
+      setDisplayedTasks([]);
+    }
+  } catch (error) {
+    console.log("Error getting tasks", error);
+    setError("Error getting all tasks");
+    setDisplayedTasks([]);
+  }
+};
+
+  useEffect(() => { getAllTasks() }, [viewMode]);
+
+  // get list of today's tasks
+  const getTodayTasks =  async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/tasks/getToday?user_id=${id}`);
+      const data = await response.json();
+
+      if (response.ok) console.log(data);
+      else console.log("Error getting today's tasks");
+
+    } catch (error) {
+      console.log("Error getting today's tasks");
+    }
+  }
+
+  useEffect(() => { getTodayTasks() }, [viewMode]);
+
+  useFocusEffect(
+  React.useCallback(() => {
+    refreshTasks();
+  }, [viewMode, halfDayMode])
+);
+
+
+  const visibleTasks =
+  viewMode === "daily"
+    ? halfDayMode === "morning"
+      ? morningTasks
+      : afternoonTasks
+    : displayedTasks;
+
+    useEffect(() => {
+  const loadEstimates = async () => {
+    if (!visibleTasks || visibleTasks.length === 0) {
+      setEstimateMap({});
+      return;
     }
 
-    return filteredTasks.sort((a, b) => {
-      const aDateTime = parseTaskDateTime(a.dueDate, a.time);
-      const bDateTime = parseTaskDateTime(b.dueDate, b.time);
+    try {
+      const results = await Promise.all(
+        visibleTasks.map(async (task: any) => {
+          const taskId = String(task.task_id ?? task.id);
 
-      if (aDateTime !== bDateTime) {
-        return aDateTime - bDateTime;
-      }
+          try {
+            const data = await fetchTaskEstimate(taskId);
 
-      return priorityOrder[b.priority] - priorityOrder[a.priority];
-    });
-  }, [activeTasks, viewMode, halfDayMode]);
+            return [
+              taskId,
+              data.estimation?.personalized_estimated_label ??
+                data.estimation?.base_estimated_label ??
+                data.estimation?.estimated_label ??
+                "—",
+            ] as const;
+          } catch (error) {
+            console.log(`Error fetching estimate for task ${taskId}:`, error);
+            return [taskId, "—"] as const;
+          }
+        })
+      );
 
-  const handleEdit = (id: string) => {
-    router.push({ pathname: "/modal", params: { editingId: id } });
+      setEstimateMap(Object.fromEntries(results));
+    } catch (error) {
+      console.log("Error loading task estimates:", error);
+      setEstimateMap({});
+    }
   };
+
+  loadEstimates();
+}, [viewMode, halfDayMode, morningTasks, afternoonTasks, displayedTasks]);
+
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#F7F8FA" }}>
       <View style={{ flex: 1, padding: 20 }}>
         <Text style={{ fontSize: 24, fontWeight: "800", marginBottom: 12 }}>
-          My Tasks
+          My Tasks for user { id }
         </Text>
 
         <View style={{ flexDirection: "row", gap: 12, marginBottom: 12 }}>
           <Pressable
-            onPress={() => setViewMode("all")}
+          onPress={() => setViewMode("all")}
+            // onPress={() => getAllTasks()}
             style={{
               flex: 1,
               paddingVertical: 12,
@@ -224,6 +376,7 @@ const handleFetchAfternoonTasks = async () => {
 
           <Pressable
             onPress={() => setViewMode("daily")}
+            // onPress={() => getTodayTask()}
             style={{
               flex: 1,
               paddingVertical: 12,
@@ -280,6 +433,9 @@ const handleFetchAfternoonTasks = async () => {
           </View>
         )}
 
+        {/*  display fetch error to users */}
+        { error ? <Text>{error}</Text> : null }
+
         {viewMode === "daily" && halfDayMode === "morning" ? (
           morningLoading ? (
             <Text style={{ marginTop: 12 }}>Loading morning tasks...</Text>
@@ -297,13 +453,14 @@ const handleFetchAfternoonTasks = async () => {
             >
               {morningTasks.map((task) => (
                 <TaskCard
-                  key={task.id}
-                  task={task}
-                  onEdit={() => handleEdit(task.id)}
-                  onComplete={() =>
-                    updateTask(task.id, { ...task, status: "completed" })
-                  }
-                />
+                key={task.task_id ?? task.id}
+                task={{
+                  ...task,
+                  estimateLabel: estimateMap[String(task.task_id ?? task.id)] ?? "—",
+                }}
+                onEdit={() => handleEdit(task)}
+                onComplete={() => handleCompleteTask(String(task.task_id ?? task.id))}
+              />
               ))}
             </ScrollView>
           )
@@ -324,12 +481,13 @@ const handleFetchAfternoonTasks = async () => {
             >
               {afternoonTasks.map((task) => (
                 <TaskCard
-                  key={task.id}
-                  task={task}
-                  onEdit={() => handleEdit(task.id)}
-                  onComplete={() =>
-                    updateTask(task.id, { ...task, status: "completed" })
-                  }
+                  key={task.task_id ?? task.id}
+                  task={{
+                    ...task,
+                    estimateLabel: estimateMap[String(task.task_id ?? task.id)] ?? "—",
+                  }}
+                  onEdit={() => handleEdit(task)}
+                  onComplete={() => handleCompleteTask(String(task.task_id ?? task.id))}
                 />
               ))}
             </ScrollView>
@@ -342,22 +500,23 @@ const handleFetchAfternoonTasks = async () => {
                 : `No ${halfDayMode} tasks due today.`}
             </Text>
           ) : (
-            <ScrollView
+             <ScrollView
               style={{ flex: 1, marginTop: 8 }}
               contentContainerStyle={{ paddingBottom: 12 }}
               showsVerticalScrollIndicator={false}
             >
-              {displayedTasks.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  onEdit={() => handleEdit(task.id)}
-                  onComplete={() =>
-                    updateTask(task.id, { ...task, status: "completed" })
-                  }
-                />
-              ))}
-            </ScrollView>
+              {displayedTasks.map((task: any) => (
+             <TaskCard
+                key={task.task_id ?? task.id}
+                task={{
+                  ...task,
+                  estimateLabel: estimateMap[String(task.task_id ?? task.id)] ?? "—",
+                }}
+                onEdit={() => handleEdit(task)}
+                onComplete={() => handleCompleteTask(String(task.task_id ?? task.id))}
+              />
+            ))}
+            </ScrollView> 
           )
         )}
 

@@ -1,7 +1,7 @@
 //Tiffany Santiago Garcia
 // Archived tasks screen with filter and search functionality, allowing users to view and restore completed or deleted tasks
-
-import React, { useMemo, useState } from "react";
+import API_BASE_URL from "@/utils/config";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -9,59 +9,69 @@ import {
   StyleSheet,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useTasks } from "../context/TasksContext";
 import TaskCard from "../components/TaskCard";
 import {
   FilterButton,
   EmptyState,
   ArchiveSection,
-  RestoreButton,
   ArchiveSearchInput,
 } from "../ui/ArchiveComponents";
 
 type FilterType = "all" | "completed" | "deleted";
 
-/* archived task screen */
 export default function ArchivedScreen() {
-  const { tasks, restoreTask, updateTask } = useTasks();
+  const userId = 1; // FOR TESTING
   const [filter, setFilter] = useState<FilterType>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [archivedTasks, setArchivedTasks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  
-  // get all archived tasks (completed + deleted)
-  const archivedTasks = useMemo(() => {
-    return tasks.filter(
-      (t) => t.status === "completed" || t.status === "deleted"
-    );
-  }, [tasks]);
+  const fetchArchivedTasks = async () => {
+    try {
+      setLoading(true);
+      setError("");
 
-  // apply filter (completed / deleted / all)
+      const response = await fetch(`${API_BASE_URL}/api/archive/${userId}`);
+      const data = await response.json();
+
+      console.log("ARCHIVE status:", response.status);
+      console.log("ARCHIVE data:", data);
+
+      if (response.ok && data.success) {
+        setArchivedTasks(data.archived_tasks);
+      } else {
+        setError(data.error || "Error fetching archived tasks");
+        setArchivedTasks([]);
+      }
+    } catch (err) {
+      console.log("Error fetching archive:", err);
+      setError("Error fetching archived tasks");
+      setArchivedTasks([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchArchivedTasks();
+  }, []);
+
   const filteredByStatus = useMemo(() => {
     if (filter === "all") return archivedTasks;
-    if (filter === "completed") {
-      return archivedTasks.filter((t) => t.status === "completed");
-    }
-    if (filter === "deleted") {
-      return archivedTasks.filter((t) => t.status === "deleted");
-    }
-    return archivedTasks;
+    return archivedTasks.filter((t) => t.archive_status === filter);
   }, [archivedTasks, filter]);
 
-  // apply search filter
   const finalTasks = useMemo(() => {
     if (!searchQuery.trim()) return filteredByStatus;
     const query = searchQuery.toLowerCase().trim();
+
     return filteredByStatus.filter(
       (t) =>
-        t.title.toLowerCase().includes(query) ||
+        t.title?.toLowerCase().includes(query) ||
         (t.description && t.description.toLowerCase().includes(query))
     );
   }, [filteredByStatus, searchQuery]);
-
-  // filter button 
-  const handleFilterChange = (type: FilterType) => {
-    setFilter(type);
-  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -70,16 +80,13 @@ export default function ArchivedScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.container}>
-          {/*heading */}
           <Text style={styles.heading}>Archived Tasks</Text>
           <Text style={styles.subheading}>
             Completed or deleted tasks are kept here for reference
           </Text>
 
-          {/* search input */}
           <ArchiveSearchInput value={searchQuery} onChangeText={setSearchQuery} />
 
-          {/* filter buttons */}
           <View style={styles.filterContainer}>
             <Text style={styles.filterLabel}>Filter by:</Text>
             <View style={styles.filterButtonRow}>
@@ -88,81 +95,71 @@ export default function ArchivedScreen() {
                 type="all"
                 icon="📋"
                 isActive={filter === "all"}
-                onPress={() => handleFilterChange("all")}
+                onPress={() => setFilter("all")}
               />
               <FilterButton
                 label="Completed"
                 type="completed"
                 icon="✅"
                 isActive={filter === "completed"}
-                onPress={() => handleFilterChange("completed")}
+                onPress={() => setFilter("completed")}
               />
               <FilterButton
                 label="Deleted"
                 type="deleted"
                 icon="🗑️"
                 isActive={filter === "deleted"}
-                onPress={() => handleFilterChange("deleted")}
+                onPress={() => setFilter("deleted")}
               />
             </View>
           </View>
 
-          {/* task list*/}
-          {finalTasks.length === 0 ? (
+          {loading ? (
+            <Text>Loading archived tasks...</Text>
+          ) : error ? (
+            <Text style={{ color: "crimson" }}>{error}</Text>
+          ) : finalTasks.length === 0 ? (
             <EmptyState searchQuery={searchQuery} />
           ) : (
             <View style={styles.taskListContainer}>
-              {/* completed tasaks  */}
-              {filter !== "deleted" && finalTasks.some((t) => t.status === "completed") && (
-                <ArchiveSection title="✅ Completed">
-                  {finalTasks
-                    .filter((t) => t.status === "completed")
-                    .map((task) => (
-                      <View key={task.id} style={styles.taskWithAction}>
-                        <TaskCard
-                          task={task}
-                          onEdit={() => {
-                            updateTask(task.id, {
-                              ...task,
-                              status: "in_progress",
-                            });
-                          }}
-                          onComplete={() => {}}
-                        />
-                        <RestoreButton onPress={() => restoreTask(task.id)} />
-                      </View>
-                    ))}
-                </ArchiveSection>
-              )}
+              {filter !== "deleted" &&
+                finalTasks.some((t) => t.archive_status === "completed") && (
+                  <ArchiveSection title="✅ Completed">
+                    {finalTasks
+                      .filter((t) => t.archive_status === "completed")
+                      .map((task) => (
+                        <View key={task.task_id} style={styles.taskWithAction}>
+                          <TaskCard
+                            task={task}
+                            onEdit={() => {}}
+                            onComplete={() => {}}
+                          />
+                        </View>
+                      ))}
+                  </ArchiveSection>
+                )}
 
-              {/* deleted tasks section */}
-              {filter !== "completed" && finalTasks.some((t) => t.status === "deleted") && (
-                <ArchiveSection title="🗑️ Deleted">
-                  {finalTasks
-                    .filter((t) => t.status === "deleted")
-                    .map((task) => (
-                      <View key={task.id} style={styles.taskWithAction}>
-                        <TaskCard
-                          task={task}
-                          onEdit={() => {
-                            updateTask(task.id, {
-                              ...task,
-                              status: "in_progress",
-                            });
-                          }}
-                          onComplete={() => {}}
-                        />
-                        <RestoreButton onPress={() => restoreTask(task.id)} />
-                      </View>
-                    ))}
-                </ArchiveSection>
-              )}
+              {filter !== "completed" &&
+                finalTasks.some((t) => t.archive_status === "deleted") && (
+                  <ArchiveSection title="🗑️ Deleted">
+                    {finalTasks
+                      .filter((t) => t.archive_status === "deleted")
+                      .map((task) => (
+                        <View key={task.task_id} style={styles.taskWithAction}>
+                          <TaskCard
+                            task={task}
+                            onEdit={() => {}}
+                            onComplete={() => {}}
+                          />
+                        </View>
+                      ))}
+                  </ArchiveSection>
+                )}
             </View>
           )}
 
-          {/* helper text */}
           <Text style={styles.helperText}>
-            💡 Restore tasks to bring them back to your active list
+            💡 Restore tasks can be added after the restore API is implemented
           </Text>
         </View>
       </ScrollView>
@@ -176,8 +173,6 @@ const styles = StyleSheet.create({
     padding: 20,
     gap: 16,
   },
-
-  // HEADING STYLES - Large, prominent
   heading: {
     fontSize: 28,
     fontWeight: "900",
@@ -188,8 +183,6 @@ const styles = StyleSheet.create({
     opacity: 0.6,
     marginBottom: 8,
   },
-
-  // FILTER SECTION - Clear grouping
   filterContainer: {
     marginBottom: 12,
   },
@@ -203,18 +196,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 8,
   },
-
-  // TASK LIST CONTAINER
   taskListContainer: {
     gap: 20,
   },
-
-  // TASK WITH RESTORE ACTION - Low friction
   taskWithAction: {
     gap: 8,
   },
-
-  // HELPER TEXT - Educational, not overwhelming
   helperText: {
     fontSize: 13,
     opacity: 0.6,

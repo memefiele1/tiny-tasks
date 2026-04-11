@@ -14,18 +14,30 @@ export default function SettingsScreen() {
         <Text style={styles.headerTitle}>Settings</Text>
 
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Account</Text>
-          <Link href="/Archived" asChild>
-            <Pressable style={styles.cardButton}>
-              <View style={styles.cardContent}>
-                <Text style={styles.cardTitle}>View Archived Tasks</Text>
-                <Text style={styles.cardSubtitle}>
-                  See tasks you’ve archived
-                </Text>
-              </View>
-            </Pressable>
-          </Link>
+  <Text style={styles.sectionLabel}>Account</Text>
+
+  <Link href="/Archived" asChild>
+    <Pressable style={styles.cardButton}>
+      <View style={styles.cardContent}>
+        <Text style={styles.cardTitle}>View Archived Tasks</Text>
+        <Text style={styles.cardSubtitle}>
+          See tasks you’ve archived
+        </Text>
+      </View>
+    </Pressable>
+  </Link>
+
+    <Link href="/Timer History" asChild>
+      <Pressable style={styles.cardButton}>
+        <View style={styles.cardContent}>
+          <Text style={styles.cardTitle}>View Timer History</Text>
+          <Text style={styles.cardSubtitle}>
+            See your focus sessions and total focus time
+          </Text>
         </View>
+      </Pressable>
+    </Link>
+  </View>
 
         {/* Future settings sections can be added here */}
       </View>

@@ -5,48 +5,74 @@ import React, { useState } from 'react';
 import { StyleSheet, Pressable, Text, View } from 'react-native';
 import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
 import TaskForm, { TaskDraft } from '@/components/TaskForm';
-import { useTasks } from '@/context/TasksContext';
+import API_BASE_URL from '@/utils/config';
 
 
 export default function ModalScreen() {
+  
   const router = useRouter();
-  const { editingId } = useLocalSearchParams<{ editingId?: string }>();
-  const { tasks, addTask, updateTask, deleteTask } = useTasks();
+  const params = useLocalSearchParams<{
+    editingId?: string;
+    title?: string;
+    description?: string;
+    priority?: string;
+    dueDate?: string;
+    time?: string;
+    status?: string;
+  }>();
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const editingTask = editingId ? tasks.find((t) => t.id === editingId) : undefined;
+  const initialTask = params.editingId
+    ? {
+        id: params.editingId,
+        title: params.title ?? "",
+        description: params.description ?? "",
+        priority: (params.priority as any) ?? "medium",
+        dueDate: params.dueDate ?? "",
+        time: params.time ?? "",
+        status: (params.status as any) ?? "not_started",
+      }
+    : undefined;
 
-  const handleSubmit = (draft: TaskDraft) => {
-    if (editingId) {
-      updateTask(editingId, draft);
+  const handleDelete = async () => {
+  if (!params.editingId) return;
+  setIsDeleting(true);
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/tasks/${params.editingId}`, {
+      method: "DELETE",
+    });
+
+    const data = await response.json();
+    console.log(data);
+
+    if (response.ok) {
+      console.log("Task deleted");
+      router.dismiss();
     } else {
-      addTask(draft);
+      console.log("Error deleting task");
+      setIsDeleting(false);
     }
-    router.dismiss();
-  };
-
-  const handleDelete = () => {
-    if (!editingId) return;
-    setIsDeleting(true);
-    deleteTask(editingId);
-    router.dismiss();
-  };
+  } catch (error) {
+    console.log("Error deleting task:", error);
+    setIsDeleting(false);
+  }
+};
 
   return (
     <>
       <Stack.Screen
         options={{
-        title: "Add Task",
-        
-      }}
+          title: params.editingId ? "Edit Task" : "Add Task",
+        }}
       />
       <View style={styles.container}>
         <TaskForm
-          initial={editingTask}
-          onSubmit={handleSubmit}
+          initial={initialTask}
+          onSubmit={() => {}}
           onCancel={() => router.dismiss()}
         />
-        {editingId ? (
+        {params.editingId ? (
           <Pressable
             onPress={handleDelete}
             disabled={isDeleting}

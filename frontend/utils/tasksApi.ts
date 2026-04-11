@@ -1,5 +1,6 @@
+import API_BASE_URL from "./config";
 export async function fetchAfternoonTasks(userId: string, date?: string) {
-  const baseUrl = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
+  const baseUrl = API_BASE_URL
   let url = `${baseUrl}/api/tasks/afternoon/${userId}`;
   if (date) url += `?date=${encodeURIComponent(date)}`;
 
@@ -18,7 +19,7 @@ export async function fetchAfternoonTasks(userId: string, date?: string) {
 }
 // API utility for Tiny Tasks
 export async function fetchMorningTasks(userId: string, date?: string) {
-  const baseUrl = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
+  const baseUrl =  API_BASE_URL;
   let url = `${baseUrl}/api/tasks/morning/${userId}`;
   if (date) url += `?date=${encodeURIComponent(date)}`;
 
@@ -34,4 +35,19 @@ export async function fetchMorningTasks(userId: string, date?: string) {
   } catch (err: any) {
     throw new Error(err.message || "Failed to fetch morning tasks");
   }
+}
+
+export async function fetchTaskEstimate(taskId: string) {
+  const response = await fetch(`${API_BASE_URL}/api/tasks/${taskId}/estimate`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok || !data.success) {
+    throw new Error(data.error || "Failed to estimate task");
+  }
+
+  return data;
 }

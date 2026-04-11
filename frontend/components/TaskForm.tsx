@@ -1,16 +1,17 @@
 //Tiffany Santiago Garcia
 // Form component for creating and editing tasks, with validation and quick date options
 
+import API_BASE_URL from "@/utils/config";
 import React, { useMemo, useRef, useState } from "react";
 import {
-  View,
-  Text,
-  TextInput,
   Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 import Button from "../ui/Button";
 import { FormField, TextArea } from "../ui/TaskFormParts";
@@ -55,6 +56,8 @@ const priorityOptions = [
 
 
 export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
+  // const { id } = useLocalSearchParams();
+  const id = 1; // FOR TESTING ONLY, DELETE LATER
   const scrollRef = useRef<ScrollView | null>(null);
 
   
@@ -104,31 +107,146 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
     );
   }, [title, dueDate, titleError, dueDateError, timeError,time]);
 
-  const handleSubmit = () => {
-    if (!canSave) {
-      Alert.alert(
-        "Almost there",
-        "Please add a task name and a valid due date."
-      );
-      return;
+  const handleSubmit = async () => {
+  if (!canSave) {
+    Alert.alert(
+      "Almost there",
+      "Please add a task name and a valid due date."
+    );
+    return;
+  }
+
+  try {
+    const rawDate = dueDate.trim();
+    const rawTime = time.trim();
+
+    let formattedDateTime = rawDate;
+
+    const match = rawTime.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (match) {
+      let hour = Number(match[1]);
+      const minute = match[2];
+      const period = match[3].toUpperCase();
+
+      if (period === "AM" && hour === 12) hour = 0;
+      if (period === "PM" && hour !== 12) hour += 12;
+
+      const hourStr = String(hour).padStart(2, "0");
+      formattedDateTime = `${rawDate} ${hourStr}:${minute}:00`;
     }
 
-    onSubmit({
+    const payload = {
       title: title.trim(),
       description: description.trim(),
       priority,
-      dueDate: dueDate.trim(),
-      time: time.trim(),
+      due_date: formattedDateTime,
+      time_view: rawTime,
       status,
+    };
+
+    // decides CREATE vs UPDATE
+    if ((initial as any)?.id || (initial as any)?.task_id) {
+      const taskId = (initial as any).id ?? (initial as any).task_id;
+
+      const response = await fetch(`${API_BASE_URL}/api/tasks/${taskId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+      console.log(data);
+
+      if (response.ok) {
+        console.log("Task updated");
+        onCancel?.();
+      } else {
+        console.log("Error updating task");
+      }
+    } else {
+      const response = await fetch(`${API_BASE_URL}/api/tasks`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: 1,
+          ...payload,
+        }),
+      });
+
+      const data = await response.json();
+      console.log(data);
+
+      if (response.ok) {
+        console.log("Task created");
+        clear();
+        onCancel?.();
+      } else {
+        console.log("Error creating task");
+      }
+    }
+  } catch (error) {
+    console.log("Error saving task:", error);
+  }
+};
+
+  // API call to save task in database for user
+  const createTask = async () => {
+  try {
+    const rawDate = dueDate.trim();   // ex: 2026-04-11
+    const rawTime = time.trim();      // ex: 9:00 AM
+
+    let formattedDateTime = rawDate;
+
+    const match = rawTime.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (match) {
+      let hour = Number(match[1]);
+      const minute = match[2];
+      const period = match[3].toUpperCase();
+
+      if (period === "AM" && hour === 12) hour = 0;
+      if (period === "PM" && hour !== 12) hour += 12;
+
+      const hourStr = String(hour).padStart(2, "0");
+      formattedDateTime = `${rawDate} ${hourStr}:${minute}:00`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_id: id,
+        title: title.trim(),
+        description: description.trim(),
+        priority: priority,
+        due_date: formattedDateTime,
+        time_view: rawTime,
+        status: status,
+      }),
     });
 
+    const data = await response.json();
+    console.log(data);
+
+    if (response.ok) {
+      console.log("New task created");
+      clear();
+    } else {
+      console.log("Error creating task");
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+  // clear form after user has submitted data
+  const clear = () => {
     setTitle("");
     setPriority("medium");
     setDueDate("");
     setDescription("");
     setTime("");
     setShowDetails(false);
-  };
+  }
 
   const toggleDetails = () => {
     setShowDetails((prev) => {
