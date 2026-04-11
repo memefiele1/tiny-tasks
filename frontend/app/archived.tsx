@@ -12,8 +12,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import TaskCard from "../components/TaskCard";
 import {
   ArchiveSearchInput,
-  ArchiveSection,
-  EmptyState,
   FilterButton
 } from "../ui/ArchiveComponents";
 
@@ -21,7 +19,6 @@ type FilterType = "all" | "completed" | "deleted";
 
 export default function ArchivedScreen() {
   const userId = 1; // FOR TESTING
-  let archiveId = 0; // save the task id so that a new restore request can be made
   const [filter, setFilter] = useState<FilterType>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [archivedTasks, setArchivedTasks] = useState<any[]>([]);
@@ -60,24 +57,45 @@ export default function ArchivedScreen() {
   }, [ ]);
 
   // restore specified task
-  // const restoreTask = async ( archiveId: number ) => {
-  //   try {
-  //     const response = await fetch(`${API_BASE_URL}/api/archive/${userId}/restore`);
-  //     const data = await response.json();
+  const restoreTask = async ( archiveId: number ) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/archive/restore`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json"},
+        body: JSON.stringify({ archive_id: archiveId})
+      });
+      const data = await response.json();
+      console.log(data);
+      
 
-  //     console.log(data);
-  //     console.log(`TASK ${archiveId} RESTORED `);
+      if (response.ok) console.log(`TASK ${archiveId} RESTORED `); // refresh page
+      else console.log("Error restoring task");
 
-  //     if (response.ok) console.log(data.message); // refresh page
-  //     else console.log("Error restoring task");
+    } catch (error) {
+      console.log("Error restoring task");
+      setError("Error restoring task");
+    }
+  }
 
-  //   } catch (error) {
-  //     console.log("Error restoring task");
-  //     setError("Error restoring task");
-  //   }
-  // }
+  // restore specified task
+  const deleteTask = async ( archiveId: number ) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/archive/${archiveId}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json"},
+      });
+      const data = await response.json();
+      console.log(data);
+      
 
-  // useEffect(() => { restoreTask(archiveId) }, [ archiveId ])
+      if (response.ok) console.log(`TASK ${archiveId} PERMANENTLY DELETED `); // refresh page
+      else console.log("Error deleting task");
+
+    } catch (error) {
+      console.log("Error deleting task");
+      setError("Error deleting task");
+    }
+  }
 
   // filter returned list of tasks by archive status (completed, deleted, ...)
   const filteredByStatus = useMemo(() => {
@@ -138,7 +156,7 @@ export default function ArchivedScreen() {
             </View>
           </View>
 
-          {loading ? (
+          {/* {loading ? (
             <Text>Loading archived tasks...</Text>
           ) : error ? (
             <Text style={{ color: "crimson" }}>{error}</Text>
@@ -184,24 +202,20 @@ export default function ArchivedScreen() {
                   </ArchiveSection>
                 )}
             </View>
-          )}
+          )} */}
 
-          {/* <View>
+          <View>
             { archivedTasks && archivedTasks.map((task) => 
               <View key={task.task_id} style={styles.taskWithAction}>
                 <TaskCard
                   task={task}
                   isArchived={true}
-                  onEdit={() => { }}
-                  onComplete={() => {}}
-                  onRestore={() => { 
-                    archiveId = task.archive_id;
-                    restoreTask(task.archive_id) 
-                  }}
+                  onEdit={() => { restoreTask(task.archive_id) }}
+                  onComplete={() => { deleteTask(task.archive_id) }}
                 />
               </View>
             )}
-          </View> */}
+          </View>
 
           <Text style={styles.helperText}>
             💡 Restore tasks can be added after the restore API is implemented

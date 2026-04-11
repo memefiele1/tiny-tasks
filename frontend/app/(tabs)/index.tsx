@@ -209,7 +209,7 @@ const handleCompleteTask = async (taskId: string) => {
 
 const handleEdit = (task: any) => {
   router.push({
-    pathname: "/modal",
+    pathname: "../modal",
     params: {
       editingId: String(task.task_id ?? task.id),
       title: task.title ?? "",
@@ -428,7 +428,6 @@ const handleEdit = (task: any) => {
                 isArchived={false}
                 onEdit={() => handleEdit(task)}
                 onComplete={() => handleCompleteTask(String(task.task_id ?? task.id))}
-                onRestore={() => { }}
               />
               ))}
             </ScrollView>
@@ -458,7 +457,6 @@ const handleEdit = (task: any) => {
                   isArchived={false}
                   onEdit={() => handleEdit(task)}
                   onComplete={() => handleCompleteTask(String(task.task_id ?? task.id))}
-                  onRestore={() => { }}
                 />
               ))}
             </ScrollView>
@@ -486,7 +484,6 @@ const handleEdit = (task: any) => {
                 isArchived={false}
                 onEdit={() => handleEdit(task)}
                 onComplete={() => handleCompleteTask(String(task.task_id ?? task.id))}
-                onRestore={() => { }}
               />
             ))}
             </ScrollView> 
@@ -494,7 +491,7 @@ const handleEdit = (task: any) => {
         )}
 
         <Pressable
-          onPress={() => router.push("/modal")}
+          onPress={() => router.push("../modal")}
           style={{
             marginTop: 12,
             paddingVertical: 14,

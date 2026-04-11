@@ -12,11 +12,9 @@ type Props = {
   isArchived : boolean; // change card details if archived
   onEdit: () => void;
   onComplete: () => void;
-  onRestore: () => void; // function changes if task is archived
-  // onDelete: () => void; // IMPLEMENT LATER
 };
 
-export default function TaskCard({ task, isArchived, onEdit, onComplete, onRestore }: Props) {
+export default function TaskCard({ task, isArchived, onEdit, onComplete }: Props) {
   const [expanded, setExpanded] = useState(false);
 
   const statusValue = task.status ?? "not_started";
@@ -48,7 +46,7 @@ export default function TaskCard({ task, isArchived, onEdit, onComplete, onResto
         borderRadius: 16,
         padding: 16,
         marginBottom: 12,
-        backgroundColor: "#fff",
+        backgroundColor: "#fff" ,
       }}
     >
       {/* Title */}
@@ -99,8 +97,7 @@ export default function TaskCard({ task, isArchived, onEdit, onComplete, onResto
         <Pressable
           onPress={(e) => {
             e.stopPropagation();
-            if (isArchived) onRestore(); // if archived, have option to restore task
-            else onEdit(); 
+            onEdit(); 
           }}
           style={{
             flex: 1,
@@ -125,11 +122,11 @@ export default function TaskCard({ task, isArchived, onEdit, onComplete, onResto
             paddingVertical: 10,
             borderRadius: 12,
             borderWidth: 1,
-            borderColor: "#D9DCE3",
+            borderColor: isArchived ? "#D9DCE3" : "#ff6b6b",
             alignItems: "center",
           }}
         >
-          <Text style={{ fontWeight: "800" }}>Complete</Text>
+          { isArchived ? <Text style={{ fontWeight: "800" }}> Permanently Delete </Text> : <Text style={{ fontWeight: "800" }}>Complete</Text>}
         </Pressable>
       </View>
 
