@@ -1,11 +1,11 @@
 //Tiffany Santiago Garcia
 // Main screen showing active tasks with daily and half-day views, filtered by date/time and sorted by priority
 
+import API_BASE_URL from "@/utils/config";
 import { useRouter } from "expo-router";
-import React, { useMemo, useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import { Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import TaskCard from "../../components/TaskCard";
 import { useTasks } from "../../context/TasksContext";
 
 type ViewMode = "all" | "daily";
@@ -98,7 +98,7 @@ const isToday = (dueDate?: string) => {
 
 export default function HomeScreen() {
   // const { user } = useLocalSearchParams();
-  const id = '1';
+  const id = 1; // FOR TESTING, DELETE WHEN DONE
   const router = useRouter();
   const { tasks, updateTask } = useTasks();
 
@@ -108,38 +108,80 @@ export default function HomeScreen() {
   const [viewMode, setViewMode] = useState<ViewMode>("all");
   const [halfDayMode, setHalfDayMode] = useState<HalfDayMode>(defaultHalfDay);
 
+  const [displayedTasks, setDisplayedTasks] = useState<Array<String>>([]);
+  const [ error, setError ] = useState("");
+
   const activeTasks = useMemo(() => {
     return tasks.filter(
       (t) => t.status !== "completed" && t.status !== "deleted"
     );
   }, [tasks]);
 
-  const displayedTasks = useMemo(() => {
-    let filteredTasks = [...activeTasks];
+  // const displayedTasks = useMemo(async () => {
+  //   let filteredTasks = [...activeTasks];
 
-    if (viewMode === "daily") {
-      filteredTasks = filteredTasks.filter((task) => isToday(task.dueDate));
-      filteredTasks = filteredTasks.filter((task) => {
-        const bucket = getHalfDayBucket(task.time);
-        return bucket === halfDayMode;
-      });
-    }
+  //   // get all tasks
+  //   if (viewMode === "all") await getAllTasks();
 
-    return filteredTasks.sort((a, b) => {
-      const aDateTime = parseTaskDateTime(a.dueDate, a.time);
-      const bDateTime = parseTaskDateTime(b.dueDate, b.time);
+  //   if (viewMode === "daily") {
+  //     filteredTasks = filteredTasks.filter((task) => isToday(task.dueDate));
+  //     filteredTasks = filteredTasks.filter((task) => {
+  //       const bucket = getHalfDayBucket(task.time);
+  //       return bucket === halfDayMode;
+  //     });
+  //   }
 
-      if (aDateTime !== bDateTime) {
-        return aDateTime - bDateTime;
-      }
+  //   return filteredTasks.sort((a, b) => {
+  //     const aDateTime = parseTaskDateTime(a.dueDate, a.time);
+  //     const bDateTime = parseTaskDateTime(b.dueDate, b.time);
 
-      return priorityOrder[b.priority] - priorityOrder[a.priority];
-    });
-  }, [activeTasks, viewMode, halfDayMode]);
+  //     if (aDateTime !== bDateTime) {
+  //       return aDateTime - bDateTime;
+  //     }
+
+  //     return priorityOrder[b.priority] - priorityOrder[a.priority];
+  //   });
+  // }, [activeTasks, viewMode, halfDayMode]);
 
   const handleEdit = (id: string) => {
     router.push({ pathname: "./modal", params: { editingId: id } });
   };
+
+  // get all of today's tasks
+  const getAllTasks = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/tasks/getAll?user_id=${id}`);
+      const data = await response.json();
+      console.log(response.status);
+
+      if (response.status == 200) {
+        console.log(data);
+        setDisplayedTasks(data);
+      } // set display tasks here
+      else setError("Error getting today's tasks");
+
+    } catch (error) {
+      console.log("Error getting tasks");
+    }
+  }
+
+  useEffect(() => { getAllTasks() }, [viewMode]);
+
+  // get list of today's tasks
+  const getTodayTasks =  async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/tasks/getToday?user_id=${id}`);
+      const data = await response.json();
+
+      if (response.ok) console.log(data);
+      else console.log("Error getting today's tasks");
+
+    } catch (error) {
+      console.log("Error getting today's tasks");
+    }
+  }
+
+  useEffect(() => { getTodayTasks() }, [viewMode]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#F7F8FA" }}>
@@ -150,7 +192,8 @@ export default function HomeScreen() {
 
         <View style={{ flexDirection: "row", gap: 12, marginBottom: 12 }}>
           <Pressable
-            onPress={() => setViewMode("all")}
+          onPress={() => setViewMode("all")}
+            // onPress={() => getAllTasks()}
             style={{
               flex: 1,
               paddingVertical: 12,
@@ -168,6 +211,7 @@ export default function HomeScreen() {
 
           <Pressable
             onPress={() => setViewMode("daily")}
+            // onPress={() => getTodayTask()}
             style={{
               flex: 1,
               paddingVertical: 12,
@@ -224,6 +268,9 @@ export default function HomeScreen() {
           </View>
         )}
 
+        {/*  display fetch error to users */}
+        { error ? <Text>{error}</Text> : null }
+
         {displayedTasks.length === 0 ? (
           <Text style={{ opacity: 0.7, marginTop: 12, marginBottom: 12 }}>
             {viewMode === "all"
@@ -232,7 +279,7 @@ export default function HomeScreen() {
           </Text>
         ) : null}
 
-        <ScrollView
+        {/* <ScrollView
           style={{ flex: 1, marginTop: 8 }}
           contentContainerStyle={{ paddingBottom: 12 }}
           showsVerticalScrollIndicator={false}
@@ -247,7 +294,7 @@ export default function HomeScreen() {
               }
             />
           ))}
-        </ScrollView>
+        </ScrollView> */}
 
         <Pressable
           onPress={() => router.push("/modal")}
