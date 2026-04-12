@@ -7,8 +7,8 @@ import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import TaskCard from "../../components/TaskCard";
 import { useTasks } from "../../context/TasksContext";
+import TaskCard from "../../ui/TaskCard";
 import { fetchAfternoonTasks, fetchMorningTasks, fetchTaskEstimate } from "../../utils/tasksApi";
 
 

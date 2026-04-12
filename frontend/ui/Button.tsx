@@ -1,48 +1,82 @@
-//Tiffany Santiago Garcia 
-// reusable button component that accepts primary or outline variants 
-
-import React from 'react';
+import React, { useState } from "react";
 import {
   Pressable,
-  Text,
   StyleSheet,
-  PressableProps,
-  StyleProp,
+  Text,
+  TextStyle,
   ViewStyle,
-} from 'react-native';
+} from "react-native";
 
-type Variant = 'primary' | 'outline';
+/**
+ * Brand colors from the Georgia State media kit
+ */
+const COLORS = {
+  primaryBlue: "#0039A6",
+  white: "#FFFFFF",
+  redAccent: "#CC0000",
+  blueSteel: "#374057",
+  vibrantBlue: "#00AEEF",
+};
 
-type Props = {
+interface ButtonProps {
   label: string;
-  variant?: Variant;
+  onPress: () => void;
+  variant?: "primary" | "secondary";
   disabled?: boolean;
-  style?: StyleProp<ViewStyle>;
-} & Omit<PressableProps, 'children' | 'style'>;
+  loading?: boolean;
+  style?: ViewStyle;
+  testID?: string;
+}
 
+/** Button component  */
 export default function Button({
   label,
-  variant = 'primary',
+  onPress,
+  variant = "primary",
   disabled = false,
+  loading = false,
   style,
-  ...rest
-}: Props) {
-  const isOutline = variant === 'outline';
+  testID,
+}: ButtonProps) {
+  const [isPressed, setIsPressed] = useState(false);
+
+  const isPrimary = variant === "primary";
+  const isDisabled = disabled || loading;
+
+  const buttonStyle: ViewStyle = {
+    ...styles.button,
+    backgroundColor: isPrimary
+      ? isDisabled
+        ? "#CCCCCC"
+        : isPressed
+          ? "#002966"
+          : COLORS.primaryBlue
+      : isDisabled
+        ? "#F5F5F5"
+        : isPressed
+          ? "#E8F0FF"
+          : COLORS.white,
+    borderColor: isPrimary ? "transparent" : COLORS.primaryBlue,
+    borderWidth: isPrimary ? 0 : 2,
+    opacity: isDisabled ? 0.6 : 1,
+  };
+
+  const textStyle: TextStyle = {
+    ...styles.text,
+    color: isPrimary ? COLORS.white : COLORS.primaryBlue,
+  };
 
   return (
     <Pressable
-      disabled={disabled}
-      style={({ pressed }) => [
-        styles.button,
-        isOutline ? styles.outline : styles.primary,
-        pressed && !disabled && styles.pressed,
-        disabled && styles.disabled,
-        style,
-      ]}
-      {...rest}
+      onPress={onPress}
+      disabled={isDisabled}
+      onPressIn={() => setIsPressed(true)}
+      onPressOut={() => setIsPressed(false)}
+      style={[buttonStyle, style]}
+      testID={testID}
     >
-      <Text style={[styles.label, isOutline && styles.labelOutline]}>
-        {label}
+      <Text style={textStyle}>
+        {loading ? "Loading..." : label}
       </Text>
     </Pressable>
   );
@@ -50,32 +84,16 @@ export default function Button({
 
 const styles = StyleSheet.create({
   button: {
-    paddingVertical: 12,
+    paddingVertical: 14,
     paddingHorizontal: 16,
     borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: 48, 
   },
-  primary: {
-    backgroundColor: '#007AFF',
-  },
-  outline: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: '#007AFF',
-  },
-  pressed: {
-    opacity: 0.7,
-  },
-  disabled: {
-    opacity: 0.5,
-  },
-  label: {
+  text: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  labelOutline: {
-    color: '#007AFF',
+    fontWeight: "600",
+    textAlign: "center",
   },
 });

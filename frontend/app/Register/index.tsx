@@ -3,12 +3,12 @@ Author - Kayla Thornton
 Purpose - Create a new account if one doesn't already exist. After creating an account, users will be prompted 
 to set basic configurations for the app.
  */
+import { registraionData } from "@/data/registrationData";
 import Button from "@/ui/Button";
 import API_BASE_URL from "@/utils/config";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { KeyboardAvoidingView, Platform, Text, TextInput, View } from "react-native";
-import { registraionData } from "@/data/registrationData";
 
 let initialData = {
   fullName: "",
@@ -34,6 +34,7 @@ export default function Registration() {
       setErrors("Passwords don't match");
       return;
     } 
+    
     try {
       const response = await fetch(`${API_BASE_URL}/auth/register`, 
         {
@@ -55,45 +56,13 @@ export default function Registration() {
         console.log("Account has been successfully created");
         setErrors("");
         setUserData(initialData);
-        router.replace("/Register/PostRegistration"); 
-      } else {
-        setErrors(data.message || "Error creating account");
-      if (userData.pswd !== userData.confirmPswd) {
-        setErrors("Passwords do not match");
-      }
-
-      try {
-        const response = await fetch(`${API_BASE_URL}/auth/register`, 
-          {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            username: userData.username,
-            email: userData.email,
-            password: userData.pswd
-          })
-        });
-
-        const data = await response.json();
-        console.log(data);
-        const id = data.userId;
-        
-        if (response.ok) {
-          console.log("Account has been successfully created");
-          setErrors("");
-          setUserData(initialData);
-          router.replace("./app/(tabs)"); 
-        } else {
-          setErrors(data.message || "Error creating account");
-        }
-      } catch (error) {
-        console.log(error);
-        setErrors("Network error, please try again");
-      }
+        router.replace("./Register/PostRegistration"); 
+      } else setErrors(data.message || "Error creating account");
     } catch (error) {
       console.log(error);
       setErrors("Network error, please try again");
     }
+      
   };
 
   return (

@@ -2,10 +2,10 @@
 // Completed tasks screen showing all completed tasks with option to restore to in progress by editing
 
 import React, { useMemo } from "react";
-import { View, Text, ScrollView } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTasks } from "../context/TasksContext";
-import TaskCard from "../components/TaskCard";
+import TaskCard from "../ui/TaskCard";
 
 export default function CompletedScreen() {
   const { tasks, updateTask } = useTasks();

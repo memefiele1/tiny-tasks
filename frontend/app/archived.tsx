@@ -9,11 +9,11 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import TaskCard from "../components/TaskCard";
 import {
   ArchiveSearchInput,
   FilterButton
 } from "../ui/ArchiveComponents";
+import TaskCard from "../ui/TaskCard";
 
 type FilterType = "all" | "completed" | "deleted";
 
@@ -59,7 +59,7 @@ export default function ArchivedScreen() {
   // restore specified task
   const restoreTask = async ( archiveId: number ) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/archive/restore`, {
+      const response = await fetch(`${API_BASE_URL}/api/archive/${archiveId}/restore`, {
         method: "POST",
         headers: { "Content-Type": "application/json"},
         body: JSON.stringify({ archive_id: archiveId})
@@ -217,9 +217,6 @@ export default function ArchivedScreen() {
             )}
           </View>
 
-          <Text style={styles.helperText}>
-            💡 Restore tasks can be added after the restore API is implemented
-          </Text>
         </View>
       </ScrollView>
     </SafeAreaView>

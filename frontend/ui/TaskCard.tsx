@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import type { Task } from "../context/TasksContext";
+import { COLORS } from "./CustomStyles";
 
 type Props = {
   task: Task & {
@@ -122,7 +123,8 @@ export default function TaskCard({ task, isArchived, onEdit, onComplete }: Props
             paddingVertical: 10,
             borderRadius: 12,
             borderWidth: 1,
-            borderColor: isArchived ? "#D9DCE3" : "#ff6b6b",
+            borderColor: "#D9DCE3",
+            backgroundColor: isArchived ? "#ff6b6b" : COLORS.white,
             alignItems: "center",
           }}
         >
