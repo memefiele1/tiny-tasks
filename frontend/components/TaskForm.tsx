@@ -1,6 +1,7 @@
 //Tiffany Santiago Garcia
 // Form component for creating and editing tasks, with validation and quick date options
 
+import API_BASE_URL from "@/utils/config";
 import React, { useMemo, useRef, useState } from "react";
 import {
   Alert,
@@ -53,15 +54,10 @@ const priorityOptions = [
   { label: "High", value: "high" as Priority },
 ];
 
-const commonInput = {
-  borderWidth: 1,
-  borderColor: "#ccc",
-  borderRadius: 12,
-  padding: 12,
-  fontSize: 16,
-};
 
 export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
+  // const { id } = useLocalSearchParams();
+  const id = 1; // FOR TESTING ONLY, DELETE LATER
   const scrollRef = useRef<ScrollView | null>(null);
 
   
@@ -111,31 +107,146 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
     );
   }, [title, dueDate, titleError, dueDateError, timeError,time]);
 
-  const handleSubmit = () => {
-    if (!canSave) {
-      Alert.alert(
-        "Almost there",
-        "Please add a task name and a valid due date."
-      );
-      return;
+  const handleSubmit = async () => {
+  if (!canSave) {
+    Alert.alert(
+      "Almost there",
+      "Please add a task name and a valid due date."
+    );
+    return;
+  }
+
+  try {
+    const rawDate = dueDate.trim();
+    const rawTime = time.trim();
+
+    let formattedDateTime = rawDate;
+
+    const match = rawTime.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (match) {
+      let hour = Number(match[1]);
+      const minute = match[2];
+      const period = match[3].toUpperCase();
+
+      if (period === "AM" && hour === 12) hour = 0;
+      if (period === "PM" && hour !== 12) hour += 12;
+
+      const hourStr = String(hour).padStart(2, "0");
+      formattedDateTime = `${rawDate} ${hourStr}:${minute}:00`;
     }
 
-    onSubmit({
+    const payload = {
       title: title.trim(),
       description: description.trim(),
       priority,
-      dueDate: dueDate.trim(),
-      time: time.trim(),
+      due_date: formattedDateTime,
+      time_view: rawTime,
       status,
+    };
+
+    // decides CREATE vs UPDATE
+    if ((initial as any)?.id || (initial as any)?.task_id) {
+      const taskId = (initial as any).id ?? (initial as any).task_id;
+
+      const response = await fetch(`${API_BASE_URL}/api/tasks/${taskId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+      console.log(data);
+
+      if (response.ok) {
+        console.log("Task updated");
+        onCancel?.();
+      } else {
+        console.log("Error updating task");
+      }
+    } else {
+      const response = await fetch(`${API_BASE_URL}/api/tasks`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: 1,
+          ...payload,
+        }),
+      });
+
+      const data = await response.json();
+      console.log(data);
+
+      if (response.ok) {
+        console.log("Task created");
+        clear();
+        onCancel?.();
+      } else {
+        console.log("Error creating task");
+      }
+    }
+  } catch (error) {
+    console.log("Error saving task:", error);
+  }
+};
+
+  // API call to save task in database for user
+  const createTask = async () => {
+  try {
+    const rawDate = dueDate.trim();   // ex: 2026-04-11
+    const rawTime = time.trim();      // ex: 9:00 AM
+
+    let formattedDateTime = rawDate;
+
+    const match = rawTime.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (match) {
+      let hour = Number(match[1]);
+      const minute = match[2];
+      const period = match[3].toUpperCase();
+
+      if (period === "AM" && hour === 12) hour = 0;
+      if (period === "PM" && hour !== 12) hour += 12;
+
+      const hourStr = String(hour).padStart(2, "0");
+      formattedDateTime = `${rawDate} ${hourStr}:${minute}:00`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_id: id,
+        title: title.trim(),
+        description: description.trim(),
+        priority: priority,
+        due_date: formattedDateTime,
+        time_view: rawTime,
+        status: status,
+      }),
     });
 
+    const data = await response.json();
+    console.log(data);
+
+    if (response.ok) {
+      console.log("New task created");
+      clear();
+    } else {
+      console.log("Error creating task");
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+  // clear form after user has submitted data
+  const clear = () => {
     setTitle("");
     setPriority("medium");
     setDueDate("");
     setDescription("");
     setTime("");
     setShowDetails(false);
-  };
+  }
 
   const toggleDetails = () => {
     setShowDetails((prev) => {
@@ -176,26 +287,29 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
         }}
       >
         {/* TASK NAME */}
-        <FormField
-          label="Task name"
-          helperText="Be specific: 'Study for quiz (30 min)' instead of 'Study'"
-          errorText={titleError}
-          required
-        >
-          <TextInput
-            value={title}
-            onChangeText={setTitle}
-            placeholder="e.g., Study for quiz (30 min)"
-            returnKeyType="done"
-            style={[{ color: "#374057" }, commonInput]}
-          />
-        </FormField>
+        <View style={styles.card}>
+          <FormField
+            label="Task name"
+            helperText="Be specific: 'Study for quiz (30 min)' instead of 'Study'"
+            errorText={titleError}
+            required
+            labelStyle={styles.sectionLabel}
+          >
+            <TextInput
+              value={title}
+              onChangeText={setTitle}
+              placeholder="e.g., Study for quiz (30 min)"
+              returnKeyType="done"
+              style={[styles.input, { color: "#374057" }]}
+              placeholderTextColor="#A0AEC0"
+            />
+          </FormField>
+        </View>
 
-        {/* DUE DATE */}
-        <View style={styles.section}>
+        {/* DUE DATE & TIME */}
+        <View style={styles.card}>
           <Text style={styles.sectionLabel}>Due date</Text>
-
-          <View style={{ flexDirection: "row", flexWrap: "wrap", marginBottom: 8 }}>
+          <View style={styles.chipRow}>
             {[
               { label: "Today", value: addDays(0) },
               { label: "Tomorrow", value: addDays(1) },
@@ -204,142 +318,115 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
               <Text
                 key={chip.label}
                 onPress={() => setDueDate(chip.value)}
-                style={{
-                  paddingVertical: 10,
-                  paddingHorizontal: 12,
-                  borderRadius: 999,
-                  borderWidth: 1,
-                  marginRight: 10,
-                  marginBottom: 10,
-                  fontWeight: "700",
-                }}
+                style={styles.chip}
               >
                 {chip.label}
               </Text>
             ))}
           </View>
-
           <TextInput
             value={dueDate}
             onChangeText={setDueDate}
             placeholder="YYYY-MM-DD"
             autoCapitalize="none"
             keyboardType="numbers-and-punctuation"
-            style={[commonInput]}
+            style={styles.input}
+            placeholderTextColor="#A0AEC0"
           />
           {dueDateError ? (
-            <Text style={{ fontSize: 12, color: "crimson" }}>
-              {dueDateError}
-            </Text>
+            <Text style={styles.errorText}>{dueDateError}</Text>
           ) : null}
-
-          <Text style={{ fontSize: 12, opacity: 0.7 }}>
+          <Text style={styles.helperText}>
             Tip: Use the quick buttons to avoid typing.
           </Text>
-        </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Time</Text>
-
-          <View style={{ flexDirection: "row", flexWrap: "wrap", marginBottom: 8 }}>
+          <Text style={[styles.sectionLabel, { marginTop: 18 }]}>Time</Text>
+          <View style={styles.chipRow}>
             {["9:00 AM", "12:00 PM", "2:00 PM", "6:00 PM"].map((slot) => (
               <Text
                 key={slot}
                 onPress={() => setTime(slot)}
-                style={{
-                  paddingVertical: 10,
-                  paddingHorizontal: 12,
-                  borderRadius: 999,
-                  borderWidth: 1,
-                  marginRight: 10,
-                  marginBottom: 10,
-                  fontWeight: "700",
-                }}
+                style={styles.chip}
               >
                 {slot}
               </Text>
             ))}
           </View>
-
           <TextInput
             value={time}
             onChangeText={setTime}
             placeholder="e.g., 2:00 PM"
             autoCapitalize="characters"
-            style={[commonInput]}
+            style={styles.input}
+            placeholderTextColor="#A0AEC0"
           />
-
           {timeError ? (
-            <Text style={{ fontSize: 12, color: "crimson" }}>
-              {timeError}
-            </Text>
+            <Text style={styles.errorText}>{timeError}</Text>
           ) : null}
-        </View> 
-
-
-
-        {/* STATUS */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Status</Text>
-          <View style={styles.row}>
-            {statusOptions.map((opt, idx) => (
-              <Button
-                key={opt.value}
-                label={opt.label}
-                // variant={status === opt.value ? "primary" : "outline"}
-                onPress={() => setStatus(opt.value)}
-                style={{
-                  flex: 1,
-                  marginRight: idx === statusOptions.length - 1 ? 0 : 10,
-                }}
-              />
-            ))}
-          </View>
         </View>
 
-        {/* PRIORITY */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Priority</Text>
-          <Text style={styles.helperText}>
-            Low = can wait, Medium = normal, High = urgent
-          </Text>
-          <View style={styles.row}>
-            {priorityOptions.map((opt, idx) => (
-              <Button
-                key={opt.value}
-                label={opt.label}
-                // variant={priority === opt.value ? "primary" : "outline"}
-                onPress={() => setPriority(opt.value)}
-                style={{
-                  flex: 1,
-                  marginRight: idx === priorityOptions.length - 1 ? 0 : 10,
-                }}
-              />
-            ))}
+        {/* STATUS & PRIORITY */}
+        <View style={styles.rowWrap}>
+          <View style={[styles.card, { flex: 1, marginRight: 10 }]}>
+            <Text style={styles.sectionLabel}>Status</Text>
+            
+            <View style={styles.row}>
+              {statusOptions.map((opt, idx) => (
+                <Button
+                  key={opt.value}
+                  label={opt.label}
+                  variant={status === opt.value ? "primary" : "outline"}
+                  onPress={() => setStatus(opt.value)}
+                  style={{
+                    flex: 1,
+                    marginRight: idx === statusOptions.length - 1 ? 0 : 8,
+                  }}
+                />
+              ))}
+            </View>
+          </View>
+          <View style={[styles.card, { flex: 1 }]}>
+            <Text style={styles.sectionLabel}>Priority</Text>
+            <Text style={styles.helperText}>
+              Low = can wait, Medium = normal, High = urgent
+            </Text>
+            <View style={styles.row}>
+              {priorityOptions.map((opt, idx) => (
+                <Button
+                  key={opt.value}
+                  label={opt.label}
+                  variant={priority === opt.value ? "primary" : "outline"}
+                  onPress={() => setPriority(opt.value)}
+                  style={{
+                    flex: 1,
+                    marginRight: idx === priorityOptions.length - 1 ? 0 : 8,
+                  }}
+                />
+              ))}
+            </View>
           </View>
         </View>
 
         {/* OPTIONAL DETAILS */}
-        <Text
-          onPress={toggleDetails}
-          style={{
-            fontWeight: "800",
-            paddingVertical: 6,
-            marginBottom: 10,
-          }}
-        >
-          {showDetails ? "Hide details" : "Add details (optional)"}
-        </Text>
-
-        {showDetails ? (
-          <FormField label="Description (Optional)">
-            <TextArea
-              value={description}
-              onChangeText={setDescription}
-              placeholder="Notes, steps, or reminders…"
-            />
-          </FormField>
-        ) : null}
+        <View style={styles.card}>
+          <Text
+            onPress={toggleDetails}
+            style={styles.toggleDetails}
+          >
+            {showDetails ? "Hide details" : "Add details (optional)"}
+          </Text>
+          {showDetails ? (
+            <FormField label="Description (Optional)" labelStyle={styles.sectionLabel}>
+              <TextArea
+                value={description}
+                onChangeText={setDescription}
+                placeholder="Notes, steps, or reminders…"
+                style={styles.textArea}
+                placeholderTextColor="#A0AEC0"
+              />
+            </FormField>
+          ) : null}
+        </View>
 
         {/* ACTIONS */}
         <View style={styles.actionsRow}>
@@ -365,25 +452,104 @@ export default function TaskForm({ onSubmit, onCancel, initial }: Props) {
 }
 
 const styles = StyleSheet.create({
-  section: {
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "800",
+    color: "#111827",
     marginBottom: 20,
+    marginTop: 4,
+  },
+  card: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#D9DCE3",
+    padding: 18,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   sectionLabel: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "700",
-    marginBottom: 6,
+    color: "#6B7280",
+    marginBottom: 8,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#D9DCE3",
+    borderRadius: 12,
+    padding: 12,
+    fontSize: 16,
+    backgroundColor: "#F7F8FA",
+    marginBottom: 8,
+  },
+  chipRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginBottom: 8,
+    gap: 8,
+  },
+  chip: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "#D9DCE3",
+    marginRight: 10,
+    marginBottom: 10,
+    fontWeight: "700",
+    color: "#2F5BD2",
+    backgroundColor: "#F7F8FA",
+    fontSize: 14,
+    overflow: "hidden",
+  },
+  errorText: {
+    fontSize: 12,
+    color: "crimson",
+    marginBottom: 2,
   },
   helperText: {
     fontSize: 12,
     color: "#555",
-    marginBottom: 10,
+    marginBottom: 6,
+    marginTop: 2,
   },
   row: {
     flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  rowWrap: {
+    flexDirection: "row",
+    marginBottom: 20,
+  },
+  toggleDetails: {
+    fontWeight: "800",
+    paddingVertical: 6,
+    marginBottom: 10,
+    color: "#2F5BD2",
+    fontSize: 15,
+  },
+  textArea: {
+    borderWidth: 1,
+    borderColor: "#D9DCE3",
+    borderRadius: 12,
+    padding: 12,
+    fontSize: 16,
+    backgroundColor: "#F7F8FA",
+    minHeight: 80,
+    textAlignVertical: "top",
   },
   actionsRow: {
     flexDirection: "row",
     gap: 12,
     marginTop: 4,
+    marginBottom: 40,
   },
 });

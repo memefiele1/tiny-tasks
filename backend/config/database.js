@@ -4,7 +4,6 @@ const path = require('path');
 
 // connect database to sql schema 
 const dbSql = fs.readFileSync('../database/schema.sql').toString();
-console.log(dbSql);
 
 // create path to create database
 const DB_PATH = path.resolve(__dirname, '../../tinytasks.db');

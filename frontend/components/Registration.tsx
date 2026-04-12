@@ -58,6 +58,7 @@ export default function Registration() {
         router.replace("/Register/PostRegistration"); 
       } else {
         setErrors(data.message || "Error creating account");
+========
       if (userData.pswd !== userData.confirmPswd) {
         setErrors("Passwords do not match");
       }
