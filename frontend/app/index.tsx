@@ -19,16 +19,16 @@ import { View } from 'react-native';
 // })
 
 export default function LandingPage() {
-    useEffect(() => {
-        const scriptTag = document.createElement('script');
-        scriptTag.src = 'https://accounts.google.com/gsi/client';
-        scriptTag.async = true;
-        scriptTag.onerror = () => {
-            console.error('Failed to load Google script');
-        };
+    // useEffect(() => {
+    //     const scriptTag = document.createElement('script');
+    //     scriptTag.src = 'https://accounts.google.com/gsi/client';
+    //     scriptTag.async = true;
+    //     scriptTag.onerror = () => {
+    //         console.error('Failed to load Google script');
+    //     };
 
-        document.body.appendChild(scriptTag);
-        }, []);
+    //     document.body.appendChild(scriptTag);
+    //     }, []);
         
     const router = useRouter();
     const [error, setError] = useState("");

@@ -8,7 +8,7 @@ import API_BASE_URL from "@/utils/config";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { KeyboardAvoidingView, Platform, Text, TextInput, View } from "react-native";
-import { registraionData } from "./data/registrationData";
+import { registraionData } from "@/data/registrationData";
 
 let initialData = {
   fullName: "",
@@ -30,7 +30,6 @@ export default function Registration() {
 
   // create new account if the user is a new user
   const onRegister = async () => {
-<<<<<<<< HEAD:frontend/app/Register/index.tsx
     if ( userData.pswd != userData.confirmPswd ) {
       setErrors("Passwords don't match");
       return;
@@ -41,15 +40,16 @@ export default function Registration() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username: userData.username,
-          email: userData.email,
-          password: userData.pswd
+          username: userData.username.toLowerCase().trim(),
+          email: userData.email.toLowerCase().trim(),
+          password: userData.pswd.trim()
         })
       });
 
       const data = await response.json();
       console.log(data);
       // TO-DO - GET USER ID FROM RESPONSE
+      const user = data.id;
       
       if (response.ok) {
         console.log("Account has been successfully created");
@@ -89,7 +89,6 @@ export default function Registration() {
       } catch (error) {
         console.log(error);
         setErrors("Network error, please try again");
->>>>>>>> task-view-update:frontend/components/Registration.tsx
       }
     } catch (error) {
       console.log(error);
