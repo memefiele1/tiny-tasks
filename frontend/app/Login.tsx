@@ -12,6 +12,7 @@ import API_BASE_URL from "@/utils/config";
 import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import { KeyboardAvoidingView, Platform, TextInput } from "react-native";
+// import UserContext from "@/context/UserContext";
 
 
 export default function Login() {
@@ -33,13 +34,12 @@ export default function Login() {
         body: JSON.stringify({ email: username.toLowerCase().trim(), password: password })
       });
       const data = await response.json();
-      const id = data.user.user_id;
       console.log(`SUCCESSFUL LOGIN: ${data}`);
 
       // route to login page if login successful
       if (response.ok) { 
         setToken(data.token)
-        onLogin(id);
+        // onLogin(data.user);
       } else setErrors(data.message);
       
     } catch (error) {
@@ -49,11 +49,12 @@ export default function Login() {
   };
   
   // clear form and route to dashboard on successful login 
-  const onLogin = ( id: number ) => {
+  const onLogin = (  ) => {
     setUsername("");
     setPassword("");
     setErrors("");
-    router.replace("/(tabs)"); // use id as parameter to get user
+    // useContext(user);
+    router.replace("/(tabs)"); 
   };
 
   
