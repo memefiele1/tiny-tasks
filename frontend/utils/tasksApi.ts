@@ -1,5 +1,5 @@
 import API_BASE_URL from "./config";
-export async function fetchAfternoonTasks(userId: string, date?: string) {
+export async function fetchAfternoonTasks(userId: number, date?: string) {
   const baseUrl = API_BASE_URL
   let url = `${baseUrl}/api/tasks/afternoon/${userId}`;
   if (date) url += `?date=${encodeURIComponent(date)}`;
@@ -18,7 +18,7 @@ export async function fetchAfternoonTasks(userId: string, date?: string) {
   }
 }
 // API utility for Tiny Tasks
-export async function fetchMorningTasks(userId: string, date?: string) {
+export async function fetchMorningTasks(userId: number, date?: string) {
   const baseUrl =  API_BASE_URL;
   let url = `${baseUrl}/api/tasks/morning/${userId}`;
   if (date) url += `?date=${encodeURIComponent(date)}`;

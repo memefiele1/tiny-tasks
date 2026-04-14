@@ -4,6 +4,7 @@ Purpose - This function accepts login data from the user. When the user submits,
 redirects them to the dashboard upon successful login.
  */
 
+import GetUserContext, { User } from "@/context/UserContext";
 import Button from "@/ui/Button";
 import { COLORS, SPACING } from "@/ui/CustomStyles";
 import Screen from "@/ui/Screen";
@@ -12,15 +13,18 @@ import API_BASE_URL from "@/utils/config";
 import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import { KeyboardAvoidingView, Platform, TextInput } from "react-native";
-// import UserContext from "@/context/UserContext";
 
 
 export default function Login() {
   const router = useRouter();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
   const [errors, setErrors] = useState("");
   const [token, setToken] = useState(null);
+
+  const { setUser } = GetUserContext();
 
   // grant access to app if user already signed-in
   if (token) router.replace('/(tabs)');
@@ -34,12 +38,12 @@ export default function Login() {
         body: JSON.stringify({ email: username.toLowerCase().trim(), password: password })
       });
       const data = await response.json();
-      console.log(`SUCCESSFUL LOGIN: ${data}`);
+      console.log("SUCCESSFUL LOGIN:", data);
 
       // route to login page if login successful
       if (response.ok) { 
         setToken(data.token)
-        // onLogin(data.user);
+        onLogin(data.user); // set user object as current user
       } else setErrors(data.message);
       
     } catch (error) {
@@ -49,11 +53,11 @@ export default function Login() {
   };
   
   // clear form and route to dashboard on successful login 
-  const onLogin = (  ) => {
+  const onLogin = ( user: User ) => {
     setUsername("");
     setPassword("");
     setErrors("");
-    // useContext(user);
+    setUser(user);
     router.replace("/(tabs)"); 
   };
 

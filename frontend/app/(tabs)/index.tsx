@@ -1,6 +1,7 @@
 //Tiffany Santiago Garcia
 // Main screen showing active tasks with daily and half-day views, filtered by date/time and sorted by priority
 
+import useUserContext from "@/context/UserContext";
 import API_BASE_URL from "@/utils/config";
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
@@ -103,8 +104,9 @@ const isToday = (dueDate?: string) => {
 };
 
 export default function HomeScreen() {
-  // const { user } = useLocalSearchParams();
-  const id = 1; // FOR TESTING, DELETE WHEN DONE
+  const { user: { id } } = useUserContext();
+  // const id = user?.id
+
   const router = useRouter();
   const { tasks, updateTask } = useTasks();
 
@@ -117,15 +119,14 @@ export default function HomeScreen() {
   const [afternoonError, setAfternoonError] = useState<string | null>(null);
 
   const [estimateMap, setEstimateMap] = useState<Record<string, string>>({});
-  // Hardcoded user id for testing
-const userId = "1";
+
 
 const handleFetchMorningTasks = async () => {
   setMorningLoading(true);
   setMorningError(null);
   try {
     const today = new Date().toISOString().slice(0, 10);
-    const tasks = await fetchMorningTasks(userId, today);
+    const tasks = await fetchMorningTasks(id, today);
     setMorningTasks(tasks);
   } catch (err: any) {
     setMorningError(err.message);
@@ -140,7 +141,7 @@ const handleFetchAfternoonTasks = async () => {
   setAfternoonError(null);
   try {
     const today = new Date().toISOString().slice(0, 10);
-    const tasks = await fetchAfternoonTasks(userId, today);
+    const tasks = await fetchAfternoonTasks(id, today);
     setAfternoonTasks(tasks);
   } catch (err: any) {
     setAfternoonError(err.message);
@@ -321,7 +322,7 @@ const handleEdit = (task: any) => {
     <SafeAreaView style={{ flex: 1, backgroundColor: "#F7F8FA" }}>
       <View style={{ flex: 1, padding: 20 }}>
         <Text style={{ fontSize: 24, fontWeight: "800", marginBottom: 12 }}>
-          My Tasks for user
+          My Tasks for user {id}
         </Text>
 
         <View style={{ flexDirection: "row", gap: 12, marginBottom: 12 }}>
