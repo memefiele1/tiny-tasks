@@ -4,7 +4,7 @@ Purpose - This function accepts login data from the user. When the user submits,
 redirects them to the dashboard upon successful login.
  */
 
-import GetUserContext, { User } from "@/context/UserContext";
+import useUserContext, { User } from "@/context/UserContext";
 import Button from "@/ui/Button";
 import { COLORS, SPACING } from "@/ui/CustomStyles";
 import Screen from "@/ui/Screen";
@@ -24,7 +24,7 @@ export default function Login() {
   const [errors, setErrors] = useState("");
   const [token, setToken] = useState(null);
 
-  const { setUser } = GetUserContext();
+  const { setUser } = useUserContext();
 
   // grant access to app if user already signed-in
   if (token) router.replace('/(tabs)');

@@ -105,7 +105,6 @@ const isToday = (dueDate?: string) => {
 
 export default function HomeScreen() {
   const { user: { id } } = useUserContext();
-  // const id = user?.id
 
   const router = useRouter();
   const { tasks, updateTask } = useTasks();
@@ -223,7 +222,7 @@ const handleEdit = (task: any) => {
   });
 };
   // get all of today's tasks
-  const getAllTasks = async () => {
+const getAllTasks = async () => {
   try {
     setError("");
 
@@ -233,9 +232,42 @@ const handleEdit = (task: any) => {
     console.log("GET ALL status:", response.status);
     console.log("GET ALL data:", data);
 
-    if (response.ok && data.success) {
-      setDisplayedTasks(data.tasks);
-    } else {
+if (response.ok && data.success) {
+  const activeTasks = (data.tasks || [])
+    .filter((task: any) => {
+      const status = String(task.status || "").toLowerCase().trim();
+
+      return (
+        status === "not_started" ||
+        status === "in_progress" ||
+        status === "not started" ||
+        status === "in progress"
+      );
+    })
+    .sort((a: any, b: any) => {
+      const aDateTime = parseTaskDateTime(
+        String(a.due_date ?? a.dueDate ?? "").split(" ")[0],
+        a.time_view ?? a.time ?? ""
+      );
+
+      const bDateTime = parseTaskDateTime(
+        String(b.due_date ?? b.dueDate ?? "").split(" ")[0],
+        b.time_view ?? b.time ?? ""
+      );
+
+      if (aDateTime !== bDateTime) {
+        return aDateTime - bDateTime;
+      }
+
+      const aPriority = String(a.priority || "").toLowerCase().trim();
+      const bPriority = String(b.priority || "").toLowerCase().trim();
+
+      return (priorityOrder[bPriority as keyof typeof priorityOrder] ?? 0)
+        - (priorityOrder[aPriority as keyof typeof priorityOrder] ?? 0);
+    });
+
+  setDisplayedTasks(activeTasks);
+} else {
       setError(data.error || "Error getting all tasks");
       setDisplayedTasks([]);
     }
@@ -322,7 +354,7 @@ const handleEdit = (task: any) => {
     <SafeAreaView style={{ flex: 1, backgroundColor: "#F7F8FA" }}>
       <View style={{ flex: 1, padding: 20 }}>
         <Text style={{ fontSize: 24, fontWeight: "800", marginBottom: 12 }}>
-          My Tasks for user {id}
+          My Tasks
         </Text>
 
         <View style={{ flexDirection: "row", gap: 12, marginBottom: 12 }}>

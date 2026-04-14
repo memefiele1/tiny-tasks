@@ -12,10 +12,27 @@ async function deleteTask(req, res) {
     const deletedOn = new Date();
     deletedOn.setDate(deletedOn.getDate() + 30);
 
-    await db.runAsync(`
-      INSERT INTO archive (task_id, user_id, title, description, due_date, priority, date_completed, deleted_on)
-      VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?)
-    `, [existingTask.task_id, existingTask.user_id, existingTask.title, existingTask.description, existingTask.due_date, existingTask.priority, deletedOn.toISOString()]);
+      await db.runAsync(`
+    INSERT INTO archive (
+      task_id,
+      user_id,
+      title,
+      description,
+      due_date,
+      priority,
+      date_completed,
+      deleted_on
+    )
+    VALUES (?, ?, ?, ?, ?, ?, NULL, ?)
+  `, [
+    existingTask.task_id,
+    existingTask.user_id,
+    existingTask.title,
+    existingTask.description,
+    existingTask.due_date,
+    existingTask.priority,
+    deletedOn.toISOString()
+  ]);
 
     await db.runAsync('DELETE FROM tasks WHERE task_id = ?', [task_id]);
 

@@ -57,7 +57,8 @@ export default function TaskCard({ task, isArchived, onEdit, onComplete }: Props
 
       {/* Due */}
       <Text style={{ marginTop: 6, color: "#6B7280" }}>
-        Due: {displayDate} {displayTime ? `at ${displayTime}` : ""}
+        Due: {displayDate}{" "}
+        {displayTime && displayTime !== "full" ? `at ${displayTime}` : ""}
       </Text>
 
       {/* Status */}

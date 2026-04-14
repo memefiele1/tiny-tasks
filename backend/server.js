@@ -46,7 +46,7 @@ const { cacheMiddleware } = require('./middleware/cache');
 // ── GOOGLE AUTH ───────────────────────────────────
 const session = require('express-session');
 const passport = require('passport');
-const googleAuthRoutes = require('./routes/googleAuth');
+// const googleAuthRoutes = require('./routes/googleAuth');
 
 const app = express();
 const PORT = process.env.PORT || 3000;

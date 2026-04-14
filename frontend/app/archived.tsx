@@ -14,6 +14,7 @@ import {
   FilterButton
 } from "../ui/ArchiveComponents";
 import TaskCard from "../ui/TaskCard";
+import { Stack } from "expo-router";
 
 type FilterType = "all" | "completed" | "deleted";
 
@@ -57,51 +58,62 @@ export default function ArchivedScreen() {
   }, [ ]);
 
   // restore specified task
-  const restoreTask = async ( archiveId: number ) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/archive/${archiveId}/restore`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json"},
-        body: JSON.stringify({ archive_id: archiveId})
-      });
-      const data = await response.json();
-      console.log(data);
-      
+ const restoreTask = async (archiveId: number) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/archive/${archiveId}/restore`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ archive_id: archiveId }),
+    });
 
-      if (response.ok) console.log(`TASK ${archiveId} RESTORED `); // refresh page
-      else console.log("Error restoring task");
+    const data = await response.json();
+    console.log(data);
 
-    } catch (error) {
+    if (response.ok) {
+      console.log(`TASK ${archiveId} RESTORED`);
+      await fetchArchivedTasks();
+    } else {
       console.log("Error restoring task");
-      setError("Error restoring task");
     }
+  } catch (error) {
+    console.log("Error restoring task");
+    setError("Error restoring task");
   }
+};
 
   // restore specified task
-  const deleteTask = async ( archiveId: number ) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/archive/${archiveId}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json"},
-      });
-      const data = await response.json();
-      console.log(data);
-      
+  const deleteTask = async (archiveId: number) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/archive/${archiveId}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+    });
 
-      if (response.ok) console.log(`TASK ${archiveId} PERMANENTLY DELETED `); // refresh page
-      else console.log("Error deleting task");
+    const data = await response.json();
+    console.log(data);
 
-    } catch (error) {
+    if (response.ok) {
+      console.log(`TASK ${archiveId} PERMANENTLY DELETED`);
+      await fetchArchivedTasks();
+    } else {
       console.log("Error deleting task");
-      setError("Error deleting task");
     }
+  } catch (error) {
+    console.log("Error deleting task");
+    setError("Error deleting task");
   }
+};
 
   // filter returned list of tasks by archive status (completed, deleted, ...)
-  const filteredByStatus = useMemo(() => {
-    if (filter === "all") return archivedTasks;
-    return archivedTasks.filter((t) => t.archive_status === filter);
-  }, [archivedTasks, filter]);
+ const filteredByStatus = useMemo(() => {
+  if (filter === "all") return archivedTasks;
+
+  return archivedTasks.filter((t) => {
+    if (filter === "completed") return !!t.date_completed;
+    if (filter === "deleted") return !!t.deleted_on;
+    return true;
+  });
+}, [archivedTasks, filter]);
 
   const finalTasks = useMemo(() => {
     if (!searchQuery.trim()) return filteredByStatus;
@@ -115,6 +127,16 @@ export default function ArchivedScreen() {
   }, [filteredByStatus, searchQuery]);
 
   return (
+
+
+    <>
+    <Stack.Screen
+      options={{
+        headerShown: true,
+        title: "Archived Tasks",
+      }}
+    />
+
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
@@ -205,8 +227,8 @@ export default function ArchivedScreen() {
           )} */}
 
           <View>
-            { archivedTasks && archivedTasks.map((task) => 
-              <View key={task.task_id} style={styles.taskWithAction}>
+            { finalTasks && finalTasks.map((task) =>
+              <View key={task.archive_id} style={styles.taskWithAction}>
                 <TaskCard
                   task={task}
                   isArchived={true}
@@ -220,7 +242,11 @@ export default function ArchivedScreen() {
         </View>
       </ScrollView>
     </SafeAreaView>
+    </>
   );
+
+
+
 }
 
 const styles = StyleSheet.create({

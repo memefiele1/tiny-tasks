@@ -10,20 +10,36 @@ async function completeTask(req, res) {
     if (!existingTask) return res.status(404).json({ success: false, error: 'Task not found' });
     if (existingTask.is_completed === 1) return res.status(400).json({ success: false, error: 'Task already completed' });
 
-    await db.runAsync(`
-      UPDATE tasks 
-      SET is_completed = 1, status = 'Completed', 
-          completed_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
-      WHERE task_id = ?
-    `, [task_id]);
+        await db.runAsync(`
+          UPDATE tasks 
+          SET is_completed = 1, status = 'Completed', 
+              completed_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+          WHERE task_id = ?
+        `, [task_id]);
 
-    const deletedOn = new Date();
-    deletedOn.setDate(deletedOn.getDate() + 30);
+        const deletedOn = new Date();
+        deletedOn.setDate(deletedOn.getDate() + 30);
 
-    await db.runAsync(`
-      INSERT INTO archive (task_id, user_id, title, description, due_date, priority, date_completed, deleted_on)
-      VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?)
-    `, [existingTask.task_id, existingTask.user_id, existingTask.title, existingTask.description, existingTask.due_date, existingTask.priority, deletedOn.toISOString()]);
+        await db.runAsync(`
+      INSERT INTO archive (
+        task_id,
+        user_id,
+        title,
+        description,
+        due_date,
+        priority,
+        date_completed,
+        deleted_on
+      )
+      VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, NULL)
+    `, [
+      existingTask.task_id,
+      existingTask.user_id,
+      existingTask.title,
+      existingTask.description,
+      existingTask.due_date,
+      existingTask.priority
+    ]);
 
     const completedTask = await db.getAsync('SELECT * FROM tasks WHERE task_id = ?', [task_id]);
     return res.status(200).json({ success: true, message: 'Task marked as completed!', task: completedTask });

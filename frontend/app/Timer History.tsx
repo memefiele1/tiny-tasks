@@ -2,6 +2,7 @@ import API_BASE_URL from "@/utils/config";
 import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Stack } from "expo-router";
 
 type TimerSession = {
   timer_id: number | string;
@@ -77,6 +78,13 @@ export default function TimerHistoryScreen() {
   };
 
   return (
+    <>
+    <Stack.Screen
+      options={{
+        headerShown: true,
+        title: "Archived Tasks",
+      }}
+    />
     <SafeAreaView style={styles.bg}>
       <ScrollView contentContainerStyle={styles.screen} showsVerticalScrollIndicator={false}>
         <Text style={styles.headerTitle}>Timer History</Text>
@@ -137,7 +145,9 @@ export default function TimerHistoryScreen() {
         )}
       </ScrollView>
     </SafeAreaView>
+    </>
   );
+  
 }
 
 const styles = StyleSheet.create({
