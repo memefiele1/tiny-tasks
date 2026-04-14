@@ -16,11 +16,11 @@ export default function RootLayout() {
   return (
     <TasksProvider>
       <ThemeProvider value={DefaultTheme}>
-        <Stack>
-            <Stack.Screen name="index" options={{ headerShown: false}}/>
-            <Stack.Screen name="Login" options={{ headerShown: false}}/>
-            <Stack.Screen name="Register" options={{ headerShown: false}}/>
-            <Stack.Screen name="ForgotPassword" options={{ headerShown: false }}/>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="Login" options={{ headerShown: false }} />
+          <Stack.Screen name="Register" options={{ headerShown: false }} />
+          <Stack.Screen name="ForgotPassword" options={{ headerShown: false }} />
         </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>
