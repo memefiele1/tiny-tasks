@@ -12,9 +12,16 @@ export type User = {
     email: string
 }
 
+type newUser = {
+    username: string,
+    email: string,
+    password: string
+}
+
 type UserContextType = {
     user: User,
-    validateUser: (email: string, password: string) => Promise<any>
+    loginUser: (email: string, password: string) => Promise<any>
+    registerUser: (user: newUser) => Promise<any>
 }
 
 const context = createContext<UserContextType | undefined >(undefined);
@@ -32,8 +39,8 @@ export function UserProvider ({children}: { children: React.ReactNode }) {
     // grant access to app if user already signed-in
     useEffect(() => { if (token) router.replace('/(tabs)'); }, [] )
 
-    // set user value when user logs in
-    const validateUser = async ( email: string, password: string) => {
+    // get and set user value when user logs in
+    const loginUser = async ( email: string, password: string) => {
     try {
         const response = await fetch(`${API_BASE_URL}/auth/login`, {
             method: "POST",
@@ -48,8 +55,8 @@ export function UserProvider ({children}: { children: React.ReactNode }) {
             console.log("SUCCESSFUL LOGIN:", data);
             setToken(data.token);
             setUser(data.user);
-        }
-        return response;
+            return response;
+        } else return data.message;
         
         } catch (error) {
             console.log(error);
@@ -57,10 +64,42 @@ export function UserProvider ({children}: { children: React.ReactNode }) {
         }
     }
 
-    console.log("Context user:", user);
+    // register new user
+    const registerUser = async( newUser: newUser ) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/auth/register`, 
+                {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    username: newUser.username,
+                    email: newUser.email,
+                    password: newUser.password
+                })
+        });
+            const data = await response.json();
+            console.log("From context:", data);
+        
+            // set new user after registering 
+            if (response.ok) {
+                console.log("Account has been successfully created");
+                setUser({
+                    user_id: data.id,
+                    username: newUser.username,
+                    email: newUser.email
+                });
+                return response;
+            } else return data.message;
+            
+
+        } catch (error) {
+            console.log(error);
+            return "Network error, please try again";
+        }
+  }
 
     return (
-        <context.Provider value={{ user, validateUser }}>
+        <context.Provider value={{ user, loginUser, registerUser}}>
             { children }
         </context.Provider>
         )
@@ -70,6 +109,6 @@ export default function useUserContext() {
     const ctx = useContext( context );
 
     if ( !ctx ) throw new Error("Must provide user info");
-    console.log("Context ctx:", ctx)
+
     return ctx;
 }

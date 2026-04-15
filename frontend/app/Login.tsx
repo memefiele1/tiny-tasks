@@ -22,11 +22,11 @@ export default function Login() {
 
   const [errors, setErrors] = useState("");
 
-  const { validateUser } = useUserContext();
+  const { loginUser } = useUserContext();
   
   // clear form and route to dashboard on successful login 
   const onLogin = async () => {
-    const response = await validateUser(username.toLowerCase().trim(), password);
+    const response = await loginUser(username.toLowerCase().trim(), password);
     console.log(response);
 
     // only log user in if login attempt successful
@@ -35,10 +35,7 @@ export default function Login() {
       setPassword("");
       setErrors("");
       router.replace("/(tabs)");
-    } else {
-      setErrors("User not found");
-      return;
-    } 
+    } else setErrors(response);
   };
 
   

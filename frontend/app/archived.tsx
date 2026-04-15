@@ -21,9 +21,12 @@ type FilterType = "all" | "completed" | "deleted";
 
 export default function ArchivedScreen() {
   const { user: {user_id}} = useUserContext();
+  console.log("Archive user id:", user_id);
+
   const [filter, setFilter] = useState<FilterType>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [archivedTasks, setArchivedTasks] = useState<any[]>([]);
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
