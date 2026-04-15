@@ -28,6 +28,7 @@ export default function CompletedScreen() {
               <TaskCard
                 key={task.id}
                 task={task}
+                isArchived={false}
                 onEdit={() => {
                   // Optional: “restore” to in progress when you edit
                   updateTask(task.id, { ...task, status: "in_progress" });

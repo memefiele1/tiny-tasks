@@ -4,10 +4,10 @@
  */
 import API_BASE_URL from "@/utils/config";
 import { useRouter } from "expo-router";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 export type User = {
-    id: number,
+    user_id: number,
     username: string,
     email: string
 }
@@ -23,14 +23,14 @@ const context = createContext<UserContextType | undefined >(undefined);
 export function UserProvider ({children}: { children: React.ReactNode }) {
     const router = useRouter();
     const [ user, setUser ] = useState<User>({
-        id: 0,
+        user_id: 0,
         username: "",
         email: ""
     });
     const [token, setToken] = useState(null);
 
     // grant access to app if user already signed-in
-    if (token) router.replace('/(tabs)');
+    useEffect(() => { if (token) router.replace('/(tabs)'); }, [] )
 
     // set user value when user logs in
     const validateUser = async ( email: string, password: string) => {
@@ -48,13 +48,16 @@ export function UserProvider ({children}: { children: React.ReactNode }) {
             console.log("SUCCESSFUL LOGIN:", data);
             setToken(data.token);
             setUser(data.user);
-        } else return data
+        }
+        return response;
         
         } catch (error) {
             console.log(error);
             return "User not found"
         }
     }
+
+    console.log("Context user:", user);
 
     return (
         <context.Provider value={{ user, validateUser }}>
@@ -67,10 +70,6 @@ export default function useUserContext() {
     const ctx = useContext( context );
 
     if ( !ctx ) throw new Error("Must provide user info");
-    
-    // ensure user has a value
-    // const { user } = ctx;
-    // if (!user) throw new Error("User has not been set yet");
-
+    console.log("Context ctx:", ctx)
     return ctx;
 }

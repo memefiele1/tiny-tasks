@@ -1,4 +1,5 @@
 
+import useUserContext from "@/context/UserContext";
 import API_BASE_URL from "@/utils/config";
 import { useFocusEffect } from "@react-navigation/native";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -39,7 +40,7 @@ type BackendTask = {
 };
 
 export default function FocusTimerScreen() {
-  const userId = 1; // FOR TESTING
+  const { user: {user_id}} = useUserContext();
 
   const [tasks, setTasks] = useState<BackendTask[]>([]);
   const [tasksLoading, setTasksLoading] = useState(false);
@@ -102,7 +103,7 @@ export default function FocusTimerScreen() {
     try {
       setTasksLoading(true);
 
-      const response = await fetch(`${API_BASE_URL}/api/tasks/user/${userId}`);
+      const response = await fetch(`${API_BASE_URL}/api/tasks/user/${user_id}`);
       const data = await response.json();
 
       console.log("FOCUS TASKS status:", response.status);
@@ -130,7 +131,7 @@ export default function FocusTimerScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchActiveTasks();
-    }, [])
+    }, [user_id])
   );
 
   const activeTasks = useMemo(() => {
@@ -234,7 +235,7 @@ export default function FocusTimerScreen() {
       const response = await fetch(`${API_BASE_URL}/api/timer/${timerSessionId}/complete`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId }),
+        body: JSON.stringify({ user_id: user_id }),
       });
 
       const data = await response.json();
@@ -258,7 +259,7 @@ export default function FocusTimerScreen() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              user_id: userId,
+              user_id: user_id,
               task_id: taskId,
             }),
           });

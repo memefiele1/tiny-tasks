@@ -23,42 +23,22 @@ export default function Login() {
   const [errors, setErrors] = useState("");
 
   const { validateUser } = useUserContext();
- 
-  // make request to backend endpoint to validate user credentials
-  // const validateUser = async () => {
-  //   try {
-  //     const response = await fetch(`${API_BASE_URL}/auth/login`, {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ email: username.toLowerCase().trim(), password: password })
-  //     });
-  //     const data = await response.json();
-  //     console.log("SUCCESSFUL LOGIN:", data);
-
-  //     // route to login page if login successful
-  //     if (response.ok) { 
-  //       setToken(data.token)
-  //       onLogin(data.user); // set user object as current user
-  //     } else setErrors(data.message);
-      
-  //   } catch (error) {
-  //     console.log(error);
-  //     setErrors("User not found");
-  //   }
-  // };
   
   // clear form and route to dashboard on successful login 
-  const onLogin = async ( ) => {
+  const onLogin = async () => {
     const response = await validateUser(username.toLowerCase().trim(), password);
     console.log(response);
 
-    // handle error messages
-    // if ("User not found" || response.message) setErrors(response);
-
-    setUsername("");
-    setPassword("");
-    setErrors("");
-    router.replace("/(tabs)"); 
+    // only log user in if login attempt successful
+    if ( response.ok ) {
+      setUsername("");
+      setPassword("");
+      setErrors("");
+      router.replace("/(tabs)");
+    } else {
+      setErrors("User not found");
+      return;
+    } 
   };
 
   

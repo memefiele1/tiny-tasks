@@ -104,9 +104,7 @@ const isToday = (dueDate?: string) => {
 };
 
 export default function HomeScreen() {
-  const { user: { id } } = useUserContext();
-  console.log(id);
-  // const id = user.id
+  const { user: {user_id}} = useUserContext();
 
   const router = useRouter();
   const { tasks, updateTask } = useTasks();
@@ -127,7 +125,7 @@ const handleFetchMorningTasks = async () => {
   setMorningError(null);
   try {
     const today = new Date().toISOString().slice(0, 10);
-    const tasks = await fetchMorningTasks(id, today);
+    const tasks = await fetchMorningTasks(user_id, today);
     setMorningTasks(tasks);
   } catch (err: any) {
     setMorningError(err.message);
@@ -142,7 +140,7 @@ const handleFetchAfternoonTasks = async () => {
   setAfternoonError(null);
   try {
     const today = new Date().toISOString().slice(0, 10);
-    const tasks = await fetchAfternoonTasks(id, today);
+    const tasks = await fetchAfternoonTasks(user_id, today);
     setAfternoonTasks(tasks);
   } catch (err: any) {
     setAfternoonError(err.message);
@@ -167,7 +165,8 @@ const handleFetchAfternoonTasks = async () => {
       handleFetchAfternoonTasks();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewMode, halfDayMode]);
+    // page should refresh when new user arrives
+  }, [viewMode, halfDayMode, user_id]); 
 
 
 const refreshTasks = async () => {
@@ -228,7 +227,7 @@ const getAllTasks = async () => {
   try {
     setError("");
 
-    const response = await fetch(`${API_BASE_URL}/api/tasks/user/${id}`);
+    const response = await fetch(`${API_BASE_URL}/api/tasks/user/${user_id}`);
     const data = await response.json();
 
     console.log("GET ALL status:", response.status);
@@ -280,12 +279,12 @@ if (response.ok && data.success) {
   }
 };
 
-  useEffect(() => { getAllTasks() }, [viewMode]);
+  useEffect(() => { getAllTasks() }, [user_id, viewMode]);
 
   // get list of today's tasks
   const getTodayTasks =  async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/tasks/getToday?user_id=${id}`);
+      const response = await fetch(`${API_BASE_URL}/api/tasks/getToday?user_id=${user_id}`);
       const data = await response.json();
 
       if (response.ok) console.log(data);
@@ -296,7 +295,7 @@ if (response.ok && data.success) {
     }
   }
 
-  useEffect(() => { getTodayTasks() }, [viewMode]);
+  useEffect(() => { getTodayTasks() }, [user_id, viewMode]);
 
   useFocusEffect(
   React.useCallback(() => {

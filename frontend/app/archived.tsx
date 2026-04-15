@@ -1,6 +1,8 @@
 //Tiffany Santiago Garcia
 // Archived tasks screen with filter and search functionality, allowing users to view and restore completed or deleted tasks
+import useUserContext from "@/context/UserContext";
 import API_BASE_URL from "@/utils/config";
+import { Stack } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ScrollView,
@@ -14,12 +16,11 @@ import {
   FilterButton
 } from "../ui/ArchiveComponents";
 import TaskCard from "../ui/TaskCard";
-import { Stack } from "expo-router";
 
 type FilterType = "all" | "completed" | "deleted";
 
 export default function ArchivedScreen() {
-  const userId = 1; // FOR TESTING
+  const { user: {user_id}} = useUserContext();
   const [filter, setFilter] = useState<FilterType>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [archivedTasks, setArchivedTasks] = useState<any[]>([]);
@@ -31,7 +32,7 @@ export default function ArchivedScreen() {
       setLoading(true);
       setError("");
 
-      const response = await fetch(`${API_BASE_URL}/api/archive/${userId}`);
+      const response = await fetch(`${API_BASE_URL}/api/archive/${user_id}`);
       const data = await response.json();
 
       console.log("ARCHIVE status:", response.status);
@@ -55,7 +56,7 @@ export default function ArchivedScreen() {
 
   useEffect(() => {
     fetchArchivedTasks();
-  }, [ ]);
+  }, [ user_id ]);
 
   // restore specified task
  const restoreTask = async (archiveId: number) => {
