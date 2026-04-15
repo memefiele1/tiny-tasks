@@ -53,7 +53,7 @@ export default function Login() {
     console.log(response);
 
     // handle error messages
-    if (response.message || "User not found") setErrors(response);
+    // if ("User not found" || response.message) setErrors(response);
 
     setUsername("");
     setPassword("");

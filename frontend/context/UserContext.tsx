@@ -13,22 +13,26 @@ export type User = {
 }
 
 type UserContextType = {
-    user: User | undefined,
+    user: User,
     validateUser: (email: string, password: string) => Promise<any>
 }
 
 const context = createContext<UserContextType | undefined >(undefined);
 
-
+// provider contains setter functions to ensure user has or receives a value
 export function UserProvider ({children}: { children: React.ReactNode }) {
     const router = useRouter();
-    const [ user, setUser ] = useState<User>();
+    const [ user, setUser ] = useState<User>({
+        id: 0,
+        username: "",
+        email: ""
+    });
     const [token, setToken] = useState(null);
 
     // grant access to app if user already signed-in
-    if (token) router.replace('../app/(tabs)');
+    if (token) router.replace('/(tabs)');
 
-    // set provider value by calling login function from Login.tsx
+    // set user value when user logs in
     const validateUser = async ( email: string, password: string) => {
     try {
         const response = await fetch(`${API_BASE_URL}/auth/login`, {
@@ -53,10 +57,10 @@ export function UserProvider ({children}: { children: React.ReactNode }) {
     }
 
     return (
-    <context.Provider value={{ user, validateUser }}>
-        { children }
-    </context.Provider>
-    )
+        <context.Provider value={{ user, validateUser }}>
+            { children }
+        </context.Provider>
+        )
     }
 
 export default function useUserContext() {
@@ -65,7 +69,7 @@ export default function useUserContext() {
     if ( !ctx ) throw new Error("Must provide user info");
     
     // ensure user has a value
-    // const { user, setUser } = ctx;
+    // const { user } = ctx;
     // if (!user) throw new Error("User has not been set yet");
 
     return ctx;

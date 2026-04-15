@@ -1,6 +1,7 @@
 //Tiffany Santiago Garcia
 // Main screen showing active tasks with daily and half-day views, filtered by date/time and sorted by priority
 
+import useUserContext from "@/context/UserContext";
 import API_BASE_URL from "@/utils/config";
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
@@ -10,7 +11,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useTasks } from "../../context/TasksContext";
 import TaskCard from "../../ui/TaskCard";
 import { fetchAfternoonTasks, fetchMorningTasks, fetchTaskEstimate } from "../../utils/tasksApi";
-// import useUserContext from "@/context/UserContext";
 
 
 type ViewMode = "all" | "daily";
@@ -104,8 +104,9 @@ const isToday = (dueDate?: string) => {
 };
 
 export default function HomeScreen() {
-  // const { user: { id } } = useUserContext();
-  const id = 1;
+  const { user: { id } } = useUserContext();
+  console.log(id);
+  // const id = user.id
 
   const router = useRouter();
   const { tasks, updateTask } = useTasks();
