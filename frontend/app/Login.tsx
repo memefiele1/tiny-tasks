@@ -4,12 +4,11 @@ Purpose - This function accepts login data from the user. When the user submits,
 redirects them to the dashboard upon successful login.
  */
 
-import useUserContext, { User } from "@/context/UserContext";
+import useUserContext from "@/context/UserContext";
 import Button from "@/ui/Button";
 import { COLORS, SPACING } from "@/ui/CustomStyles";
 import Screen from "@/ui/Screen";
 import { BodyText, Heading, Subheading } from "@/ui/Text";
-import API_BASE_URL from "@/utils/config";
 import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import { KeyboardAvoidingView, Platform, TextInput } from "react-native";
@@ -22,42 +21,43 @@ export default function Login() {
   const [password, setPassword] = useState("");
 
   const [errors, setErrors] = useState("");
-  const [token, setToken] = useState(null);
 
-  const { setUser } = useUserContext();
-
-  // grant access to app if user already signed-in
-  if (token) router.replace('/(tabs)');
+  const { validateUser } = useUserContext();
  
   // make request to backend endpoint to validate user credentials
-  const validateUser = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: username.toLowerCase().trim(), password: password })
-      });
-      const data = await response.json();
-      console.log("SUCCESSFUL LOGIN:", data);
+  // const validateUser = async () => {
+  //   try {
+  //     const response = await fetch(`${API_BASE_URL}/auth/login`, {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ email: username.toLowerCase().trim(), password: password })
+  //     });
+  //     const data = await response.json();
+  //     console.log("SUCCESSFUL LOGIN:", data);
 
-      // route to login page if login successful
-      if (response.ok) { 
-        setToken(data.token)
-        onLogin(data.user); // set user object as current user
-      } else setErrors(data.message);
+  //     // route to login page if login successful
+  //     if (response.ok) { 
+  //       setToken(data.token)
+  //       onLogin(data.user); // set user object as current user
+  //     } else setErrors(data.message);
       
-    } catch (error) {
-      console.log(error);
-      setErrors("User not found");
-    }
-  };
+  //   } catch (error) {
+  //     console.log(error);
+  //     setErrors("User not found");
+  //   }
+  // };
   
   // clear form and route to dashboard on successful login 
-  const onLogin = ( user: User ) => {
+  const onLogin = async ( ) => {
+    const response = await validateUser(username.toLowerCase().trim(), password);
+    console.log(response);
+
+    // handle error messages
+    if (response.message || "User not found") setErrors(response);
+
     setUsername("");
     setPassword("");
     setErrors("");
-    setUser(user);
     router.replace("/(tabs)"); 
   };
 
@@ -114,7 +114,7 @@ export default function Login() {
 
           <Button 
             label="Log In"
-            onPress={() => validateUser()} 
+            onPress={() => onLogin()} 
           />
 
           <BodyText>
