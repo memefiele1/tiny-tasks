@@ -2,44 +2,50 @@
 //Tiffany Santiago Garcia
 // Settings screen with link to archived tasks and other potential future settings options
 
+import { LogoutButton } from "@/components/LogoutButton";
+import useUserContext from "@/context/UserContext";
 import { Link } from "expo-router";
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SettingsScreen() {
+  const { user } = useUserContext();
+
   return (
     <SafeAreaView style={styles.bg}>
       <View style={styles.screen}>
-        <Text style={styles.headerTitle}>Settings</Text>
+        <Text style={styles.headerTitle}>{user.username}</Text>
+        <Text style={styles.sectionLabel}> {user.email} </Text>
+      <View style={styles.section}>
 
-        <View style={styles.section}>
-  <Text style={styles.sectionLabel}>Account</Text>
+      <Text style={styles.sectionLabel}>Account Settings</Text>
 
-  <Link href="../archived" asChild>
-    <Pressable style={styles.cardButton}>
-      <View style={styles.cardContent}>
-        <Text style={styles.cardTitle}>View Archived Tasks</Text>
-        <Text style={styles.cardSubtitle}>
-          See tasks you’ve archived
-        </Text>
+      <Link href="../archived" asChild>
+        <Pressable style={styles.cardButton}>
+          <View style={styles.cardContent}>
+            <Text style={styles.cardTitle}>View Archived Tasks</Text>
+            <Text style={styles.cardSubtitle}>
+              See tasks you’ve archived
+            </Text>
+          </View>
+        </Pressable>
+      </Link>
+
+        <Link href="/Timer History" asChild>
+          <Pressable style={styles.cardButton}>
+            <View style={styles.cardContent}>
+              <Text style={styles.cardTitle}>View Timer History</Text>
+              <Text style={styles.cardSubtitle}>
+                See your focus sessions and total focus time
+              </Text>
+            </View>
+          </Pressable>
+        </Link>
       </View>
-    </Pressable>
-  </Link>
-
-    <Link href="/Timer History" asChild>
-      <Pressable style={styles.cardButton}>
-        <View style={styles.cardContent}>
-          <Text style={styles.cardTitle}>View Timer History</Text>
-          <Text style={styles.cardSubtitle}>
-            See your focus sessions and total focus time
-          </Text>
-        </View>
-      </Pressable>
-    </Link>
-  </View>
 
         {/* Future settings sections can be added here */}
+        <LogoutButton />
       </View>
     </SafeAreaView>
   );
