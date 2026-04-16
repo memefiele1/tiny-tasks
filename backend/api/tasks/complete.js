@@ -19,6 +19,7 @@ async function completeTask(req, res) {
 
         const deletedOn = new Date();
         deletedOn.setDate(deletedOn.getDate() + 30);
+        console.log(deletedOn);
 
         await db.runAsync(`
       INSERT INTO archive (
@@ -38,7 +39,8 @@ async function completeTask(req, res) {
       existingTask.title,
       existingTask.description,
       existingTask.due_date,
-      existingTask.priority
+      existingTask.priority,
+      existingTask.deletedOn
     ]);
 
     const completedTask = await db.getAsync('SELECT * FROM tasks WHERE task_id = ?', [task_id]);

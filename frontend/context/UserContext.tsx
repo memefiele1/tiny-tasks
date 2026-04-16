@@ -9,19 +9,14 @@ import { createContext, useContext, useEffect, useState } from "react";
 export type User = {
     user_id: number,
     username: string,
-    email: string
-}
-
-type newUser = {
-    username: string,
     email: string,
-    password: string
+    password?: string
 }
 
 type UserContextType = {
     user: User,
     loginUser: (email: string, password: string) => Promise<any>
-    registerUser: (user: newUser) => Promise<any>
+    registerUser: (user: User) => Promise<any>
 }
 
 const context = createContext<UserContextType | undefined >(undefined);
@@ -65,7 +60,7 @@ export function UserProvider ({children}: { children: React.ReactNode }) {
     }
 
     // register new user
-    const registerUser = async( newUser: newUser ) => {
+    const registerUser = async( newUser: User ) => {
         try {
             const response = await fetch(`${API_BASE_URL}/auth/register`, 
                 {
