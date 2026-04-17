@@ -1,12 +1,14 @@
 // backend/server.js
 // Express server for Tiny Tasks backend API
-// Author: Miracle Emefiele
+// Author: Miracle Emefiele & Aliyah Adebisi
 
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 const db = require('./config/database');
 const authRoutes = require('./routes/auth');
+const calendarRoutes = require('./routes/calendar');
+
 
 // ── TASK ROUTES ───────────────────────────────────
 const createTask = require('./api/tasks/create');
@@ -46,7 +48,7 @@ const { cacheMiddleware } = require('./middleware/cache');
 // ── GOOGLE AUTH ───────────────────────────────────
 const session = require('express-session');
 const passport = require('passport');
-const googleAuthRoutes = require('./routes/googleAuth');
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -62,15 +64,19 @@ app.use(
     saveUninitialized: false,
   })
 );
+
 app.use(passport.initialize());
 app.use(passport.session());
-// app.use('/auth', googleAuthRoutes);
 app.use('/auth', authRoutes);
+
 
 // ── HEALTH ────────────────────────────────────────
 app.get('/health', (req, res) => {
   res.status(200).json({ success: true, message: 'Tiny Tasks API is running' });
 });
+
+// ── CALENDAR ROUTES ───────────────────────────────
+app.use('/calendar', calendarRoutes);
 
 // ── TASK ENDPOINTS ────────────────────────────────
 app.post('/api/tasks', createTask);
@@ -105,12 +111,33 @@ app.post('/api/sync/queue', addToQueue);
 app.get('/api/sync/queue/:user_id', getPendingQueue);
 app.post('/api/sync/run/:user_id', runAutoSync);
 
+function printRoutes(app) {
+  console.log('\n REGISTERED ROUTES:');
+
+  app._router.stack.forEach((middleware) => {
+    if (middleware.route) {
+      // direct route on app
+      console.log(`${Object.keys(middleware.route.methods).join(',').toUpperCase()} ${middleware.route.path}`);
+    } else if (middleware.name === 'router' && middleware.handle.stack) {
+      middleware.handle.stack.forEach((handler) => {
+        if (handler.route) {
+          const methods = Object.keys(handler.route.methods).join(',').toUpperCase();
+          console.log(`${methods} ${handler.route.path}`);
+        }
+      });
+    }
+  });
+
+  console.log('');
+}
 // ── START SERVER ──────────────────────────────────
 app.listen(PORT, () => {
   console.log('');
   console.log('🚀 TINY TASKS API SERVER STARTED');
   console.log(`   Port: ${PORT}`);
   console.log(`   Health: http://localhost:${PORT}/health`);
+  console.log(`   Google Login: http://localhost:${PORT}/auth/google`);
+  console.log('');
   console.log('');
   console.log('   Task Endpoints:');
   console.log('   POST    /api/tasks');
@@ -144,7 +171,6 @@ app.listen(PORT, () => {
   console.log('   POST    /api/sync/queue');
   console.log('   GET     /api/sync/queue/:user_id');
   console.log('   POST    /api/sync/run/:user_id');
-
   startCleanupJob();
 });
 
